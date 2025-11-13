@@ -64,7 +64,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         damping: 30
                       }}
                       style={{
-                        transform: `translateZ(${topTile.layer * 5}px)`,
+                        transform: `translateZ(${topTile.layer * 15}px)`, // Increased Z-separation
                         zIndex: topTile.layer
                       }}
                     >
@@ -81,7 +81,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         }}
                         style={{
                           transformStyle: "preserve-3d",
-                          transform: `translateZ(${topTile.layer * 5}px) ${selectedTiles.includes(topTile.id) ? "scale(0.95)" : ""}`
+                          transform: `translateZ(${topTile.layer * 15}px) ${selectedTiles.includes(topTile.id) ? "scale(0.95)" : ""}`
                         }}
                       >
                         <div className={`
@@ -92,10 +92,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                             : selectedTiles.includes(topTile.id)
                               ? "border-yellow-500 bg-yellow-200"
                               : topTile.layer === 0
-                                ? "border-indigo-500 bg-white"
+                                ? "border-indigo-500 bg-white" // Base layer
                                 : topTile.layer === 1
-                                  ? "border-purple-500 bg-purple-100"
-                                  : "border-pink-500 bg-pink-100"}
+                                  ? "border-purple-600 bg-purple-200" // Middle layer
+                                  : "border-pink-700 bg-pink-300"} // Top layer
                         `}
                           style={{
                             transform: "translateZ(10px)",
@@ -103,8 +103,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                             background: topTile.layer === 0 
                               ? "linear-gradient(145deg, #ffffff, #e0e0e0)" 
                               : topTile.layer === 1 
-                                ? "linear-gradient(145deg, #f3e5f5, #d1c4e9)" 
-                                : "linear-gradient(145deg, #fce4ec, #f8bbd0)"
+                                ? "linear-gradient(145deg, #e8dcfc, #c7b8f5)" // More distinct purple
+                                : "linear-gradient(145deg, #fcdde9, #f5b8d1)" // More distinct pink
                           }}
                         >
                           <span className="relative z-10">{topTile.emoji}</span>
@@ -119,8 +119,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                               : topTile.layer === 0
                                 ? "bg-indigo-400"
                                 : topTile.layer === 1
-                                  ? "bg-purple-400"
-                                  : "bg-pink-400"}
+                                  ? "bg-purple-500"
+                                  : "bg-pink-600"}
                         `}
                           style={{
                             transform: "rotateX(90deg) translateZ(10px)",
@@ -137,8 +137,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                               : topTile.layer === 0
                                 ? "bg-indigo-600"
                                 : topTile.layer === 1
-                                  ? "bg-purple-600"
-                                  : "bg-pink-600"}
+                                  ? "bg-purple-700"
+                                  : "bg-pink-800"}
                         `}
                           style={{
                             transform: "rotateY(90deg) translateZ(36px)",
