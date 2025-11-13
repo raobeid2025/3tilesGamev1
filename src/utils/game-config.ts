@@ -37,63 +37,58 @@ export interface LevelConfig {
 // Generate levels with geometric patterns
 export const generateLevels = (): LevelConfig[] => {
   const levels: LevelConfig[] = [];
+  const allPatterns: ('X' | 'square' | 'diamond' | 'plus' | 'circle')[] = ['X', 'square', 'diamond', 'plus', 'circle'];
+  let patternIndex = 0;
+
+  const getNextPattern = () => {
+    const pattern = allPatterns[patternIndex % allPatterns.length];
+    patternIndex++;
+    return pattern;
+  };
   
   for (let i = 1; i <= 50; i++) {
-    let gridSize, layers, totalTiles, pattern;
-    
-    if (i <= 5) {
-      // Levels 1-5: X pattern
+    let gridSize: number;
+    let layers: number;
+    let totalTiles: number;
+    let pattern: 'X' | 'square' | 'diamond' | 'plus' | 'circle';
+    const slotSize = 7; // Keep slot size consistent
+
+    if (i <= 4) { // Levels 1-4: Single Layer Intro
       gridSize = 6;
       layers = 1;
-      pattern = 'X';
-      totalTiles = 12; // 4 emojis × 3 copies
-    } else if (i <= 10) {
-      // Levels 6-10: Square pattern
-      gridSize = 6;
-      layers = 1;
-      pattern = 'square';
-      totalTiles = 20; // 5 emojis × 4 copies (but we'll use 3 copies)
-    } else if (i <= 15) {
-      // Levels 11-15: Diamond pattern
-      gridSize = 6;
-      layers = 1;
-      pattern = 'diamond';
-      totalTiles = 16; // 5 emojis × 3 copies + 1 center
-    } else if (i <= 20) {
-      // Levels 16-20: Plus pattern
-      gridSize = 6;
-      layers = 1;
-      pattern = 'plus';
-      totalTiles = 12; // 4 emojis × 3 copies
-    } else if (i <= 25) {
-      // Levels 21-25: Circle pattern
-      gridSize = 6;
-      layers = 1;
-      pattern = 'circle';
-      totalTiles = 15; // 5 emojis × 3 copies
-    } else if (i <= 35) {
-      // Levels 26-35: Multi-layer X pattern
+      pattern = getNextPattern(); // Cycle through patterns
+      if (pattern === 'square') totalTiles = 18; // 6 emojis * 3
+      else if (pattern === 'diamond') totalTiles = 15; // 5 emojis * 3
+      else totalTiles = 12; // 4 emojis * 3 (for X, plus, circle)
+    } else if (i <= 10) { // Levels 5-10: Two Layers Intro
       gridSize = 7;
       layers = 2;
-      pattern = 'X';
-      totalTiles = 24; // 8 emojis × 3 copies
-    } else if (i <= 45) {
-      // Levels 36-45: Multi-layer square pattern
+      pattern = getNextPattern();
+      totalTiles = 24; // 8 emojis * 3
+    } else if (i <= 20) { // Levels 11-20: More Two Layers
       gridSize = 8;
       layers = 2;
-      pattern = 'square';
-      totalTiles = 36; // 12 emojis × 3 copies
-    } else {
-      // Levels 46-50: Multi-layer diamond pattern with more tiles
+      pattern = getNextPattern();
+      totalTiles = 30; // 10 emojis * 3
+    } else if (i <= 30) { // Levels 21-30: Three Layers Intro
+      gridSize = 9;
+      layers = 3;
+      pattern = getNextPattern();
+      totalTiles = 36; // 12 emojis * 3
+    } else if (i <= 40) { // Levels 31-40: More Three Layers
       gridSize = 10;
       layers = 3;
-      pattern = 'diamond';
-      totalTiles = 60; // 20 emojis × 3 copies (increased from 48)
+      pattern = getNextPattern();
+      totalTiles = 45; // 15 emojis * 3
+    } else { // Levels 41-50: Four Layers Challenge
+      gridSize = 11;
+      layers = 4;
+      pattern = getNextPattern();
+      totalTiles = 60; // 20 emojis * 3
     }
     
-    const slotSize = 7;
-    const emojisNeeded = totalTiles / 3;
-    
+    const emojisNeeded = totalTiles / 3; // This will always be an integer now
+
     levels.push({
       id: i,
       name: `Level ${i}`,
