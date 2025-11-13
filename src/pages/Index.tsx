@@ -28,14 +28,14 @@ export default function TileMasterMatch() {
     shufflesLeft,
     currentLevelConfig,
     levelConfigs,
-    peekedTileId, // New: peekedTileId
+    peekedTileId,
     
     isTileBlocked,
-    getTopTileAtPosition,
+    getTopTileAtPosition, // This is no longer passed to TileGameBoard
     handleThemeChange,
     moveToSlot,
     handleSlotTileClick,
-    handleBlockedTileClick, // New: handleBlockedTileClick
+    handleBlockedTileClick,
     handleNextLevel,
     handlePrevLevel,
     handleRestartLevel,
@@ -91,11 +91,10 @@ export default function TileMasterMatch() {
           tiles={tiles}
           currentLevelConfig={currentLevelConfig}
           isTileBlocked={isTileBlocked}
-          getTopTileAtPosition={getTopTileAtPosition}
           moveToSlot={moveToSlot}
           selectedTiles={selectedTiles}
-          peekedTileId={peekedTileId} // Pass peekedTileId
-          handleBlockedTileClick={handleBlockedTileClick} // Pass new handler
+          peekedTileId={peekedTileId}
+          handleBlockedTileClick={handleBlockedTileClick}
         />
 
         <LevelNavigation
