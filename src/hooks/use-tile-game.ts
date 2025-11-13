@@ -72,7 +72,9 @@ export const useTileGame = () => {
     
     const shuffledEmojis = [...allEmojis].sort(() => Math.random() - 0.5);
     
-    const patternPositions = generatePatternPositions(levelConfig.pattern, levelConfig.gridSize);
+    // Pass isFilled parameter to generatePatternPositions
+    const isFilledPattern = levelConfig.layers > 1;
+    const patternPositions = generatePatternPositions(levelConfig.pattern, levelConfig.gridSize, isFilledPattern);
     
     // Create a pool of all possible (row, col, layer) spots
     const availableSpots: { row: number; col: number; layer: number }[] = [];
@@ -291,7 +293,8 @@ export const useTileGame = () => {
       layer: emojisAndLayers[index].layer,
     }));
 
-    const patternPositions = generatePatternPositions(currentLevelConfig.pattern, currentLevelConfig.gridSize);
+    const isFilledPattern = currentLevelConfig.layers > 1; // Determine if pattern should be filled
+    const patternPositions = generatePatternPositions(currentLevelConfig.pattern, currentLevelConfig.gridSize, isFilledPattern);
     const availablePositions: { row: number; col: number; layer: number }[] = [];
     for (let layer = 0; layer < currentLevelConfig.layers; layer++) {
       patternPositions.forEach(pos => {
