@@ -29,6 +29,7 @@ export const useTileGame = () => {
   const [levelSelectOpen, setLevelSelectOpen] = useState(false);
   const [isProcessingSlot, setIsProcessingSlot] = useState(false);
   const [shufflesLeft, setShufflesLeft] = useState(3);
+  const [peekedTileId, setPeekedTileId] = useState<number | null>(null); // New state for peeked tile
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
@@ -116,6 +117,7 @@ export const useTileGame = () => {
     setLevelSelectOpen(false);
     setIsProcessingSlot(false);
     setShufflesLeft(3);
+    setPeekedTileId(null); // Reset peeked tile on new game
   }, [currentLevel, selectedTheme]);
 
   useEffect(() => {
@@ -240,6 +242,12 @@ export const useTileGame = () => {
     }
   };
 
+  // New handler for clicking blocked tiles to peek
+  const handleBlockedTileClick = useCallback((id: number) => {
+    setPeekedTileId(id);
+    setTimeout(() => setPeekedTileId(null), 1500); // Peek for 1.5 seconds
+  }, []);
+
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
@@ -336,12 +344,14 @@ export const useTileGame = () => {
     shufflesLeft,
     currentLevelConfig,
     levelConfigs,
+    peekedTileId, // Export peekedTileId
     
     isTileBlocked,
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
     handleSlotTileClick,
+    handleBlockedTileClick, // Export new handler
     handleNextLevel,
     handlePrevLevel,
     handleRestartLevel,

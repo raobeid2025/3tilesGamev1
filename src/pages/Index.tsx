@@ -28,12 +28,14 @@ export default function TileMasterMatch() {
     shufflesLeft,
     currentLevelConfig,
     levelConfigs,
+    peekedTileId, // New: peekedTileId
     
     isTileBlocked,
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
     handleSlotTileClick,
+    handleBlockedTileClick, // New: handleBlockedTileClick
     handleNextLevel,
     handlePrevLevel,
     handleRestartLevel,
@@ -92,6 +94,8 @@ export default function TileMasterMatch() {
           getTopTileAtPosition={getTopTileAtPosition}
           moveToSlot={moveToSlot}
           selectedTiles={selectedTiles}
+          peekedTileId={peekedTileId} // Pass peekedTileId
+          handleBlockedTileClick={handleBlockedTileClick} // Pass new handler
         />
 
         <LevelNavigation

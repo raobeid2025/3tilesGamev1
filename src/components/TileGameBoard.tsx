@@ -12,6 +12,8 @@ interface TileGameBoardProps {
   getTopTileAtPosition: (row: number, col: number, allTiles: Tile[]) => Tile | null;
   moveToSlot: (id: number) => void;
   selectedTiles: number[];
+  peekedTileId: number | null; // New prop for peeked tile
+  handleBlockedTileClick: (id: number) => void; // New prop for blocked tile click
 }
 
 const TileGameBoard: React.FC<TileGameBoardProps> = ({
@@ -21,6 +23,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   getTopTileAtPosition,
   moveToSlot,
   selectedTiles,
+  peekedTileId, // Destructure new prop
+  handleBlockedTileClick, // Destructure new prop
 }) => {
   return (
     <div className="flex justify-center mb-6">
@@ -35,6 +39,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
           {Array(currentLevelConfig.gridSize).fill(null).map((_, rowIndex) => (
             Array(currentLevelConfig.gridSize).fill(null).map((_, colIndex) => {
               const topTile = getTopTileAtPosition(rowIndex, colIndex, tiles);
+              const blocked = topTile ? isTileBlocked(topTile, tiles) : false;
+              const isPeeked = topTile && peekedTileId === topTile.id;
               
               return (
                 <div 
@@ -71,11 +77,13 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                       <div 
                         className={`
                           relative w-12 h-12 cursor-pointer transform transition-all duration-200
-                          ${isTileBlocked(topTile, tiles) ? "opacity-60 cursor-not-allowed" : "hover:scale-105"}
+                          ${blocked ? "opacity-60 cursor-not-allowed" : "hover:scale-105"}
                           ${selectedTiles.includes(topTile.id) ? "scale-95" : ""}
                         `}
                         onClick={() => {
-                          if (!isTileBlocked(topTile, tiles)) {
+                          if (blocked) {
+                            handleBlockedTileClick(topTile.id); // Call new handler for blocked tiles
+                          } else {
                             moveToSlot(topTile.id);
                           }
                         }}
@@ -87,8 +95,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         <div className={`
                           absolute w-full h-full flex items-center justify-center rounded-lg text-2xl font-bold
                           border-2 transition-all duration-200
-                          ${isTileBlocked(topTile, tiles)
-                            ? "border-gray-500 bg-gray-400" 
+                          ${blocked
+                            ? (isPeeked ? "border-yellow-500 bg-yellow-100" : "border-gray-500 bg-gray-400") // Peeked style
                             : selectedTiles.includes(topTile.id)
                               ? "border-yellow-500 bg-yellow-200"
                               : topTile.layer === 0
@@ -100,20 +108,24 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                           style={{
                             transform: "translateZ(10px)",
                             boxShadow: "0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.3)",
-                            background: topTile.layer === 0 
-                              ? "linear-gradient(145deg, #ffffff, #e0e0e0)" 
-                              : topTile.layer === 1 
-                                ? "linear-gradient(145deg, #e8dcfc, #c7b8f5)" // More distinct purple
-                                : "linear-gradient(145deg, #fcdde9, #f5b8d1)" // More distinct pink
+                            background: blocked && !isPeeked
+                              ? "linear-gradient(145deg, #cccccc, #aaaaaa)" // Darker gradient for blocked
+                              : topTile.layer === 0 
+                                ? "linear-gradient(145deg, #ffffff, #e0e0e0)" 
+                                : topTile.layer === 1 
+                                  ? "linear-gradient(145deg, #e8dcfc, #c7b8f5)" // More distinct purple
+                                  : "linear-gradient(145deg, #fcdde9, #f5b8d1)" // More distinct pink
                           }}
                         >
-                          <span className="relative z-10">{topTile.emoji}</span>
+                          <span className="relative z-10">
+                            {blocked && !isPeeked ? "❓" : topTile.emoji} {/* Show ? if blocked and not peeked */}
+                          </span>
                         </div>
                         
                         <div className={`
                           absolute w-full h-2 rounded-t-lg
-                          ${isTileBlocked(topTile, tiles)
-                            ? "bg-gray-500" 
+                          ${blocked
+                            ? (isPeeked ? "bg-yellow-400" : "bg-gray-500")
                             : selectedTiles.includes(topTile.id)
                               ? "bg-yellow-400"
                               : topTile.layer === 0
@@ -130,8 +142,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         
                         <div className={`
                           absolute h-full w-2 rounded-r-lg
-                          ${isTileBlocked(topTile, tiles)
-                            ? "bg-gray-600" 
+                          ${blocked
+                            ? (isPeeked ? "bg-yellow-600" : "bg-gray-600")
                             : selectedTiles.includes(topTile.id)
                               ? "bg-yellow-600"
                               : topTile.layer === 0
