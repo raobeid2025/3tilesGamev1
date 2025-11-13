@@ -72,24 +72,30 @@ export const useTileGame = () => {
     
     const patternPositions = generatePatternPositions(levelConfig.pattern, levelConfig.gridSize);
     
-    let newTiles: Tile[] = [];
-    let idCounter = 0;
-    
+    // Create a pool of all possible (row, col, layer) spots
+    const availableSpots: { row: number; col: number; layer: number }[] = [];
     for (let layer = 0; layer < levelConfig.layers; layer++) {
       patternPositions.forEach((pos) => {
-        if (idCounter < shuffledEmojis.length) {
-          newTiles.push({
-            id: idCounter++,
-            emoji: shuffledEmojis[idCounter - 1],
-            isMatched: false,
-            isInSlot: false,
-            layer,
-            position: pos,
-            pattern: levelConfig.pattern
-          });
-        }
+        availableSpots.push({ ...pos, layer });
       });
     }
+
+    // Shuffle the available spots and pick 'totalTiles' number of spots
+    const shuffledSpots = availableSpots.sort(() => Math.random() - 0.5);
+    const chosenSpots = shuffledSpots.slice(0, levelConfig.totalTiles);
+
+    let newTiles: Tile[] = [];
+    chosenSpots.forEach((spot, index) => {
+      newTiles.push({
+        id: index, // Assign unique ID
+        emoji: shuffledEmojis[index],
+        isMatched: false,
+        isInSlot: false,
+        layer: spot.layer,
+        position: { row: spot.row, col: spot.col },
+        pattern: levelConfig.pattern
+      });
+    });
     
     setTiles(newTiles);
     setSelectedTiles([]);
