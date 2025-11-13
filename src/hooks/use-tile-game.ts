@@ -59,14 +59,16 @@ export const useTileGame = () => {
 
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
-    const themeEmojis = [...emojiThemes[theme]].slice(0, levelConfig.emojisNeeded);
-    
+    const baseThemeEmojis = emojiThemes[theme]; // All emojis for the selected theme
+
     const allEmojis: string[] = [];
-    themeEmojis.forEach(emoji => {
-      for (let i = 0; i < 3; i++) {
-        allEmojis.push(emoji);
+    // Ensure we have enough emojis for totalTiles, cycling through the theme emojis if needed
+    for (let i = 0; i < levelConfig.emojisNeeded; i++) {
+      const emojiToRepeat = baseThemeEmojis[i % baseThemeEmojis.length];
+      for (let j = 0; j < 3; j++) {
+        allEmojis.push(emojiToRepeat);
       }
-    });
+    }
     
     const shuffledEmojis = [...allEmojis].sort(() => Math.random() - 0.5);
     
@@ -88,7 +90,7 @@ export const useTileGame = () => {
     chosenSpots.forEach((spot, index) => {
       newTiles.push({
         id: index, // Assign unique ID
-        emoji: shuffledEmojis[index],
+        emoji: shuffledEmojis[index], // Assign emoji from the shuffled pool
         isMatched: false,
         isInSlot: false,
         layer: spot.layer,
