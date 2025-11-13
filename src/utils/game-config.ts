@@ -6,7 +6,7 @@ export interface Tile {
   isInSlot?: boolean;
   layer: number;
   position: { row: number; col: number };
-  pattern: 'X' | 'square' | 'diamond' | 'plus' | 'circle';
+  pattern: 'X' | 'square' | 'diamond' | 'plus' | 'circle' | 'concentric-circles' | 'hollow-square' | 'spiral' | 'scattered';
 }
 
 // Game status types
@@ -31,53 +31,105 @@ export interface LevelConfig {
   emojisNeeded: number;
   slotSize: number;
   totalTiles: number;
-  pattern: 'X' | 'square' | 'diamond' | 'plus' | 'circle';
+  pattern: 'X' | 'square' | 'diamond' | 'plus' | 'circle' | 'concentric-circles' | 'hollow-square' | 'spiral' | 'scattered';
 }
 
-// Pattern position generators (Moved this section up)
-export const generatePatternPositions = (pattern: string, gridSize: number, isFilled: boolean) => {
+// Pattern position generators
+export const generatePatternPositions = (pattern: LevelConfig['pattern'], gridSize: number, isFilled: boolean) => {
   const positions: { row: number; col: number }[] = [];
-  
+  const center = Math.floor(gridSize / 2);
+
+  const addUniquePosition = (r: number, c: number) => {
+    if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) {
+      if (!positions.some(p => p.row === r && p.col === c)) {
+        positions.push({ row: r, col: c });
+      }
+    }
+  };
+
   if (isFilled) {
     switch (pattern) {
-      case 'X': // Filled X (like a diamond)
-      case 'diamond': // Already a filled diamond
-        const center = Math.floor(gridSize / 2);
+      case 'X':
+      case 'diamond':
         for (let i = 0; i < gridSize; i++) {
           const distance = Math.abs(i - center);
           for (let j = distance; j < gridSize - distance; j++) {
-            positions.push({ row: i, col: j });
+            addUniquePosition(i, j);
           }
         }
         break;
-      case 'square': // Filled square
+      case 'square':
         for (let r = 0; r < gridSize; r++) {
           for (let c = 0; c < gridSize; c++) {
-            positions.push({ row: r, col: c });
+            addUniquePosition(r, c);
           }
         }
         break;
-      case 'plus': // Filled plus (a solid cross)
+      case 'plus':
         const mid = Math.floor(gridSize / 2);
         for (let r = 0; r < gridSize; r++) {
           for (let c = 0; c < gridSize; c++) {
             if (r === mid || c === mid) {
-              positions.push({ row: r, col: c });
+              addUniquePosition(r, c);
             }
           }
         }
         break;
-      case 'circle': // Filled circle (approximate)
-        const radius = gridSize / 2;
-        const centerX = (gridSize - 1) / 2; // Center of the grid
+      case 'circle':
+      case 'concentric-circles': // Filled concentric circles
+        const maxRadius = gridSize / 2;
+        const centerX = (gridSize - 1) / 2;
         const centerY = (gridSize - 1) / 2;
         for (let r = 0; r < gridSize; r++) {
           for (let c = 0; c < gridSize; c++) {
             const dist = Math.sqrt(Math.pow(r - centerX, 2) + Math.pow(c - centerY, 2));
-            if (dist <= radius + 0.5) { // Add a small buffer for approximation
-              positions.push({ row: r, col: c });
+            if (dist <= maxRadius + 0.5) {
+              addUniquePosition(r, c);
             }
           }
+        }
+        break;
+      case 'hollow-square': // Filled square, but this case is for 'hollow' so it will be handled in else
+        for (let r = 0; r < gridSize; r++) {
+          for (let c = 0; c < gridSize; c++) {
+            addUniquePosition(r, c);
+          }
+        }
+        break;
+      case 'spiral': // Filled spiral (more dense)
+        let r = 0, c = 0;
+        let dr = 0, dc = 1; // Initial direction: right
+        let visited = new Set<string>();
+        let count = 0;
+        let totalCells = gridSize * gridSize;
+
+        while (count < totalCells) {
+          if (r >= 0 && r < gridSize && c >= 0 && c < gridSize && !visited.has(`${r},${c}`)) {
+            addUniquePosition(r, c);
+            visited.add(`${r},${c}`);
+            count++;
+          }
+
+          let nextR = r + dr;
+          let nextC = c + dc;
+
+          if (nextR < 0 || nextR >= gridSize || nextC < 0 || nextC >= gridSize || visited.has(`${nextR},${nextC}`)) {
+            // Change direction
+            if (dr === 0 && dc === 1) { dr = 1; dc = 0; } // Right -> Down
+            else if (dr === 1 && dc === 0) { dr = 0; dc = -1; } // Down -> Left
+            else if (dr === 0 && dc === -1) { dr = -1; dc = 0; } // Left -> Up
+            else if (dr === -1 && dc === 0) { dr = 0; dc = 1; } // Up -> Right
+            nextR = r + dr;
+            nextC = c + dc;
+          }
+          r = nextR;
+          c = nextC;
+        }
+        break;
+      case 'scattered': // Randomly scattered, always "filled" in a sense
+        const numScatteredTiles = Math.floor(gridSize * gridSize * 0.7); // 70% of grid
+        while (positions.length < numScatteredTiles) {
+          addUniquePosition(Math.floor(Math.random() * gridSize), Math.floor(Math.random() * gridSize));
         }
         break;
     }
@@ -85,59 +137,104 @@ export const generatePatternPositions = (pattern: string, gridSize: number, isFi
     switch (pattern) {
       case 'X':
         for (let i = 0; i < gridSize; i++) {
-          positions.push({ row: i, col: i });
+          addUniquePosition(i, i);
           if (i !== gridSize - 1 - i) {
-            positions.push({ row: i, col: gridSize - 1 - i });
+            addUniquePosition(i, gridSize - 1 - i);
           }
         }
         break;
       case 'square':
         for (let i = 0; i < gridSize; i++) {
-          positions.push({ row: 0, col: i }); // Top row
-          positions.push({ row: gridSize - 1, col: i }); // Bottom row
-          positions.push({ row: i, col: 0 }); // Left column
-          positions.push({ row: i, col: gridSize - 1 }); // Right column
+          addUniquePosition(0, i); // Top row
+          addUniquePosition(gridSize - 1, i); // Bottom row
+          addUniquePosition(i, 0); // Left column
+          addUniquePosition(i, gridSize - 1); // Right column
         }
         break;
-      case 'diamond': // This was already a filled diamond, so it's fine here too
-        const center = Math.floor(gridSize / 2);
+      case 'diamond':
         for (let i = 0; i < gridSize; i++) {
           const distance = Math.abs(i - center);
-          for (let j = distance; j < gridSize - distance; j++) {
-            positions.push({ row: i, col: j });
+          addUniquePosition(i, center - distance);
+          if (distance !== 0) {
+            addUniquePosition(i, center + distance);
           }
         }
         break;
       case 'plus':
         const mid = Math.floor(gridSize / 2);
         for (let i = 0; i < gridSize; i++) {
-          positions.push({ row: mid, col: i }); // Horizontal line
-          positions.push({ row: i, col: mid }); // Vertical line
+          addUniquePosition(mid, i); // Horizontal line
+          addUniquePosition(i, mid); // Vertical line
         }
         break;
       case 'circle':
-        // Circle-like pattern (corners and midpoints)
-        positions.push({ row: 0, col: 0 }); // Top-left
-        positions.push({ row: 0, col: gridSize - 1 }); // Top-right
-        positions.push({ row: gridSize - 1, col: 0 }); // Bottom-left
-        positions.push({ row: gridSize - 1, col: gridSize - 1 }); // Bottom-right
-        positions.push({ row: 0, col: Math.floor(gridSize / 2) }); // Top-center
-        positions.push({ row: gridSize - 1, col: Math.floor(gridSize / 2) }); // Bottom-center
-        positions.push({ row: Math.floor(gridSize / 2), col: 0 }); // Left-center
-        positions.push({ row: Math.floor(gridSize / 2), col: gridSize - 1 }); // Right-center
+      case 'concentric-circles': // Outline concentric circles
+        const radii = [Math.floor(gridSize / 2) - 1, Math.floor(gridSize / 2)]; // Two main circles
+        for (let r = 0; r < gridSize; r++) {
+          for (let c = 0; c < gridSize; c++) {
+            const dist = Math.sqrt(Math.pow(r - centerX, 2) + Math.pow(c - centerY, 2));
+            if (radii.some(rad => Math.abs(dist - rad) < 0.8)) { // Check if close to a radius
+              addUniquePosition(r, c);
+            }
+          }
+        }
+        break;
+      case 'hollow-square':
+        for (let r = 0; r < gridSize; r++) {
+          for (let c = 0; c < gridSize; c++) {
+            if (r === 0 || r === gridSize - 1 || c === 0 || c === gridSize - 1) {
+              addUniquePosition(r, c); // Outer border
+            }
+          }
+        }
+        break;
+      case 'spiral': // Sparse spiral
+        let sr = 0, sc = 0;
+        let sdr = 0, sdc = 1;
+        let sVisited = new Set<string>();
+        let sCount = 0;
+        let sMaxTiles = Math.floor(gridSize * gridSize * 0.5); // Fewer tiles for sparse
+
+        while (sCount < sMaxTiles) {
+          if (sr >= 0 && sr < gridSize && sc >= 0 && sc < gridSize && !sVisited.has(`${sr},${sc}`)) {
+            addUniquePosition(sr, sc);
+            sVisited.add(`${sr},${sc}`);
+            sCount++;
+          }
+
+          let sNextR = sr + sdr;
+          let sNextC = sc + sdc;
+
+          if (sNextR < 0 || sNextR >= gridSize || sNextC < 0 || sNextC >= gridSize || sVisited.has(`${sNextR},${sNextC}`)) {
+            if (sdr === 0 && sdc === 1) { sdr = 1; sdc = 0; }
+            else if (sdr === 1 && sdc === 0) { sdr = 0; sdc = -1; }
+            else if (sdr === 0 && sdc === -1) { sdr = -1; sdc = 0; }
+            else if (sdr === -1 && sdc === 0) { sdr = 0; sdc = 1; }
+            sNextR = sr + sdr;
+            sNextC = sc + sdc;
+          }
+          sr = sNextR;
+          sc = sNextC;
+        }
+        break;
+      case 'scattered': // Randomly scattered, always "filled" in a sense
+        const numScatteredTiles = Math.floor(gridSize * gridSize * 0.4); // 40% of grid for sparse
+        while (positions.length < numScatteredTiles) {
+          addUniquePosition(Math.floor(Math.random() * gridSize), Math.floor(Math.random() * gridSize));
+        }
         break;
     }
   }
-  // Remove duplicates for all cases
-  return positions.filter((pos, index, self) => 
-    index === self.findIndex(p => p.row === pos.row && p.col === pos.col)
-  );
+  return positions;
 };
 
 // Generate levels with geometric patterns
 export const generateLevels = (): LevelConfig[] => {
   const levels: LevelConfig[] = [];
-  const allPatterns: ('X' | 'square' | 'diamond' | 'plus' | 'circle')[] = ['X', 'square', 'diamond', 'plus', 'circle'];
+  const allPatterns: LevelConfig['pattern'][] = [
+    'X', 'square', 'diamond', 'plus', 'circle',
+    'concentric-circles', 'hollow-square', 'spiral', 'scattered'
+  ];
   let patternIndex = 0;
 
   const getNextPattern = () => {
@@ -149,53 +246,46 @@ export const generateLevels = (): LevelConfig[] => {
   for (let i = 1; i <= 50; i++) {
     let gridSize: number;
     let layers: number;
-    let pattern: 'X' | 'square' | 'diamond' | 'plus' | 'circle';
+    let pattern: LevelConfig['pattern'];
     const slotSize = 7; // Keep slot size consistent
 
-    if (i <= 4) { // Levels 1-4: Single Layer Intro
+    if (i <= 4) { // Levels 1-4: Single Layer Intro (simple patterns)
       gridSize = 6;
       layers = 1;
-      pattern = getNextPattern(); // Cycle through patterns
-    } else if (i <= 10) { // Levels 5-10: Two Layers Intro
+      pattern = allPatterns[i - 1]; // Use first 4 simple patterns
+    } else if (i <= 10) { // Levels 5-10: Two Layers Intro (mix simple and new)
       gridSize = 7;
       layers = 2;
       pattern = getNextPattern();
-    } else if (i <= 20) { // Levels 11-20: More Two Layers
+    } else if (i <= 20) { // Levels 11-20: More Two Layers, larger grid, more new patterns
       gridSize = 8;
-      layers = 2;
+      layers = 2 + (i % 2); // Alternate between 2 and 3 layers
       pattern = getNextPattern();
-    } else if (i <= 30) { // Levels 21-30: Three Layers Intro
+    } else if (i <= 30) { // Levels 21-30: Three Layers Intro, larger grid
       gridSize = 9;
       layers = 3;
       pattern = getNextPattern();
-    } else if (i <= 40) { // Levels 31-40: More Three Layers
+    } else if (i <= 40) { // Levels 31-40: More Three Layers, even larger grid
       gridSize = 10;
-      layers = 3;
+      layers = 3 + (i % 2); // Alternate between 3 and 4 layers
       pattern = getNextPattern();
-    } else { // Levels 41-50: Four Layers Challenge
+    } else { // Levels 41-50: Four Layers Challenge, max grid size, all patterns
       gridSize = 11;
       layers = 4;
       pattern = getNextPattern();
     }
 
-    // Determine if the pattern should be filled based on layers
     const isFilledPattern = layers > 1;
     const patternPositions = generatePatternPositions(pattern, gridSize, isFilledPattern);
     
-    // Calculate totalTiles based on the number of positions generated by the pattern
-    // Ensure totalTiles is a multiple of 3 and doesn't exceed available spots * layers
     let calculatedTotalTiles = patternPositions.length * layers;
-    // We need to ensure we have enough tiles to make the game challenging but solvable.
-    // Let's aim for a minimum number of unique emoji types.
-    let minEmojisNeeded = 4; // Start with at least 4 unique emojis (12 tiles)
-    if (layers === 2) minEmojisNeeded = 8; // 24 tiles
-    if (layers === 3) minEmojisNeeded = 12; // 36 tiles
-    if (layers === 4) minEmojisNeeded = 15; // 45 tiles
+    let minEmojisNeeded = 4; 
+    if (layers === 2) minEmojisNeeded = 8;
+    if (layers === 3) minEmojisNeeded = 12;
+    if (layers === 4) minEmojisNeeded = 15;
 
     let totalTiles = Math.max(minEmojisNeeded * 3, Math.floor(calculatedTotalTiles / 3) * 3);
-    // Ensure totalTiles doesn't exceed the actual number of available spots * layers
     totalTiles = Math.min(totalTiles, patternPositions.length * layers);
-    // And ensure it's still a multiple of 3
     totalTiles = Math.floor(totalTiles / 3) * 3;
 
     const emojisNeeded = totalTiles / 3;
