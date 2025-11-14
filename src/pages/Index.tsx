@@ -67,7 +67,7 @@ export default function TileMasterMatch() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col items-center justify-evenly px-2 py-2 sm:p-4">
-      <div ref={gameBoardWrapperRef} className="w-full max-w-full sm:max-w-6xl mx-auto flex flex-col items-center gap-4">
+      <div ref={gameBoardWrapperRef} className="w-full max-w-full sm:max-w-6xl mx-auto flex flex-col items-center gap-2">
         {/* Tile Game Controls at the top */}
         <TileGameControls
           moves={moves}
