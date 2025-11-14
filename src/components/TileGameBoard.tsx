@@ -57,12 +57,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   scale: 0,
                   opacity: 0,
                   rotate: tile.isMatched ? 360 : 0,
-                  transition: { duration: 0.15 }
+                  transition: { duration: 0.1 } // Faster exit
                 }}
                 transition={{
                   type: "spring",
-                  stiffness: 600,
-                  damping: 30
+                  stiffness: 800, // Increased stiffness
+                  damping: 40 // Slightly reduced damping
                 }}
                 style={{
                   left: `${tile.position.col * effectiveTileSize + tileSpacing / 2}px`,

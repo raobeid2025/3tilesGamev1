@@ -59,16 +59,16 @@ const TileSlot: React.FC<TileSlotProps> = ({
                     scale: 0, 
                     opacity: 0,
                     rotate: tilesToRemove.includes(tile.id) ? 180 : 0,
-                    transition: { duration: 0.15 }
+                    transition: { duration: 0.1 } // Faster exit
                   }}
                   transition={{ 
                     type: "spring", 
-                    stiffness: 600,
-                    damping: 30,
+                    stiffness: 800, // Increased stiffness
+                    damping: 40, // Slightly reduced damping
                     layout: {
                       type: "spring",
-                      stiffness: 600,
-                      damping: 40
+                      stiffness: 800, // Increased stiffness
+                      damping: 40 // Slightly reduced damping
                     }
                   }}
                 >
