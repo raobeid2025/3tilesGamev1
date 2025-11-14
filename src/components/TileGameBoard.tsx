@@ -103,7 +103,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 layoutId={`tile-${tile.id}`}
                 className="absolute"
                 layout
-                initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
+                // Removed initial prop for faster level loading
                 animate={
                   isThisThePeekedTile || isDisplayingPeek
                     ? { scale: 1, opacity: 1 }
