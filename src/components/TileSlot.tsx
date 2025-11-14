@@ -115,10 +115,16 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                       mass: 1 
                     }
                   }}
-                  exit={{ 
-                    scale: 0, 
+                  exit={tilesToRemove.includes(tile.id) ? {
+                    scale: [1, 1.2, 0], // Scale up slightly then disappear
+                    opacity: [1, 0.8, 0], // Fade out
+                    rotate: [0, 15, -15, 0], // A quick wobble
+                    y: [0, -10, -30], // Move up slightly
+                    transition: { duration: 0.3, ease: "easeOut" }
+                  } : {
+                    // Default exit for other cases (e.g., if a tile is somehow removed not via matching)
+                    scale: 0,
                     opacity: 0,
-                    rotate: tilesToRemove.includes(tile.id) ? 180 : 0,
                     transition: { duration: 0.1 }
                   }}
                   transition={{ 
@@ -170,7 +176,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                       `}
                       style={{
                         width: `${calculatedSlotTileSize}px`,
-                        height: `${calculatedSlotTileSize}px`,
+                        height: `${calculatedTileSize}px`,
                       }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
