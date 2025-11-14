@@ -186,7 +186,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
             </motion.div>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
-              <p>Click tiles to move them here. 3+ same tiles are automatically removed!</p>
+              
             </div>
           )}
         </AnimatePresence>
