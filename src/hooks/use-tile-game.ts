@@ -235,10 +235,8 @@ export const useTileGame = () => {
       setTiles(updatedTiles);
       
       if (newSlotTiles.length >= currentLevelConfig.slotSize) {
-        setTimeout(() => {
-          setGameStatus("lost");
-          setIsProcessingSlot(false);
-        }, 500);
+        setGameStatus("lost"); // Removed setTimeout
+        setIsProcessingSlot(false); // Removed setTimeout
         return;
       }
       
