@@ -39,6 +39,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
   const [calculatedTileSpacing, setCalculatedTileSpacing] = useState(4);
   const [animatedTopLayerTileIds, setAnimatedTopLayerTileIds] = useState<Set<number>>(new Set());
 
+  // Define a small visual offset for layers to create a 3D effect
+  const layerVisualOffset = 2; // pixels per layer
+  const maxLayer = currentLevelConfig.layers - 1;
+
   useEffect(() => {
     const topLayerTiles = tiles.filter(t => t.layer === currentLevelConfig.layers - 1);
     const numToAnimate = Math.ceil(topLayerTiles.length * 0.7); // Animate 70% of top layer tiles
@@ -87,8 +91,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
         <div
           className="relative"
           style={{
-            width: `${currentLevelConfig.gridSize * calculatedTileSize + (currentLevelConfig.gridSize - 1) * calculatedTileSpacing}px`,
-            height: `${currentLevelConfig.gridSize * calculatedTileSize + (currentLevelConfig.gridSize - 1) * calculatedTileSpacing}px`,
+            width: `${currentLevelConfig.gridSize * calculatedTileSize + (currentLevelConfig.gridSize - 1) * calculatedTileSpacing + maxLayer * layerVisualOffset}px`,
+            height: `${currentLevelConfig.gridSize * calculatedTileSize + (currentLevelConfig.gridSize - 1) * calculatedTileSpacing + maxLayer * layerVisualOffset}px`,
           }}
         >
           {sortedTiles.map((tile) => {
@@ -148,8 +152,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                       }
                 }
                 style={{
-                  left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing)}px`,
-                  top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing)}px`,
+                  left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing) + (maxLayer - tile.layer) * layerVisualOffset}px`,
+                  top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing) + (maxLayer - tile.layer) * layerVisualOffset}px`,
                   zIndex: tileZIndex,
                 }}
               >
