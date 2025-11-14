@@ -102,12 +102,12 @@ export const useTileGame = () => {
       .sort((a, b) => b.layer - a.layer); // Sort by layer descending, so the highest layer below is first
   }, []);
 
-  // Determine if there are any tiles that can be peeked (at least one or two layers below, depending on total layers)
+  // Determine if there are any tiles that can be peeked (at least one tile below for multi-layer levels)
   const hasPeekableTiles = useMemo(() => {
-    if (currentLevelConfig.layers === 1) return false; // No layers to peek if only one layer
+    if (currentLevelConfig.layers <= 1) return false; // No layers to peek if one or zero layers
 
-    // For 2-layer levels, we need at least 1 tile below. For 3+ layers, we need at least 2 tiles below.
-    const minTilesBelowForPeek = currentLevelConfig.layers === 2 ? 1 : 2;
+    // For any multi-layer level, we need at least 1 tile below to consider it peekable.
+    const minTilesBelowForPeek = 1; 
 
     for (const tile of tiles) {
       if (!tile.isMatched && !tile.isInSlot && blockedStatusMap.get(tile.id)) {
@@ -454,7 +454,7 @@ export const useTileGame = () => {
   }, [isPeekModeActive, moveToSlot, tiles, getTilesBelow, setPeekUsesLeft, blockedStatusMap]);
 
   const handleActivatePeekMode = useCallback(() => {
-    if (currentLevelConfig.layers === 1) {
+    if (currentLevelConfig.layers <= 1) { // Changed condition to <= 1
       showError("Peek is only available for multi-layer levels!");
       return;
     }
