@@ -48,7 +48,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
         >
           {sortedTiles.map((tile) => {
             const blocked = isTileBlocked(tile, tiles);
-            const isCurrentlyPeeked = peekedTileId === tile.id; // This is the actual bottom tile
             const isDisplayingPeek = peekDisplayTileId === tile.id; // This is the clicked tile that should show the peeked emoji
             
             return (
@@ -117,7 +116,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     }}
                   >
                     <span className="relative z-10">
-                      {isDisplayingPeek && peekedTileEmoji ? peekedTileEmoji : (blocked ? "❓" : tile.emoji)}
+                      {isDisplayingPeek && peekedTileEmoji ? peekedTileEmoji : (blocked ? "" : tile.emoji)}
                     </span>
                   </div>
 
