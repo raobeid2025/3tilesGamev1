@@ -57,7 +57,13 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 className="absolute"
                 layout
                 initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
-                animate={!blocked ? { scale: 1, opacity: 1 } : {}}
+                animate={
+                  isThisThePeekedTile // Explicitly set opacity to 1 for the peeked tile's container
+                    ? { scale: 1, opacity: 1 }
+                    : !blocked
+                      ? { scale: 1, opacity: 1 }
+                      : {} // For other blocked tiles, let inner div handle opacity
+                }
                 exit={{
                   scale: 0,
                   opacity: 0,
