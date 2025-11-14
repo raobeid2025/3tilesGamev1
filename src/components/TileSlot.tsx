@@ -17,7 +17,7 @@ interface TileSlotProps {
   selectedTiles: number[];
 }
 
-const TileSlot: React.FC<TileSlotProps> = ({
+const TileSlot: React.FC<TileSlotProps> = React.memo(({ // Wrapped in React.memo
   slotTiles,
   tilesToRemove,
   vibratingTiles,
@@ -186,6 +186,6 @@ const TileSlot: React.FC<TileSlotProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default TileSlot;

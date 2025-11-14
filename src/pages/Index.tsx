@@ -33,9 +33,10 @@ export default function TileMasterMatch() {
     peekDisplayTileId,
     peekUsesLeft,
     isPeekModeActive,
-    blockingTilesToMove, // Destructure new state
+    blockingTilesToMove,
+    blockedStatusMap, // Destructure new state
     
-    isTileBlocked,
+    // isTileBlocked, // Removed
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
@@ -106,7 +107,8 @@ export default function TileMasterMatch() {
         <TileGameBoard
           tiles={tiles}
           currentLevelConfig={currentLevelConfig}
-          isTileBlocked={isTileBlocked}
+          // isTileBlocked={isTileBlocked} // Removed
+          blockedStatusMap={blockedStatusMap} // Pass new prop
           moveToSlot={moveToSlot}
           selectedTiles={selectedTiles}
           peekedTileId={peekedTileId}

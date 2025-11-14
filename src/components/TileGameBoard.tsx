@@ -8,7 +8,8 @@ import { Tile, LevelConfig } from "@/utils/game-config";
 interface TileGameBoardProps {
   tiles: Tile[];
   currentLevelConfig: LevelConfig;
-  isTileBlocked: (tile: Tile, allTiles: Tile[]) => boolean;
+  // isTileBlocked: (tile: Tile, allTiles: Tile[]) => boolean; // Removed
+  blockedStatusMap: Map<number, boolean>; // New prop
   moveToSlot: (id: number) => void;
   selectedTiles: number[];
   peekedTileId: number | null;
@@ -20,10 +21,11 @@ interface TileGameBoardProps {
   blockingTilesToMove: number[]; // New prop for tiles to move during peek
 }
 
-const TileGameBoard: React.FC<TileGameBoardProps> = ({
+const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({ // Wrapped in React.memo
   tiles,
   currentLevelConfig,
-  isTileBlocked,
+  // isTileBlocked, // Removed
+  blockedStatusMap, // Destructure new prop
   selectedTiles,
   peekedTileId,
   peekedTileEmoji,
@@ -86,7 +88,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
           }}
         >
           {sortedTiles.map((tile) => {
-            const blocked = isTileBlocked(tile, tiles);
+            const blocked = blockedStatusMap.get(tile.id) || false; // Use pre-calculated status
             const isDisplayingPeek = peekDisplayTileId === tile.id;
             const isThisThePeekedTile = peekedTileId === tile.id;
             const isBlockingTileToMove = blockingTilesToMove.includes(tile.id);
@@ -188,6 +190,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default TileGameBoard;

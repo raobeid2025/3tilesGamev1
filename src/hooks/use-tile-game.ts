@@ -35,18 +35,45 @@ export const useTileGame = () => {
   const [peekUsesLeft, setPeekUsesLeft] = useState(3); // Changed from 1 to 3 peeks per level
   const [isPeekModeActive, setIsPeekModeActive] = useState(false);
   const [blockingTilesToMove, setBlockingTilesToMove] = useState<number[]>([]); // New state for tiles to move during peek
+  const [blockedStatusMap, setBlockedStatusMap] = useState<Map<number, boolean>>(new Map()); // New state for pre-calculated blocking status
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
-  // Check if a tile is blocked by another tile
-  const isTileBlocked = useCallback((tile: Tile, allTiles: Tile[]) => {
-    return allTiles.some(t => 
-      t.position.row === tile.position.row && 
-      t.position.col === tile.position.col && 
-      t.layer > tile.layer && 
-      !t.isMatched
-    );
-  }, []);
+  // Effect to pre-calculate blocking status whenever 'tiles' changes
+  useEffect(() => {
+    const newBlockedStatusMap = new Map<number, boolean>();
+    const tilesByPosition = new Map<string, Tile[]>();
+
+    // Group tiles by their grid position
+    tiles.forEach(tile => {
+      const key = `${tile.position.row},${tile.position.col}`;
+      if (!tilesByPosition.has(key)) {
+        tilesByPosition.set(key, []);
+      }
+      tilesByPosition.get(key)?.push(tile);
+    });
+
+    // Determine blocking status for each tile
+    tiles.forEach(tile => {
+      if (tile.isMatched) { // Matched tiles are not blocking and not blocked
+        newBlockedStatusMap.set(tile.id, false);
+        return;
+      }
+
+      const key = `${tile.position.row},${tile.position.col}`;
+      const potentialBlockers = tilesByPosition.get(key);
+
+      if (potentialBlockers) {
+        const isCurrentlyBlocked = potentialBlockers.some(blocker =>
+          blocker.layer > tile.layer && !blocker.isMatched
+        );
+        newBlockedStatusMap.set(tile.id, isCurrentlyBlocked);
+      } else {
+        newBlockedStatusMap.set(tile.id, false);
+      }
+    });
+    setBlockedStatusMap(newBlockedStatusMap);
+  }, [tiles]); // Recalculate when tiles array changes
 
   // Get the top tile at a specific position (not used for rendering, but for logic if needed)
   const getTopTileAtPosition = useCallback((row: number, col: number, allTiles: Tile[]) => {
@@ -195,7 +222,7 @@ export const useTileGame = () => {
     const tile = tiles.find(t => t.id === id);
     if (!tile || tile.isMatched || tile.isInSlot) return;
     
-    if (isTileBlocked(tile, tiles)) return; // Only move if not blocked
+    if (blockedStatusMap.get(tile.id)) return; // Use pre-calculated status
     
     setIsProcessingSlot(true);
     
@@ -302,9 +329,11 @@ export const useTileGame = () => {
   };
 
   // Unified handler for clicking tiles on the game board
-  const handleTileClickOnBoard = useCallback((tileId: number, isBlocked: boolean) => {
+  const handleTileClickOnBoard = useCallback((tileId: number) => { // Removed isBlocked param
     const clickedTile = tiles.find(t => t.id === tileId);
     if (!clickedTile) return;
+
+    const isBlocked = blockedStatusMap.get(tileId) || false; // Get status from map
 
     if (isPeekModeActive) { // Only peek if peek mode is active
       const nextLayerTile = getNextLayerTileAtPosition(clickedTile, tiles);
@@ -366,7 +395,7 @@ export const useTileGame = () => {
       moveToSlot(tileId);
     }
     // If not in peek mode AND blocked, do nothing.
-  }, [isPeekModeActive, moveToSlot, tiles, getNextLayerTileAtPosition, setPeekUsesLeft]);
+  }, [isPeekModeActive, moveToSlot, tiles, getNextLayerTileAtPosition, setPeekUsesLeft, blockedStatusMap]); // Added blockedStatusMap to dependencies
 
   const handleActivatePeekMode = useCallback(() => {
     if (currentLevelConfig.layers === 1) {
@@ -490,8 +519,9 @@ export const useTileGame = () => {
     peekUsesLeft,
     isPeekModeActive,
     blockingTilesToMove, // Expose new state
+    blockedStatusMap, // Expose new state
     
-    isTileBlocked,
+    // isTileBlocked, // Removed
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
