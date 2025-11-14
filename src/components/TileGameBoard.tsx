@@ -37,6 +37,15 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
 
   const [calculatedTileSize, setCalculatedTileSize] = useState(52);
   const [calculatedTileSpacing, setCalculatedTileSpacing] = useState(4);
+  const [animatedTopLayerTileIds, setAnimatedTopLayerTileIds] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const topLayerTiles = tiles.filter(t => t.layer === currentLevelConfig.layers - 1);
+    const numToAnimate = Math.ceil(topLayerTiles.length * 0.7); // Animate 70% of top layer tiles
+    const shuffledTopLayerTiles = [...topLayerTiles].sort(() => Math.random() - 0.5);
+    const idsToAnimate = new Set(shuffledTopLayerTiles.slice(0, numToAnimate).map(t => t.id));
+    setAnimatedTopLayerTileIds(idsToAnimate);
+  }, [tiles, currentLevelConfig.layers]); // Recalculate when tiles or level changes
 
   const calculateSizes = useCallback(() => {
     if (availableWidth > 0) {
@@ -98,6 +107,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
             }
 
             const isTopLayer = tile.layer === currentLevelConfig.layers - 1;
+            const shouldAnimateEntry = isTopLayer && animatedTopLayerTileIds.has(tile.id);
 
             return (
               <motion.div
@@ -105,16 +115,16 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 layoutId={`tile-${tile.id}`}
                 className="absolute"
                 layout
-                initial={isTopLayer ? { y: -50, opacity: 0, scale: 0.8 } : false} // Only top layer animates from initial
+                initial={shouldAnimateEntry ? { y: -50, opacity: 0, scale: 0.8 } : false} // Only selected top layer tiles animate
                 animate={
-                  isTopLayer
-                    ? { // Top layer animates in
+                  shouldAnimateEntry
+                    ? { // Selected top layer tiles animate in
                         y: 0,
                         opacity: blocked ? 0.4 : 1,
                         scale: 1,
                       }
-                    : { // Lower layers appear instantly
-                        y: 0, // Ensure y is at 0
+                    : { // Other tiles appear instantly
+                        y: 0, 
                         opacity: blocked ? 0.4 : 1,
                         scale: 1,
                       }
@@ -126,15 +136,15 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                   transition: { duration: 0.1 }
                 }}
                 transition={
-                  isTopLayer
-                    ? { // Top layer animation
+                  shouldAnimateEntry
+                    ? { // Selected top layer animation
                         type: "spring",
                         stiffness: 900,
                         damping: 45,
                         delay: tile.layer * 0.02 // Staggered delay based on layer
                       }
-                    : { // Lower layers appear instantly
-                        duration: 0 // Instant transition for lower layers
+                    : { // Instant transition for non-animated tiles
+                        duration: 0
                       }
                 }
                 style={{
