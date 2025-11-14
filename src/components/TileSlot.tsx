@@ -38,7 +38,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
       const maxTilesInSlot = currentLevelConfig.slotSize; 
-      const minTileSize = 25; // Minimum size for slot tiles on very small screens
+      const minTileSize = 40; // Increased minimum size for slot tiles on mobile
       const maxTileSize = 64; // Max size for slot tiles (sm:w-16)
       const baseGap = 12; // gap-3 is 12px
 
@@ -84,7 +84,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
           {slotTiles.length}/{currentLevelConfig.slotSize} tiles
         </span>
       </div>
-      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[180px] overflow-y-auto">
+      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[180px] overflow-x-auto overflow-y-hidden"> {/* Changed to overflow-x-auto and overflow-y-hidden */}
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
             <motion.div 
