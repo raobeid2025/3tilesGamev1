@@ -110,15 +110,17 @@ export const useTileGame = () => {
     const minTilesBelowForPeek = 1; 
 
     for (const tile of tiles) {
-      if (!tile.isMatched && !tile.isInSlot && blockedStatusMap.get(tile.id)) {
+      // A tile is "peekable" if it's not matched, not in the slot,
+      // AND it has at least one tile below it.
+      if (!tile.isMatched && !tile.isInSlot) {
         const tilesBelow = getTilesBelow(tile, tiles);
         if (tilesBelow.length >= minTilesBelowForPeek) {
-          return true; // Found at least one peekable tile meeting the criteria
+          return true; // Found at least one tile that can be peeked through
         }
       }
     }
     return false; // No peekable tiles found
-  }, [tiles, blockedStatusMap, currentLevelConfig.layers, getTilesBelow]);
+  }, [tiles, currentLevelConfig.layers, getTilesBelow]); // Removed blockedStatusMap from dependencies
 
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
@@ -386,7 +388,7 @@ export const useTileGame = () => {
     const clickedTile = tiles.find(t => t.id === tileId);
     if (!clickedTile) return;
 
-    const isBlocked = blockedStatusMap.get(tileId) || false;
+    const isBlocked = blockedStatusMap.get(tile.id) || false; // Use the pre-calculated blocked status
 
     if (isPeekModeActive) {
       const tilesBelow = getTilesBelow(clickedTile, tiles);
@@ -454,7 +456,7 @@ export const useTileGame = () => {
   }, [isPeekModeActive, moveToSlot, tiles, getTilesBelow, setPeekUsesLeft, blockedStatusMap]);
 
   const handleActivatePeekMode = useCallback(() => {
-    if (currentLevelConfig.layers <= 1) { // Changed condition to <= 1
+    if (currentLevelConfig.layers <= 1) {
       showError("Peek is only available for multi-layer levels!");
       return;
     }
@@ -464,12 +466,12 @@ export const useTileGame = () => {
     }
     if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
     if (!hasPeekableTiles) { // New check: disable if no peekable tiles
-      showError("No more blocked tiles with multiple layers below to peek!");
+      showError("No tiles available to peek under!"); // Updated error message
       return;
     }
 
     setIsPeekModeActive(true);
-    showSuccess("Peek mode activated! Click any blocked tile with multiple layers below to reveal its deepest hidden tile.");
+    showSuccess("Peek mode activated! Click any tile with hidden layers below to reveal its deepest hidden tile."); // Updated success message
   }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers, hasPeekableTiles]);
 
   useEffect(() => {
