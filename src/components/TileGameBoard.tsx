@@ -11,7 +11,7 @@ interface TileGameBoardProps {
   isTileBlocked: (tile: Tile, allTiles: Tile[]) => boolean;
   moveToSlot: (id: number) => void;
   selectedTiles: number[];
-  // peekedTileId: number | null; // No longer directly used for rendering here
+  peekedTileId: number | null;
   peekedTileEmoji: string | null;
   peekDisplayTileId: number | null;
   isPeekModeActive: boolean;
@@ -23,7 +23,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   currentLevelConfig,
   isTileBlocked,
   selectedTiles,
-  // peekedTileId, // No longer directly used for rendering here
+  peekedTileId,
   peekedTileEmoji,
   peekDisplayTileId,
   isPeekModeActive,
@@ -48,11 +48,11 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
         >
           {sortedTiles.map((tile) => {
             const blocked = isTileBlocked(tile, tiles);
-            const isDisplayingPeek = peekDisplayTileId === tile.id; // This is the clicked tile that should show the peeked emoji
+            const isDisplayingPeek = peekDisplayTileId === tile.id;
             
             return (
               <motion.div
-                key={`tile-container-${tile.id}`} // Unique key for the container
+                key={`tile-container-${tile.id}`}
                 className="absolute"
                 layout
                 initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
@@ -72,7 +72,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   left: `${tile.position.col * effectiveTileSize + tileSpacing / 2}px`,
                   top: `${tile.position.row * effectiveTileSize + tileSpacing / 2}px`,
                   transform: `translateZ(${tile.layer * 15}px)`,
-                  zIndex: tile.layer, // Base zIndex for the container
+                  zIndex: tile.layer,
                 }}
               >
                 {/* Placeholder for the peeked emoji, appears in the original spot */}
@@ -85,7 +85,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
                       transition={{ duration: 0.2 }}
-                      style={{ zIndex: 1 }} // Relative to its parent (the container motion.div)
+                      style={{ zIndex: 1 }}
                     >
                       {peekedTileEmoji}
                     </motion.div>
@@ -94,35 +94,34 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
 
                 {/* The actual tile that moves */}
                 <motion.div
-                  key={`actual-tile-${tile.id}`} // Unique key for the moving tile
+                  key={`actual-tile-${tile.id}`}
                   className={`
                     relative w-12 h-12 cursor-pointer transform transition-all duration-200
                     ${blocked ? "opacity-60 cursor-not-allowed" : ""}
-                    ${selectedTiles.includes(tile.id) ? "scale-95" : ""}
                   `}
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)}
                   style={{
                     transformStyle: "preserve-3d",
-                    // Ensure the moving tile is always on top of the placeholder
-                    zIndex: isDisplayingPeek ? 2 : 1, // 2 for moving tile, 1 for placeholder
+                    zIndex: isDisplayingPeek ? 2 : 1,
+                    transform: `translateZ(${tile.layer * 15}px)` // Base 3D positioning
                   }}
-                  // Animation for lifting the tile
-                  animate={isDisplayingPeek ? { y: -20, x: 10, rotate: 5 } : { y: 0, x: 0, rotate: 0 }}
+                  // Animation for lifting the tile and handling selection scale
+                  animate={isDisplayingPeek 
+                    ? { y: -20, x: 10, rotate: 5, scale: 1 } 
+                    : (selectedTiles.includes(tile.id) ? { scale: 0.95 } : { scale: 1 })}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}} // Only hover if not blocked and not peeking
+                  whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}}
                 >
                   <div className={`
                     absolute w-full h-full flex items-center justify-center rounded-lg text-2xl font-bold
                     border-2 transition-all duration-200
                     ${blocked
                       ? "border-gray-500 bg-gray-400"
-                      : selectedTiles.includes(tile.id)
-                        ? "border-yellow-500 bg-yellow-200"
-                        : tile.layer === 0
-                          ? "border-indigo-500 bg-white"
-                          : tile.layer === 1
-                            ? "border-purple-600 bg-purple-200"
-                            : "border-pink-700 bg-pink-300"}
+                      : tile.layer === 0
+                        ? "border-indigo-500 bg-white"
+                        : tile.layer === 1
+                          ? "border-purple-600 bg-purple-200"
+                          : "border-pink-700 bg-pink-300"}
                   `}
                     style={{
                       transform: "translateZ(10px)",
@@ -183,7 +182,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                       <Check className="text-white" size={24} />
                     </div>
                   )}
-                </div>
+                </motion.div>
               </motion.div>
             );
           })}
