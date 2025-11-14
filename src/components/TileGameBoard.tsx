@@ -51,19 +51,21 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 key={`tile-${tile.id}`}
                 className="absolute"
                 layout
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                // Apply initial/animate only to unblocked tiles
+                initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
+                animate={!blocked ? { scale: 1, opacity: 1 } : {}}
                 exit={{
                   scale: 0,
                   opacity: 0,
                   rotate: tile.isMatched ? 360 : 0,
-                  transition: { duration: 0.1 } // Faster exit
+                  transition: { duration: 0.1 } // Faster exit for all tiles
                 }}
-                transition={{
+                // Apply spring transition only to unblocked tiles, instant for blocked
+                transition={!blocked ? {
                   type: "spring",
                   stiffness: 900, // Slightly increased stiffness
                   damping: 45 // Slightly increased damping
-                }}
+                } : { duration: 0 }} // Instant transition for blocked tiles
                 whileHover={!blocked ? { scale: 1.08, y: -5, zIndex: 100 } : {}} // Enhanced hover effect for unblocked tiles
                 style={{
                   left: `${tile.position.col * effectiveTileSize + tileSpacing / 2}px`,
