@@ -49,6 +49,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
           {sortedTiles.map((tile) => {
             const blocked = isTileBlocked(tile, tiles);
             const isDisplayingPeek = peekDisplayTileId === tile.id;
+            const isThisThePeekedTile = peekedTileId === tile.id;
             
             return (
               <motion.div
@@ -72,7 +73,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   left: `${tile.position.col * effectiveTileSize + tileSpacing / 2}px`,
                   top: `${tile.position.row * effectiveTileSize + tileSpacing / 2}px`,
                   transform: `translateZ(${tile.layer * 15}px)`,
-                  zIndex: tile.layer,
+                  zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : tile.layer), // Ensure peeked tile is visible
                 }}
               >
                 {/* The actual tile that moves */}
@@ -80,17 +81,17 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   key={`actual-tile-${tile.id}`}
                   className={`
                     relative w-12 h-12 cursor-pointer transform transition-all duration-200
-                    ${blocked && !isDisplayingPeek ? "opacity-60 cursor-not-allowed" : ""}
+                    ${(blocked && !isDisplayingPeek && !isThisThePeekedTile) ? "opacity-60 cursor-not-allowed" : ""}
                   `}
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)}
                   style={{
                     transformStyle: "preserve-3d",
-                    zIndex: isDisplayingPeek ? 2 : 1, // Keep zIndex high for the lifting tile
+                    zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1), // Keep zIndex high for the lifting tile
                     transform: `translateZ(${tile.layer * 15}px)` // Base 3D positioning
                   }}
                   // Animation for lifting the tile and handling selection scale
                   animate={isDisplayingPeek 
-                    ? { y: -30, x: 15, rotate: 8, scale: 1, opacity: 1 } // Explicitly set opacity to 1
+                    ? { y: -30, x: 15, rotate: 8, scale: 1, opacity: 1 }
                     : (selectedTiles.includes(tile.id) ? { scale: 0.95 } : { scale: 1 })}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}}
@@ -98,18 +99,19 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   <div className={`
                     absolute w-full h-full flex items-center justify-center rounded-lg text-2xl font-bold
                     border-2 transition-all duration-200
-                    ${blocked
+                    ${(blocked && !isThisThePeekedTile) // Apply blocked styling only if not the peeked tile
                       ? "border-gray-500 bg-gray-400"
                       : tile.layer === 0
                         ? "border-indigo-500 bg-white"
                         : tile.layer === 1
                           ? "border-purple-600 bg-purple-200"
                           : "border-pink-700 bg-pink-300"}
+                    ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""} // Highlight peeked tile
                   `}
                     style={{
                       transform: "translateZ(10px)",
                       boxShadow: "0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.3)",
-                      background: blocked
+                      background: (blocked && !isThisThePeekedTile) // Apply blocked background only if not the peeked tile
                         ? "linear-gradient(145deg, #cccccc, #aaaaaa)"
                         : tile.layer === 0
                           ? "linear-gradient(145deg, #ffffff, #e0e0e0)"
@@ -125,7 +127,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
 
                   <div className={`
                     absolute w-full h-2 rounded-t-lg
-                    ${blocked
+                    ${(blocked && !isThisThePeekedTile)
                       ? "bg-gray-500"
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-400"
@@ -134,6 +136,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                           : tile.layer === 1
                             ? "bg-purple-500"
                             : "bg-pink-600"}
+                    ${isThisThePeekedTile ? "bg-yellow-500" : ""}
                   `}
                     style={{
                       transform: "rotateX(90deg) translateZ(10px)",
@@ -143,7 +146,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
 
                   <div className={`
                     absolute h-full w-2 rounded-r-lg
-                    ${blocked
+                    ${(blocked && !isThisThePeekedTile)
                       ? "bg-gray-600"
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-600"
@@ -152,6 +155,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                           : tile.layer === 1
                             ? "bg-purple-700"
                             : "bg-pink-800"}
+                    ${isThisThePeekedTile ? "bg-yellow-600" : ""}
                   `}
                     style={{
                       transform: "rotateY(90deg) translateZ(36px)",
