@@ -176,7 +176,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                       `}
                       style={{
                         width: `${calculatedSlotTileSize}px`,
-                        height: `${calculatedTileSize}px`,
+                        height: `${calculatedSlotTileSize}px`, {/* Corrected this line */}
                       }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
