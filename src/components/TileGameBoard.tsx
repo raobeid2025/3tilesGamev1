@@ -61,9 +61,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 }}
                 transition={{
                   type: "spring",
-                  stiffness: 800, // Increased stiffness
-                  damping: 40 // Slightly reduced damping
+                  stiffness: 900, // Slightly increased stiffness
+                  damping: 45 // Slightly increased damping
                 }}
+                whileHover={!blocked ? { scale: 1.08, y: -5, zIndex: 100 } : {}} // Enhanced hover effect for unblocked tiles
                 style={{
                   left: `${tile.position.col * effectiveTileSize + tileSpacing / 2}px`,
                   top: `${tile.position.row * effectiveTileSize + tileSpacing / 2}px`,
@@ -74,7 +75,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 <div
                   className={`
                     relative w-12 h-12 cursor-pointer transform transition-all duration-200
-                    ${blocked ? "opacity-60 cursor-not-allowed" : "hover:scale-105"}
+                    ${blocked ? "opacity-60 cursor-not-allowed" : ""}
                     ${selectedTiles.includes(tile.id) ? "scale-95" : ""}
                   `}
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)} // Use the new unified handler
