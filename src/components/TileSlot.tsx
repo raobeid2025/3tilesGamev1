@@ -38,36 +38,37 @@ const TileSlot: React.FC<TileSlotProps> = ({
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
       const maxTilesInSlot = currentLevelConfig.slotSize;
-      const preferredTileSize = 52; // Aim for this size, like game board default
-      const minAcceptableTileSize = 40; // Don't let them shrink below this on mobile before scrolling
+      
+      const maxTileSize = 52; // Max size for slot tiles (matches game board default)
+      const minTileSizeBeforeScroll = 25; // Min size before forcing scroll (matches game board absolute min)
       const baseGap = 12; // gap-3 is 12px
 
-      const newGap = containerWidth < 400 ? 8 : baseGap;
+      const newGap = containerWidth < 400 ? 8 : baseGap; // Smaller gap on very small screens
       setCalculatedGap(newGap);
 
-      // Calculate the total width needed if all tiles were at preferredTileSize
-      const totalPreferredWidth = maxTilesInSlot * preferredTileSize + (maxTilesInSlot - 1) * newGap;
-
-      let newSize;
-      if (totalPreferredWidth <= containerWidth) {
-        // If preferred size fits, use it
-        newSize = preferredTileSize;
-      } else {
-        // If preferred size doesn't fit, calculate the size needed to fit all tiles
-        // but ensure it doesn't go below minAcceptableTileSize
-        newSize = (containerWidth - (maxTilesInSlot - 1) * newGap) / maxTilesInSlot;
-        newSize = Math.max(newSize, minAcceptableTileSize); // Ensure it doesn't go below minAcceptableTileSize
-      }
+      // Calculate the size if all tiles were to fit within the container width
+      let sizeIfAllFit = (containerWidth - (maxTilesInSlot - 1) * newGap) / maxTilesInSlot;
       
-      // Also ensure it doesn't exceed the preferred size if it somehow calculates larger
-      newSize = Math.min(newSize, preferredTileSize);
+      let finalTileSize;
 
-      setCalculatedSlotTileSize(newSize);
+      if (sizeIfAllFit > maxTileSize) {
+        // If calculated size is larger than our desired max, cap it at maxTileSize
+        finalTileSize = maxTileSize;
+      } else if (sizeIfAllFit < minTileSizeBeforeScroll) {
+        // If calculated size is smaller than our desired min, cap it at minTileSizeBeforeScroll
+        // This will cause overflow-x-auto to kick in
+        finalTileSize = minTileSizeBeforeScroll;
+      } else {
+        // Otherwise, the calculated size is within our desired range, use it
+        finalTileSize = sizeIfAllFit;
+      }
+
+      setCalculatedSlotTileSize(finalTileSize);
 
       // Adjust font size based on the new calculated tile size
-      if (newSize >= 50) setSlotEmojiFontSize("text-3xl");
-      else if (newSize >= 40) setSlotEmojiFontSize("text-2xl");
-      else if (newSize >= 30) setSlotEmojiFontSize("text-xl");
+      if (finalTileSize >= 50) setSlotEmojiFontSize("text-3xl");
+      else if (finalTileSize >= 40) setSlotEmojiFontSize("text-2xl");
+      else if (finalTileSize >= 30) setSlotEmojiFontSize("text-xl");
       else setSlotEmojiFontSize("text-lg");
     }
   }, [currentLevelConfig.slotSize]);
