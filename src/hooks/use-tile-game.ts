@@ -425,18 +425,18 @@ export const useTileGame = () => {
     setShufflesLeft(prev => prev - 1);
     showSuccess(`Shuffling tiles! ${shufflesLeft - 1} shuffles left.`);
 
-    const boardTiles = tiles.filter(t => !t.isMatched && !t.isInSlot);
+    // Combine tiles from the board and the slot
+    const allActiveTiles = [
+      ...tiles.filter(t => !t.isMatched), // Tiles still on the board
+      ...slotTiles.map(t => ({ ...t, isInSlot: false })) // Tiles in the slot, reset isInSlot
+    ];
     
-    const emojisAndLayers = boardTiles.map(t => ({ emoji: t.emoji, layer: t.layer }));
-    emojisAndLayers.sort(() => Math.random() - 0.5);
+    // Extract emojis and layers for shuffling
+    const emojisAndLayers = allActiveTiles.map(t => ({ emoji: t.emoji, layer: t.layer }));
+    emojisAndLayers.sort(() => Math.random() - 0.5); // Shuffle emojis and layers
 
-    const shuffledBoardTiles = boardTiles.map((tile, index) => ({
-      ...tile,
-      emoji: emojisAndLayers[index].emoji,
-      layer: emojisAndLayers[index].layer,
-    }));
-
-    const isFilledPattern = currentLevelConfig.layers > 1; // Determine if pattern should be filled
+    // Get all possible pattern positions for the current level
+    const isFilledPattern = currentLevelConfig.layers > 1;
     const patternPositions = generatePatternPositions(currentLevelConfig.pattern, currentLevelConfig.gridSize, isFilledPattern);
     const availablePositions: { row: number; col: number; layer: number }[] = [];
     for (let layer = 0; layer < currentLevelConfig.layers; layer++) {
@@ -444,20 +444,25 @@ export const useTileGame = () => {
         availablePositions.push({ ...pos, layer });
       });
     }
+    availablePositions.sort(() => Math.random() - 0.5); // Shuffle available positions
 
-    availablePositions.sort(() => Math.random() - 0.5);
-
-    const finalShuffledTiles = shuffledBoardTiles.map((tile, index) => {
+    // Reassign shuffled emojis, layers, and new positions to the tiles
+    const newShuffledTiles = allActiveTiles.map((tile, index) => {
+      const newEmojiAndLayer = emojisAndLayers[index % emojisAndLayers.length];
       const newPos = availablePositions[index % availablePositions.length];
       return {
         ...tile,
+        emoji: newEmojiAndLayer.emoji,
+        layer: newEmojiAndLayer.layer,
         position: { row: newPos.row, col: newPos.col },
-        layer: newPos.layer,
+        isInSlot: false, // Ensure all are marked as not in slot
       };
     });
 
-    setTiles(finalShuffledTiles);
+    setTiles(newShuffledTiles);
+    setSlotTiles([]); // Clear the slot after shuffling
     setMoves(moves => moves + 1);
+    setSlotAnimationKey(prev => prev + 1); // Trigger slot animation for clearing
   };
 
   return {
