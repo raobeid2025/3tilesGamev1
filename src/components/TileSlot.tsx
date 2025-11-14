@@ -30,42 +30,36 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
   selectedTiles,
 }) => {
   const slotRef = useRef<HTMLDivElement>(null);
-  const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(52); // Default to match game board default
+  const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(52);
   const [slotEmojiFontSize, setSlotEmojiFontSize] = useState("text-3xl");
-  const [calculatedGap, setCalculatedGap] = useState(12); // Default gap-3
+  const [calculatedGap, setCalculatedGap] = useState(12);
 
   const calculateSlotTileSizes = useCallback(() => {
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
       const maxTilesInSlot = currentLevelConfig.slotSize;
       
-      const maxTileSize = 52; // Max size for slot tiles (matches game board default)
-      const minTileSizeBeforeScroll = 25; // Min size before forcing scroll (matches game board absolute min)
-      const baseGap = 12; // gap-3 is 12px
+      const maxTileSize = 52;
+      const minTileSizeBeforeScroll = 25;
+      const baseGap = 12;
 
-      const newGap = containerWidth < 400 ? 8 : baseGap; // Smaller gap on very small screens
+      const newGap = containerWidth < 400 ? 8 : baseGap;
       setCalculatedGap(newGap);
 
-      // Calculate the size if all tiles were to fit within the container width
       let sizeIfAllFit = (containerWidth - (maxTilesInSlot - 1) * newGap) / maxTilesInSlot;
       
       let finalTileSize;
 
       if (sizeIfAllFit > maxTileSize) {
-        // If calculated size is larger than our desired max, cap it at maxTileSize
         finalTileSize = maxTileSize;
       } else if (sizeIfAllFit < minTileSizeBeforeScroll) {
-        // If calculated size is smaller than our desired min, cap it at minTileSizeBeforeScroll
-        // This will cause overflow-x-auto to kick in
         finalTileSize = minTileSizeBeforeScroll;
       } else {
-        // Otherwise, the calculated size is within our desired range, use it
         finalTileSize = sizeIfAllFit;
       }
 
       setCalculatedSlotTileSize(finalTileSize);
 
-      // Adjust font size based on the new calculated tile size
       if (finalTileSize >= 50) setSlotEmojiFontSize("text-3xl");
       else if (finalTileSize >= 40) setSlotEmojiFontSize("text-2xl");
       else if (finalTileSize >= 30) setSlotEmojiFontSize("text-xl");
@@ -109,6 +103,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
               {slotTiles.map((tile) => (
                 <motion.div
                   key={`slot-${tile.id}`}
+                  layoutId={`tile-${tile.id}`} {/* Added layoutId */}
                   className="relative flex-shrink-0"
                   layout
                   initial={{ scale: 0.5, opacity: 0, y: 50, rotate: -45 }}

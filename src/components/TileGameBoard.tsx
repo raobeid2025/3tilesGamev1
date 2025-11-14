@@ -8,8 +8,7 @@ import { Tile, LevelConfig } from "@/utils/game-config";
 interface TileGameBoardProps {
   tiles: Tile[];
   currentLevelConfig: LevelConfig;
-  // isTileBlocked: (tile: Tile, allTiles: Tile[]) => boolean; // Removed
-  blockedStatusMap: Map<number, boolean>; // New prop
+  blockedStatusMap: Map<number, boolean>;
   moveToSlot: (id: number) => void;
   selectedTiles: number[];
   peekedTileId: number | null;
@@ -17,47 +16,43 @@ interface TileGameBoardProps {
   peekDisplayTileId: number | null;
   isPeekModeActive: boolean;
   handleTileClickOnBoard: (id: number, isBlocked: boolean) => void;
-  availableWidth: number; // New prop for the parent's width
-  blockingTilesToMove: number[]; // New prop for tiles to move during peek
+  availableWidth: number;
+  blockingTilesToMove: number[];
 }
 
-const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({ // Wrapped in React.memo
+const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
   tiles,
   currentLevelConfig,
-  // isTileBlocked, // Removed
-  blockedStatusMap, // Destructure new prop
+  blockedStatusMap,
   selectedTiles,
   peekedTileId,
   peekedTileEmoji,
   peekDisplayTileId,
   isPeekModeActive,
   handleTileClickOnBoard,
-  availableWidth, // Destructure new prop
-  blockingTilesToMove, // Destructure new prop
+  availableWidth,
+  blockingTilesToMove,
 }) => {
-  // Sort tiles by layer to ensure correct z-index rendering (lower layers first)
   const sortedTiles = [...tiles].sort((a, b) => a.layer - b.layer);
 
-  const [calculatedTileSize, setCalculatedTileSize] = useState(52); // Default desktop size
-  const [calculatedTileSpacing, setCalculatedTileSpacing] = useState(4); // Default spacing
+  const [calculatedTileSize, setCalculatedTileSize] = useState(52);
+  const [calculatedTileSpacing, setCalculatedTileSpacing] = useState(4);
 
   const calculateSizes = useCallback(() => {
     if (availableWidth > 0) {
-      // The board container itself has p-2 (8px total padding) and border-4 (8px total border)
-      // These are applied to the inner div, so they reduce the space available for the grid.
-      const boardHorizontalPaddingAndBorder = (2 * 4) + (2 * 4); // p-2 is 4px each side, border-4 is 4px each side
+      const boardHorizontalPaddingAndBorder = (2 * 4) + (2 * 4);
       const effectiveAvailableWidth = availableWidth - boardHorizontalPaddingAndBorder;
 
-      const newTileSpacing = 4; // Keep spacing consistent
+      const newTileSpacing = 4;
       const totalSpacingWidth = (currentLevelConfig.gridSize - 1) * newTileSpacing;
       
       let newTileSize = Math.floor((effectiveAvailableWidth - totalSpacingWidth) / currentLevelConfig.gridSize);
       
-      const minTileSize = 25; // Minimum tile size for usability
-      const maxTileSize = 60; // Maximum tile size to prevent excessive growth on large screens
+      const minTileSize = 25;
+      const maxTileSize = 60;
 
-      newTileSize = Math.max(newTileSize, minTileSize); // Ensure it doesn't go below min
-      newTileSize = Math.min(newTileSize, maxTileSize); // Ensure it doesn't exceed max
+      newTileSize = Math.max(newTileSize, minTileSize);
+      newTileSize = Math.min(newTileSize, maxTileSize);
       
       setCalculatedTileSize(newTileSize);
       setCalculatedTileSpacing(newTileSpacing);
@@ -65,14 +60,14 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({ // Wrapped in 
   }, [availableWidth, currentLevelConfig.gridSize]);
 
   useEffect(() => {
-    calculateSizes(); // Recalculate when availableWidth or gridSize changes
+    calculateSizes();
   }, [calculateSizes]);
 
   const getEmojiFontSize = (size: number) => {
-    if (size >= 50) return "text-3xl"; // 30px
-    if (size >= 40) return "text-2xl"; // 24px
-    if (size >= 30) return "text-xl";  // 20px
-    return "text-lg"; // 18px
+    if (size >= 50) return "text-3xl";
+    if (size >= 40) return "text-2xl";
+    if (size >= 30) return "text-xl";
+    return "text-lg";
   };
 
   return (
@@ -88,23 +83,24 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({ // Wrapped in 
           }}
         >
           {sortedTiles.map((tile) => {
-            const blocked = blockedStatusMap.get(tile.id) || false; // Use pre-calculated status
+            const blocked = blockedStatusMap.get(tile.id) || false;
             const isDisplayingPeek = peekDisplayTileId === tile.id;
             const isThisThePeekedTile = peekedTileId === tile.id;
             const isBlockingTileToMove = blockingTilesToMove.includes(tile.id);
             
             let tileZIndex = tile.layer;
             if (isThisThePeekedTile) {
-              tileZIndex = 100; // Highest z-index for the actual peeked tile
+              tileZIndex = 100;
             } else if (isDisplayingPeek) {
-              tileZIndex = 90; // Z-index for the clicked tile that moves up
+              tileZIndex = 90;
             } else if (isBlockingTileToMove) {
-              tileZIndex = 80; // Z-index for other blocking tiles that move aside
+              tileZIndex = 80;
             }
 
             return (
               <motion.div
                 key={`tile-container-${tile.id}`}
+                layoutId={`tile-${tile.id}`} {/* Added layoutId */}
                 className="absolute"
                 layout
                 initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
@@ -129,10 +125,9 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({ // Wrapped in 
                 style={{
                   left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing)}px`,
                   top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing)}px`,
-                  zIndex: tileZIndex, // Use calculated z-index
+                  zIndex: tileZIndex,
                 }}
               >
-                {/* The actual tile that moves */}
                 <motion.div
                   key={`actual-tile-${tile.id}`}
                   className={`
@@ -147,18 +142,17 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({ // Wrapped in 
                   }}
                   animate={
                     isThisThePeekedTile
-                      ? { y: 0, x: 0, scale: 1.1 } // Peeked tile might slightly scale up
-                      : isDisplayingPeek // The clicked tile, moves up
+                      ? { y: 0, x: 0, scale: 1.1 }
+                      : isDisplayingPeek
                         ? { y: -30, scale: 1 }
-                        : isBlockingTileToMove // Other blocking tiles, move slightly up and side
-                          ? { y: -15, x: tile.id % 2 === 0 ? -15 : 15, scale: 0.9 } // Alternate left/right
+                        : isBlockingTileToMove
+                          ? { y: -15, x: tile.id % 2 === 0 ? -15 : 15, scale: 0.9 }
                           : selectedTiles.includes(tile.id)
                             ? { scale: 0.95 }
                             : { scale: 1 }
                   }
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
-                  {/* Front Face (Emoji) */}
                   <div className={`
                     absolute w-full h-full flex items-center justify-center rounded-lg ${getEmojiFontSize(calculatedTileSize)} font-bold
                     border-2 transition-all duration-200
