@@ -35,6 +35,7 @@ export default function TileMasterMatch() {
     isPeekModeActive,
     blockingTilesToMove,
     blockedStatusMap,
+    hasPeekableTiles, // Destructure new prop
     
     getTopTileAtPosition,
     handleThemeChange,
@@ -84,6 +85,7 @@ export default function TileMasterMatch() {
           isProcessingSlot={isProcessingSlot}
           isPeekModeActive={isPeekModeActive}
           currentLevelConfig={currentLevelConfig}
+          hasPeekableTiles={hasPeekableTiles} // Pass new prop
         />
 
         {/* Game Board */}

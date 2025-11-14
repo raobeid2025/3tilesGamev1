@@ -27,6 +27,7 @@ interface TileGameControlsProps {
   isProcessingSlot: boolean;
   isPeekModeActive: boolean; // New prop
   currentLevelConfig: LevelConfig; // Added to check layers
+  hasPeekableTiles: boolean; // New prop
 }
 
 const TileGameControls: React.FC<TileGameControlsProps> = ({
@@ -44,8 +45,9 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
   isProcessingSlot,
   isPeekModeActive, // Destructure new prop
   currentLevelConfig, // Destructure new prop
+  hasPeekableTiles, // Destructure new prop
 }) => {
-  const isPeekDisabled = peekUsesLeft <= 0 || isPeekModeActive || gameStatus !== "playing" || isChecking || isProcessingSlot || currentLevelConfig.layers === 1;
+  const isPeekDisabled = peekUsesLeft <= 0 || isPeekModeActive || gameStatus !== "playing" || isChecking || isProcessingSlot || currentLevelConfig.layers === 1 || !hasPeekableTiles;
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-white rounded-xl shadow-md p-4">

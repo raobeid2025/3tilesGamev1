@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react"; // Import useMemo
 import { showSuccess, showError } from "@/utils/toast";
 import { 
   Tile, 
@@ -106,6 +106,22 @@ export const useTileGame = () => {
       current.layer > (prev?.layer || -1) ? current : prev
     );
   }, []);
+
+  // Determine if there are any tiles that can be peeked
+  const hasPeekableTiles = useMemo(() => {
+    if (currentLevelConfig.layers === 1) return false; // No layers to peek if only one layer
+
+    for (const tile of tiles) {
+      if (!tile.isMatched && !tile.isInSlot && blockedStatusMap.get(tile.id)) {
+        // This tile is blocked. Now check if there's a tile below it.
+        const nextLayerTile = getNextLayerTileAtPosition(tile, tiles);
+        if (nextLayerTile) {
+          return true; // Found at least one peekable tile
+        }
+      }
+    }
+    return false; // No peekable tiles found
+  }, [tiles, blockedStatusMap, currentLevelConfig.layers, getNextLayerTileAtPosition]);
 
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
@@ -448,10 +464,14 @@ export const useTileGame = () => {
       return;
     }
     if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
+    if (!hasPeekableTiles) { // New check: disable if no peekable tiles
+      showError("No more blocked tiles to peek!");
+      return;
+    }
 
     setIsPeekModeActive(true);
     showSuccess("Peek mode activated! Click any blocked tile to reveal its next layer tile.");
-  }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers]);
+  }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers, hasPeekableTiles]);
 
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
@@ -561,6 +581,7 @@ export const useTileGame = () => {
     isPeekModeActive,
     blockingTilesToMove, // Expose new state
     blockedStatusMap, // Expose new state
+    hasPeekableTiles, // Expose new state
     
     // isTileBlocked, // Removed
     getTopTileAtPosition,
