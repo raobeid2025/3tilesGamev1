@@ -37,21 +37,22 @@ const TileSlot: React.FC<TileSlotProps> = ({
   const calculateSlotTileSizes = useCallback(() => {
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
-      const maxTilesInRow = currentLevelConfig.slotSize; 
-      const minTileSize = 25; // Minimum size for slot tiles on very small screens (reduced from 30)
+      const maxTilesInSlot = currentLevelConfig.slotSize; 
+      const minTileSize = 25; // Minimum size for slot tiles on very small screens
       const maxTileSize = 64; // Max size for slot tiles (sm:w-16)
       const baseGap = 12; // gap-3 is 12px
 
       // Adjust gap based on screen size, smaller gap for smaller screens
-      const newGap = containerWidth < 400 ? 8 : baseGap; // Use 8px gap for screens < 400px
+      const newGap = containerWidth < 400 ? 8 : baseGap; 
       setCalculatedGap(newGap);
 
-      // Calculate how many tiles can fit in a row
-      let tilesPerRow = Math.floor((containerWidth + newGap) / (minTileSize + newGap));
-      tilesPerRow = Math.max(1, Math.min(tilesPerRow, maxTilesInRow)); // Ensure at least 1 tile, max slotSize
-
-      let newSize = (containerWidth - (tilesPerRow - 1) * newGap) / tilesPerRow;
-      newSize = Math.max(minTileSize, Math.min(newSize, maxTileSize)); // Clamp between min and max
+      // Calculate tile size assuming all maxTilesInSlot need to fit on one line
+      // This will force shrinking rather than wrapping
+      let newSize = (containerWidth - (maxTilesInSlot - 1) * newGap) / maxTilesInSlot;
+      
+      // Clamp between min and max, but prioritize fitting all tiles
+      newSize = Math.max(minTileSize, newSize); // Ensure it doesn't go below minTileSize
+      newSize = Math.min(maxTileSize, newSize); // Ensure it doesn't exceed maxTileSize
 
       setCalculatedSlotTileSize(newSize);
 
@@ -88,7 +89,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
           {slotTiles.length > 0 ? (
             <motion.div 
               key={slotAnimationKey}
-              className="flex flex-wrap h-full"
+              className="flex flex-nowrap h-full" // Changed to flex-nowrap
               style={{ gap: `${calculatedGap}px` }}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
@@ -98,7 +99,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
               {slotTiles.map((tile) => (
                 <motion.div
                   key={`slot-${tile.id}`}
-                  className="relative"
+                  className="relative flex-shrink-0" // Added flex-shrink-0
                   layout
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
