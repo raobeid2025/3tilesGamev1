@@ -39,9 +39,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
 
   const calculateSizes = useCallback(() => {
     if (availableWidth > 0) {
-      // The board container itself has p-2 (8px total padding: 4px left, 4px right)
-      const boardContainerPadding = 2 * 4; 
-      const effectiveAvailableWidth = availableWidth - boardContainerPadding;
+      // The board container itself has p-2 (8px total padding) and border-4 (8px total border)
+      // These are applied to the inner div, so they reduce the space available for the grid.
+      const boardHorizontalPaddingAndBorder = (2 * 4) + (2 * 4); // p-2 is 4px each side, border-4 is 4px each side
+      const effectiveAvailableWidth = availableWidth - boardHorizontalPaddingAndBorder;
 
       const newTileSpacing = 4; // Keep spacing consistent
       const totalSpacingWidth = (currentLevelConfig.gridSize - 1) * newTileSpacing;
