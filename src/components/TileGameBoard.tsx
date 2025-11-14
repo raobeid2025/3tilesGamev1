@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { Tile, LevelConfig } from "@/utils/game-config";
@@ -32,21 +32,65 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   // Sort tiles by layer to ensure correct z-index rendering (lower layers first)
   const sortedTiles = [...tiles].sort((a, b) => a.layer - b.layer);
 
-  const tileSize = 52; // Base size of a tile
-  const tileSpacing = 4; // Gap between tiles (approx 0.5rem)
-  const effectiveTileSize = tileSize + tileSpacing; // Total space a tile occupies
+  const boardRef = useRef<HTMLDivElement>(null);
+  const [calculatedTileSize, setCalculatedTileSize] = useState(52); // Default desktop size
+  const [calculatedTileSpacing, setCalculatedTileSpacing] = useState(4); // Default spacing
+
+  const tileDepth = 6; // Fixed depth for the 3D effect
+
+  const calculateSizes = useCallback(() => {
+    if (boardRef.current) {
+      const containerWidth = boardRef.current.offsetWidth;
+      // Max board width for larger screens, otherwise use container width
+      const maxBoardWidth = Math.min(containerWidth, 600); 
+      
+      const newTileSpacing = 4; // Keep spacing consistent
+      const availableWidthForTiles = maxBoardWidth - (currentLevelConfig.gridSize - 1) * newTileSpacing;
+      let newTileSize = Math.floor(availableWidthForTiles / currentLevelConfig.gridSize);
+      
+      // Ensure a minimum tile size for usability
+      newTileSize = Math.max(newTileSize, 30); 
+      
+      setCalculatedTileSize(newTileSize);
+      setCalculatedTileSpacing(newTileSpacing);
+    }
+  }, [currentLevelConfig.gridSize]);
+
+  useEffect(() => {
+    calculateSizes(); // Initial calculation
+
+    const resizeObserver = new ResizeObserver(calculateSizes);
+    if (boardRef.current) {
+      resizeObserver.observe(boardRef.current);
+    }
+
+    return () => {
+      if (boardRef.current) {
+        resizeObserver.unobserve(boardRef.current);
+      }
+    };
+  }, [calculateSizes]);
+
+  const effectiveTileSize = calculatedTileSize + calculatedTileSpacing;
+
+  const getEmojiFontSize = (size: number) => {
+    if (size >= 50) return "text-3xl";
+    if (size >= 40) return "text-2xl";
+    return "text-xl";
+  };
 
   return (
-    <div className="flex justify-center mb-6">
+    <div className="flex justify-center mb-6 w-full px-2 sm:px-4"> {/* Added w-full and padding for responsiveness */}
       <div 
+        ref={boardRef} // Attach ref here
         className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl p-2 shadow-2xl relative overflow-hidden border-4 border-indigo-200"
-        style={{ perspective: '1000px' }} // Added perspective to the board
+        style={{ perspective: '1000px' }}
       >
         <div
           className="relative"
           style={{
-            width: `${currentLevelConfig.gridSize * effectiveTileSize}px`,
-            height: `${currentLevelConfig.gridSize * effectiveTileSize}px`,
+            width: `${currentLevelConfig.gridSize * effectiveTileSize - calculatedTileSpacing}px`, // Adjust total width
+            height: `${currentLevelConfig.gridSize * effectiveTileSize - calculatedTileSpacing}px`, // Adjust total height
           }}
         >
           {sortedTiles.map((tile) => {
@@ -61,11 +105,11 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 layout
                 initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
                 animate={
-                  isThisThePeekedTile || isDisplayingPeek // If it's the peeked tile OR the tile moving for peek
-                    ? { scale: 1, opacity: 1 } // It should be fully opaque
+                  isThisThePeekedTile || isDisplayingPeek
+                    ? { scale: 1, opacity: 1 }
                     : blocked
-                      ? { scale: 1, opacity: 0.6 } // If blocked and not involved in peek, 60% opacity
-                      : { scale: 1, opacity: 1 } // Otherwise (unblocked), fully opaque
+                      ? { scale: 1, opacity: 0.6 }
+                      : { scale: 1, opacity: 1 }
                 }
                 exit={{
                   scale: 0,
@@ -79,31 +123,32 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   damping: 45
                 } : { duration: 0 }}
                 style={{
-                  left: `${tile.position.col * effectiveTileSize + tileSpacing / 2}px`,
-                  top: `${tile.position.row * effectiveTileSize + tileSpacing / 2}px`,
+                  left: `${tile.position.col * effectiveTileSize}px`,
+                  top: `${tile.position.row * effectiveTileSize}px`,
                   transform: `translateZ(${tile.layer * 15}px)`,
-                  zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : tile.layer), // Ensure peeked tile is visible
+                  zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : tile.layer),
                 }}
               >
                 {/* The actual tile that moves */}
                 <motion.div
                   key={`actual-tile-${tile.id}`}
                   className={`
-                    relative w-12 h-12 cursor-pointer transform
+                    relative cursor-pointer transform
                     ${(blocked && !isDisplayingPeek && !isThisThePeekedTile) ? "cursor-not-allowed" : ""}
                   `}
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)}
                   style={{
+                    width: `${calculatedTileSize}px`,
+                    height: `${calculatedTileSize}px`,
                     transformStyle: "preserve-3d",
-                    transformOrigin: "center center -2px", // Set transform origin for 3D rotation (assuming 4px depth)
-                    zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1), // Keep zIndex high for the lifting tile
+                    transformOrigin: `center center -${tileDepth / 2}px`, // Set transform origin for 3D rotation
+                    zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1),
                   }}
-                  // Animation for lifting the tile and handling selection scale (opacity handled by parent)
                   animate={isDisplayingPeek 
-                    ? { y: -30, x: 15, rotate: 8, scale: 1 } // Only position/rotation/scale for moving tile
+                    ? { y: -30, x: 15, rotate: 8, scale: 1 }
                     : selectedTiles.includes(tile.id) 
-                      ? { scale: 0.95 } // Only scale for selected tiles
-                      : { scale: 1 }} // Default scale
+                      ? { scale: 0.95 }
+                      : { scale: 1 }}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   whileHover={!blocked && !isDisplayingPeek 
                     ? { 
@@ -118,27 +163,26 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 >
                   {/* Front Face (Emoji) */}
                   <div className={`
-                    absolute w-full h-full flex items-center justify-center rounded-lg text-2xl font-bold
+                    absolute w-full h-full flex items-center justify-center rounded-lg ${getEmojiFontSize(calculatedTileSize)} font-bold
                     border-2 transition-all duration-200
-                    ${(blocked && !isThisThePeekedTile) // Apply blocked styling only if not the peeked tile
+                    ${(blocked && !isThisThePeekedTile)
                       ? "border-gray-500 bg-gray-400"
                       : tile.layer === 0
                         ? "border-indigo-500 bg-white"
                         : tile.layer === 1
                           ? "border-purple-600 bg-purple-200"
                           : "border-pink-700 bg-pink-300"}
-                    ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""} // Highlight peeked tile
+                    ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""}
                   `}
                     style={{
-                      transform: "translateZ(2px)", // Adjusted translateZ for 4px depth
-                      // Removed boxShadow
-                      background: (blocked && !isThisThePeekedTile) // Apply blocked background only if not the peeked tile
-                        ? "#a0a0a0" // Solid gray for blocked
+                      transform: `translateZ(${tileDepth / 2}px)`,
+                      background: (blocked && !isThisThePeekedTile)
+                        ? "#a0a0a0"
                         : tile.layer === 0
-                          ? "#ffffff" // Solid white
+                          ? "#ffffff"
                           : tile.layer === 1
-                            ? "#e8dcfc" // Solid light purple
-                            : "#fcdde9" // Solid light pink
+                            ? "#e8dcfc"
+                            : "#fcdde9"
                     }}
                   >
                     <span className="relative z-10">
@@ -148,47 +192,43 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
 
                   {/* Top Face */}
                   <div className={`
-                    absolute w-full h-2 rounded-t-lg
+                    absolute w-full rounded-t-lg
                     ${(blocked && !isThisThePeekedTile)
                       ? "bg-gray-500"
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-400"
                         : tile.layer === 0
-                          ? "bg-indigo-400" // Slightly darker indigo for top
-                          : tile.layer === 1
-                            ? "bg-purple-400" // Slightly darker purple for top
-                            : "bg-pink-500"} // Slightly darker pink for top
+                          ? "bg-indigo-400"
+                          : "bg-purple-500"}
                     ${isThisThePeekedTile ? "bg-yellow-500" : ""}
                   `}
                     style={{
-                      transform: "rotateX(90deg) translateY(-24px) translateZ(2px)", // Adjusted for 4px depth (48px tile height / 2 = 24px)
-                      // Removed boxShadow
+                      height: `${tileDepth}px`,
+                      transform: `rotateX(90deg) translateY(${calculatedTileSize / -2 + tileDepth / 2}px) translateZ(${tileDepth / 2}px)`,
                     }}
                   ></div>
 
                   {/* Right Face */}
                   <div className={`
-                    absolute h-full w-2 rounded-r-lg
+                    absolute h-full rounded-r-lg
                     ${(blocked && !isThisThePeekedTile)
                       ? "bg-gray-600"
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-600"
                         : tile.layer === 0
-                          ? "bg-indigo-600" // Even darker indigo for right
-                          : tile.layer === 1
-                            ? "bg-purple-600" // Even darker purple for right
-                            : "bg-pink-700"} // Even darker pink for right
+                          ? "bg-indigo-600"
+                          : "bg-purple-700"}
                     ${isThisThePeekedTile ? "bg-yellow-600" : ""}
                   `}
                     style={{
-                      transform: "rotateY(90deg) translateX(24px) translateZ(2px)", // Adjusted for 4px depth (48px tile width / 2 = 24px)
-                      // Removed boxShadow
+                      width: `${tileDepth}px`,
+                      transform: `rotateY(90deg) translateX(${calculatedTileSize / 2 - tileDepth / 2}px) translateZ(${tileDepth / 2}px)`,
                     }}
                   ></div>
 
                   {tile.isMatched && (
                     <div className="absolute inset-0 bg-green-500 bg-opacity-60 flex items-center justify-center rounded-lg"
-                      style={{ transform: "translateZ(15px)" }}>
+                      style={{ transform: `translateZ(${tileDepth + 5}px)` }}> {/* Ensure checkmark is above faces */}
                       <Check className="text-white" size={24} />
                     </div>
                   )}
