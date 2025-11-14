@@ -81,7 +81,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   key={`actual-tile-${tile.id}`}
                   className={`
                     relative w-12 h-12 cursor-pointer transform transition-all duration-200
-                    ${(blocked && !isDisplayingPeek && !isThisThePeekedTile) ? "opacity-60 cursor-not-allowed" : ""}
+                    ${(blocked && !isDisplayingPeek && !isThisThePeekedTile) ? "cursor-not-allowed" : ""}
                   `}
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)}
                   style={{
@@ -91,8 +91,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   }}
                   // Animation for lifting the tile and handling selection scale
                   animate={isDisplayingPeek 
-                    ? { y: -30, x: 15, rotate: 8, scale: 1, opacity: 1 }
-                    : (selectedTiles.includes(tile.id) ? { scale: 0.95 } : { scale: 1 })}
+                    ? { y: -30, x: 15, rotate: 8, scale: 1, opacity: 1 } // Top tile moving: full opacity
+                    : isThisThePeekedTile
+                      ? { scale: 1, opacity: 1 } // Bottom tile revealed: full opacity
+                      : blocked
+                        ? { scale: 1, opacity: 0.6 } // Blocked, not peeked: 60% opacity
+                        : (selectedTiles.includes(tile.id) ? { scale: 0.95, opacity: 1 } : { scale: 1, opacity: 1 })} // Normal/selected: full opacity
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}}
                 >
