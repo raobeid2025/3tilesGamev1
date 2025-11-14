@@ -103,7 +103,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
               {slotTiles.map((tile) => (
                 <motion.div
                   key={`slot-${tile.id}`}
-                  layoutId={`tile-${tile.id}`} {/* Added layoutId */}
+                  layoutId={`tile-${tile.id}`}
                   className="relative flex-shrink-0"
                   layout
                   initial={{ scale: 0.5, opacity: 0, y: 50, rotate: -45 }}

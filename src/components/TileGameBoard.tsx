@@ -100,7 +100,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
             return (
               <motion.div
                 key={`tile-container-${tile.id}`}
-                layoutId={`tile-${tile.id}`} {/* Added layoutId */}
+                layoutId={`tile-${tile.id}`}
                 className="absolute"
                 layout
                 initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
