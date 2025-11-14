@@ -60,6 +60,21 @@ export const useTileGame = () => {
     );
   }, []);
 
+  // Get the bottom tile at a specific position
+  const getBottomTileAtPosition = useCallback((row: number, col: number, allTiles: Tile[]) => {
+    const tilesAtPosition = allTiles.filter(t =>
+      t.position.row === row &&
+      t.position.col === col &&
+      !t.isMatched
+    );
+
+    if (tilesAtPosition.length === 0) return null;
+
+    return tilesAtPosition.reduce((bottom, current) =>
+      current.layer < (bottom?.layer || Infinity) ? current : bottom
+    );
+  }, []);
+
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
     const baseThemeEmojis = emojiThemes[theme];
@@ -280,21 +295,25 @@ export const useTileGame = () => {
 
   // Unified handler for clicking tiles on the game board
   const handleTileClickOnBoard = useCallback((tileId: number, isBlocked: boolean) => {
-    if (isPeekModeActive) {
-      setPeekedTileId(tileId);
-      setTimeout(() => setPeekedTileId(null), 1500);
-      setIsPeekModeActive(false); // Deactivate after one peek
-      setPeekUsesLeft(prev => prev - 1); // Decrement peek uses
-      showSuccess("Peek used!");
-    } else if (isBlocked) {
-      // Default peek for blocked tiles without consuming a "peek use"
-      setPeekedTileId(tileId);
-      setTimeout(() => setPeekedTileId(null), 1500);
+    const clickedTile = tiles.find(t => t.id === tileId);
+    if (!clickedTile) return;
+
+    if (isPeekModeActive || isBlocked) { // Both peek mode and default blocked tile click
+      const bottomTile = getBottomTileAtPosition(clickedTile.position.row, clickedTile.position.col, tiles);
+      if (bottomTile) {
+        setPeekedTileId(bottomTile.id);
+        setTimeout(() => setPeekedTileId(null), 5000); // 5 seconds
+        if (isPeekModeActive) {
+          setIsPeekModeActive(false); // Deactivate after one peek
+          setPeekUsesLeft(prev => prev - 1); // Decrement peek uses
+          showSuccess("Peek used!");
+        }
+      }
     } else {
       // If not in peek mode and not blocked, move to slot
       moveToSlot(tileId);
     }
-  }, [isPeekModeActive, moveToSlot]);
+  }, [isPeekModeActive, moveToSlot, tiles, getBottomTileAtPosition, setPeekUsesLeft]);
 
   const handleActivatePeekMode = useCallback(() => {
     if (peekUsesLeft <= 0) {
@@ -304,7 +323,7 @@ export const useTileGame = () => {
     if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
 
     setIsPeekModeActive(true);
-    showSuccess("Peek mode activated! Click any tile to reveal it.");
+    showSuccess("Peek mode activated! Click any tile to reveal its bottom-most tile.");
   }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot]);
 
   useEffect(() => {
