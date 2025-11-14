@@ -80,7 +80,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
   };
 
   return (
-    <div className="flex justify-center mb-6 w-full">
+    <div className="flex justify-center w-full">
       <div 
         className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl p-2 relative overflow-hidden"
       >
