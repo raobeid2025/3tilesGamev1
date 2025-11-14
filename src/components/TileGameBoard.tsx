@@ -15,7 +15,7 @@ interface TileGameBoardProps {
   peekedTileEmoji: string | null;
   peekDisplayTileId: number | null;
   isPeekModeActive: boolean;
-  handleTileClickOnBoard: (id: number, isBlocked: boolean) => void;
+  handleTileClickOnBoard: (id: number) => void; // Removed isBlocked param as it's fetched internally
   availableWidth: number;
   blockingTilesToMove: number[];
 }
@@ -113,24 +113,28 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
             const isTopLayer = tile.layer === currentLevelConfig.layers - 1;
             const shouldAnimateEntry = isTopLayer && animatedTopLayerTileIds.has(tile.id);
 
+            // Determine the target opacity
+            let targetOpacity = blocked ? 0.4 : 1;
+            if (isThisThePeekedTile || isDisplayingPeek || isBlockingTileToMove) {
+              targetOpacity = 1; // Override to full opacity during peek animation
+            }
+
             return (
               <motion.div
                 key={`tile-container-${tile.id}`}
                 layoutId={`tile-${tile.id}`}
-                className="absolute"
+                className={`
+                  absolute cursor-pointer transform
+                  ${(blocked && !isThisThePeekedTile && !isDisplayingPeek && !isBlockingTileToMove) ? "cursor-not-allowed" : ""}
+                `}
                 layout
                 initial={shouldAnimateEntry ? { y: -50, opacity: 0, scale: 0.8 } : false}
-                animate={
-                  isThisThePeekedTile
-                    ? { y: 0, x: 0, scale: 1.1, opacity: 1 } // Peeked tile is fully opaque
-                    : isDisplayingPeek
-                      ? { y: -15, scale: 1, opacity: 1 } // Clicked tile displaying peek is fully opaque
-                      : isBlockingTileToMove
-                        ? { y: -10, x: tile.id % 2 === 0 ? -10 : 10, scale: 0.9, opacity: 1 } // Blocking tiles are fully opaque
-                        : selectedTiles.includes(tile.id)
-                          ? { scale: 0.95, opacity: blocked ? 0.4 : 1 }
-                          : { y: 0, x: 0, scale: 1, opacity: blocked ? 0.4 : 1 } // Default state
-                }
+                animate={{
+                  y: isDisplayingPeek ? -15 : (isBlockingTileToMove ? -10 : 0),
+                  x: isBlockingTileToMove && tile.id % 2 === 0 ? -10 : (isBlockingTileToMove ? 10 : 0),
+                  scale: selectedTiles.includes(tile.id) ? 0.95 : (isThisThePeekedTile ? 1.1 : (isBlockingTileToMove ? 0.9 : 1)),
+                  opacity: targetOpacity,
+                }}
                 exit={{
                   scale: 0,
                   opacity: 0,
@@ -146,64 +150,43 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                         delay: tile.layer * 0.02
                       }
                     : {
-                        duration: 0
+                        type: "spring", // Ensure a spring transition for general state changes
+                        stiffness: 500,
+                        damping: 30
                       }
                 }
                 style={{
                   left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing) + (maxLayer - tile.layer) * layerVisualOffset}px`,
                   top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing) + (maxLayer - tile.layer) * layerVisualOffset}px`,
                   zIndex: tileZIndex,
+                  width: `${calculatedTileSize}px`,
+                  height: `${calculatedTileSize}px`,
                 }}
+                onClick={() => handleTileClickOnBoard(tile.id)}
               >
-                <motion.div
-                  key={`actual-tile-${tile.id}`}
-                  className={`
-                    relative cursor-pointer transform
-                    ${(blocked && !isThisThePeekedTile && !isDisplayingPeek && !isBlockingTileToMove) ? "cursor-not-allowed" : ""}
-                  `}
-                  onClick={() => handleTileClickOnBoard(tile.id, blocked)}
-                  style={{
-                    width: `${calculatedTileSize}px`,
-                    height: `${calculatedTileSize}px`,
-                    zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1),
-                  }}
-                  animate={
-                    isThisThePeekedTile
-                      ? { y: 0, x: 0, scale: 1.1, opacity: 1 }
-                      : isDisplayingPeek
-                        ? { y: -15, scale: 1, opacity: 1 }
-                        : isBlockingTileToMove
-                          ? { y: -10, x: tile.id % 2 === 0 ? -10 : 10, scale: 0.9, opacity: 1 }
-                          : selectedTiles.includes(tile.id)
-                            ? { scale: 0.95, opacity: blocked ? 0.4 : 1 }
-                            : { y: 0, x: 0, scale: 1, opacity: blocked ? 0.4 : 1 }
-                  }
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                <div className={`
+                  absolute w-full h-full flex items-center justify-center rounded-lg ${getEmojiFontSize(calculatedTileSize)} font-bold
+                  border-2 transition-all duration-200
+                  ${(blocked && !isThisThePeekedTile && !isDisplayingPeek && !isBlockingTileToMove)
+                    ? "border-gray-500 bg-gray-400"
+                    : tile.layer === 0
+                      ? "border-indigo-500 bg-white"
+                      : tile.layer === 1
+                        ? "border-purple-600 bg-purple-200"
+                        : "border-pink-700 bg-pink-300"}
+                  ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""}
+                `}
                 >
-                  <div className={`
-                    absolute w-full h-full flex items-center justify-center rounded-lg ${getEmojiFontSize(calculatedTileSize)} font-bold
-                    border-2 transition-all duration-200
-                    ${(blocked && !isThisThePeekedTile && !isDisplayingPeek && !isBlockingTileToMove)
-                      ? "border-gray-500 bg-gray-400"
-                      : tile.layer === 0
-                        ? "border-indigo-500 bg-white"
-                        : tile.layer === 1
-                          ? "border-purple-600 bg-purple-200"
-                          : "border-pink-700 bg-pink-300"}
-                    ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""}
-                  `}
-                  >
-                    <span className="relative z-10">
-                      {isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji}
-                    </span>
-                  </div>
+                  <span className="relative z-10">
+                    {isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji}
+                  </span>
+                </div>
 
-                  {tile.isMatched && (
-                    <div className="absolute inset-0 bg-green-500 bg-opacity-60 flex items-center justify-center rounded-lg">
-                      <Check className="text-white" size={24} />
-                    </div>
-                  )}
-                </motion.div>
+                {tile.isMatched && (
+                  <div className="absolute inset-0 bg-green-500 bg-opacity-60 flex items-center justify-center rounded-lg">
+                    <Check className="text-white" size={24} />
+                  </div>
+                )}
               </motion.div>
             );
           })}
