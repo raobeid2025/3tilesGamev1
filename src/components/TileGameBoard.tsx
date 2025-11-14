@@ -89,7 +89,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 <motion.div
                   key={`actual-tile-${tile.id}`}
                   className={`
-                    relative w-12 h-12 cursor-pointer transform transition-all duration-200
+                    relative w-12 h-12 cursor-pointer transform
                     ${(blocked && !isDisplayingPeek && !isThisThePeekedTile) ? "cursor-not-allowed" : ""}
                   `}
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)}
@@ -113,7 +113,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         rotateX: 5, 
                         rotateY: 5, 
                         zIndex: 100,
-                        transition: { type: "tween", duration: 0.1, ease: "easeOut" } // Changed to tween with shorter duration
+                        boxShadow: "0 8px 16px rgba(0,0,0,0.4)" // Larger shadow on hover
                       } 
                     : {}}
                 >
@@ -132,7 +132,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   `}
                     style={{
                       transform: "translateZ(2px)", // Adjusted translateZ for 4px depth
-                      boxShadow: "0 6px 12px rgba(0,0,0,0.3), inset 0 3px 6px rgba(255,255,255,0.4)", // Enhanced shadow
+                      boxShadow: "0 4px 8px rgba(0,0,0,0.2)", // Simplified shadow
                       background: (blocked && !isThisThePeekedTile) // Apply blocked background only if not the peeked tile
                         ? "linear-gradient(145deg, #cccccc, #aaaaaa)"
                         : tile.layer === 0
@@ -156,14 +156,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         ? "bg-yellow-400"
                         : tile.layer === 0
                           ? "bg-indigo-400"
-                          : tile.layer === 1
-                            ? "bg-purple-500"
-                            : "bg-pink-600"}
+                          : "bg-purple-500"}
                     ${isThisThePeekedTile ? "bg-yellow-500" : ""}
                   `}
                     style={{
                       transform: "rotateX(90deg) translateY(-24px) translateZ(2px)", // Adjusted for 4px depth (48px tile height / 2 = 24px)
-                      boxShadow: "0 -3px 6px rgba(0,0,0,0.15)" // Enhanced shadow
+                      boxShadow: "0 -2px 4px rgba(0,0,0,0.1)" // Softer shadow
                     }}
                   ></div>
 
@@ -176,14 +174,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         ? "bg-yellow-600"
                         : tile.layer === 0
                           ? "bg-indigo-600"
-                          : tile.layer === 1
-                            ? "bg-purple-700"
-                            : "bg-pink-800"}
+                          : "bg-purple-700"}
                     ${isThisThePeekedTile ? "bg-yellow-600" : ""}
                   `}
                     style={{
                       transform: "rotateY(90deg) translateX(24px) translateZ(2px)", // Adjusted for 4px depth (48px tile width / 2 = 24px)
-                      boxShadow: "3px 0 6px rgba(0,0,0,0.15)" // Enhanced shadow
+                      boxShadow: "2px 0 4px rgba(0,0,0,0.1)" // Softer shadow
                     }}
                   ></div>
 
