@@ -81,14 +81,13 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
   }, [calculateSlotTileSizes]);
 
   return (
-    <div className="mb-6">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-semibold text-indigo-700">Tile Slot</h2>
+    <div className="mb-4"> {/* Reduced mb-6 to mb-4 */}
+      <div className="flex justify-end items-center mb-1"> {/* Removed h2, adjusted mb-2 to mb-1 */}
         <span className={`text-sm ${slotTiles.length >= currentLevelConfig.slotSize - 2 ? "text-red-500 font-bold" : "text-gray-500"}`}>
           {slotTiles.length}/{currentLevelConfig.slotSize} tiles
         </span>
       </div>
-      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[150px] overflow-x-auto overflow-y-hidden"> {/* Reduced max-h-[180px] to max-h-[150px] */}
+      <div className="rounded-xl p-2 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[150px] overflow-x-auto overflow-y-hidden"> {/* Reduced p-4 to p-2 */}
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
             <motion.div 
