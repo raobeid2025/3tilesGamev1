@@ -88,13 +88,14 @@ export default function TileMasterMatch() {
           isPeekModeActive={isPeekModeActive}
         />
 
-        <div className="text-center text-gray-600 mb-6">
+        {/* Removed the info panel as requested */}
+        {/* <div className="text-center text-gray-600 mb-6">
           <p className="bg-white rounded-lg p-3 shadow-sm">
             Pattern: <span className="font-bold capitalize">{currentLevelConfig.pattern}</span> with {currentLevelConfig.layers} layer{currentLevelConfig.layers > 1 ? 's' : ''}. 
             Match 3+ same tiles in slot to remove them!
             <span className="block mt-1 text-red-500 font-medium">⚠️ Slot can hold max {currentLevelConfig.slotSize} tiles!</span>
           </p>
-        </div>
+        </div> */}
 
         <TileSlot
           slotTiles={slotTiles}
