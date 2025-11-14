@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
+import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { Tile, LevelConfig } from "@/utils/game-config";
 
@@ -55,22 +55,24 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 key={`tile-${tile.id}`}
                 className="absolute"
                 layout
-                // Apply initial/animate only to unblocked tiles
-                initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
-                animate={!blocked ? { scale: 1, opacity: 1 } : {}}
+                initial={{ y: 0, scale: !blocked ? 0.8 : 1, opacity: !blocked ? 0 : 1 }} // Ensure initial y is 0
+                animate={
+                  isDisplayingPeek
+                    ? { y: [0, -10, 0], transition: { duration: 0.3, ease: "easeOut" } } // Quick lift and return
+                    : { y: 0, scale: !blocked ? 1 : 1, opacity: !blocked ? 1 : 1 } // Default state, scale/opacity for non-blocked
+                }
                 exit={{
                   scale: 0,
                   opacity: 0,
                   rotate: tile.isMatched ? 360 : 0,
-                  transition: { duration: 0.1 } // Faster exit for all tiles
+                  transition: { duration: 0.1 }
                 }}
-                // Apply spring transition only to unblocked tiles, instant for blocked
-                transition={!blocked ? {
-                  type: "spring",
-                  stiffness: 900, // Slightly increased stiffness
-                  damping: 45 // Slightly increased damping
-                } : { duration: 0 }} // Instant transition for blocked tiles
-                whileHover={!blocked ? { scale: 1.08, y: -5, zIndex: 100 } : {}} // Enhanced hover effect for unblocked tiles
+                transition={
+                  isDisplayingPeek
+                    ? { duration: 0.3, ease: "easeOut" } // Transition for the peek animation
+                    : (!blocked ? { type: "spring", stiffness: 900, damping: 45 } : { duration: 0 }) // Spring for non-blocked, instant for blocked
+                }
+                whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}} // Disable hover if peeking
                 style={{
                   left: `${tile.position.col * effectiveTileSize + tileSpacing / 2}px`,
                   top: `${tile.position.row * effectiveTileSize + tileSpacing / 2}px`,
