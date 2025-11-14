@@ -38,7 +38,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
       const maxTilesInSlot = currentLevelConfig.slotSize; 
-      const minTileSize = 40; // Increased minimum size for slot tiles on mobile
+      const minTileSize = 50; // Increased minimum size for slot tiles on mobile
       const maxTileSize = 64; // Max size for slot tiles (sm:w-16)
       const baseGap = 12; // gap-3 is 12px
 
