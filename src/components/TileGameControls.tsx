@@ -9,33 +9,39 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { RotateCcw, Shuffle } from "lucide-react";
+import { RotateCcw, Shuffle, Eye } from "lucide-react"; // Import Eye icon
 import { EmojiTheme, GameStatus } from "@/utils/game-config";
 
 interface TileGameControlsProps {
   moves: number;
   currentLevel: number;
   shufflesLeft: number;
+  peekUsesLeft: number; // New prop
   selectedTheme: EmojiTheme;
   onThemeChange: (value: string) => void;
   onRestart: () => void;
   onShuffle: () => void;
+  onActivatePeekMode: () => void; // New prop
   gameStatus: GameStatus;
   isChecking: boolean;
   isProcessingSlot: boolean;
+  isPeekModeActive: boolean; // New prop
 }
 
 const TileGameControls: React.FC<TileGameControlsProps> = ({
   moves,
   currentLevel,
   shufflesLeft,
+  peekUsesLeft,
   selectedTheme,
   onThemeChange,
   onRestart,
   onShuffle,
+  onActivatePeekMode, // Destructure new prop
   gameStatus,
   isChecking,
   isProcessingSlot,
+  isPeekModeActive, // Destructure new prop
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-white rounded-xl shadow-md p-4">
@@ -80,6 +86,13 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
           className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg"
         >
           <Shuffle size={16} />
+        </Button>
+        <Button 
+          onClick={onActivatePeekMode}
+          disabled={peekUsesLeft <= 0 || isPeekModeActive || gameStatus !== "playing" || isChecking || isProcessingSlot}
+          className={`px-3 py-2 rounded-lg flex items-center gap-1 ${isPeekModeActive ? "bg-yellow-500 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+        >
+          <Eye size={16} /> Peek ({peekUsesLeft})
         </Button>
       </div>
     </div>

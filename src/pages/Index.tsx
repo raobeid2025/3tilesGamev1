@@ -29,13 +29,16 @@ export default function TileMasterMatch() {
     currentLevelConfig,
     levelConfigs,
     peekedTileId,
+    peekUsesLeft, // New state
+    isPeekModeActive, // New state
     
     isTileBlocked,
-    getTopTileAtPosition, // This is no longer passed to TileGameBoard
+    getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
     handleSlotTileClick,
-    handleBlockedTileClick,
+    handleTileClickOnBoard, // New handler
+    handleActivatePeekMode, // New handler
     handleNextLevel,
     handlePrevLevel,
     handleRestartLevel,
@@ -57,13 +60,16 @@ export default function TileMasterMatch() {
           moves={moves}
           currentLevel={currentLevel}
           shufflesLeft={shufflesLeft}
+          peekUsesLeft={peekUsesLeft} // Pass new prop
           selectedTheme={selectedTheme}
           onThemeChange={handleThemeChange}
           onRestart={handleRestartLevel}
           onShuffle={handleShuffle}
+          onActivatePeekMode={handleActivatePeekMode} // Pass new prop
           gameStatus={gameStatus}
           isChecking={isChecking}
           isProcessingSlot={isProcessingSlot}
+          isPeekModeActive={isPeekModeActive} // Pass new prop
         />
 
         <div className="text-center text-gray-600 mb-6">
@@ -91,10 +97,11 @@ export default function TileMasterMatch() {
           tiles={tiles}
           currentLevelConfig={currentLevelConfig}
           isTileBlocked={isTileBlocked}
-          moveToSlot={moveToSlot}
+          moveToSlot={moveToSlot} // Still needed for direct move if not peek mode
           selectedTiles={selectedTiles}
           peekedTileId={peekedTileId}
-          handleBlockedTileClick={handleBlockedTileClick}
+          isPeekModeActive={isPeekModeActive} // Pass new prop
+          handleTileClickOnBoard={handleTileClickOnBoard} // Pass new prop
         />
 
         <LevelNavigation

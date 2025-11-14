@@ -29,7 +29,9 @@ export const useTileGame = () => {
   const [levelSelectOpen, setLevelSelectOpen] = useState(false);
   const [isProcessingSlot, setIsProcessingSlot] = useState(false);
   const [shufflesLeft, setShufflesLeft] = useState(3);
-  const [peekedTileId, setPeekedTileId] = useState<number | null>(null); // New state for peeked tile
+  const [peekedTileId, setPeekedTileId] = useState<number | null>(null);
+  const [peekUsesLeft, setPeekUsesLeft] = useState(1); // 1 peek per level
+  const [isPeekModeActive, setIsPeekModeActive] = useState(false);
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
@@ -43,7 +45,7 @@ export const useTileGame = () => {
     );
   }, []);
 
-  // Get the top tile at a specific position
+  // Get the top tile at a specific position (not used for rendering, but for logic if needed)
   const getTopTileAtPosition = useCallback((row: number, col: number, allTiles: Tile[]) => {
     const tilesAtPosition = allTiles.filter(t => 
       t.position.row === row && 
@@ -60,40 +62,72 @@ export const useTileGame = () => {
 
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
-    const baseThemeEmojis = emojiThemes[theme]; // All emojis for the selected theme
+    const baseThemeEmojis = emojiThemes[theme];
 
-    const allEmojis: string[] = [];
-    // Ensure we have enough emojis for totalTiles, cycling through the theme emojis if needed
-    for (let i = 0; i < levelConfig.emojisNeeded; i++) {
-      const emojiToRepeat = baseThemeEmojis[i % baseThemeEmojis.length];
-      for (let j = 0; j < 3; j++) {
-        allEmojis.push(emojiToRepeat);
-      }
-    }
-    
-    const shuffledEmojis = [...allEmojis].sort(() => Math.random() - 0.5);
-    
-    // Pass isFilled parameter to generatePatternPositions
     const isFilledPattern = levelConfig.layers > 1;
     const patternPositions = generatePatternPositions(levelConfig.pattern, levelConfig.gridSize, isFilledPattern);
     
-    // Create a pool of all possible (row, col, layer) spots
-    const availableSpots: { row: number; col: number; layer: number }[] = [];
-    for (let layer = 0; layer < levelConfig.layers; layer++) {
+    let finalTileSpots: { row: number; col: number; layer: number }[] = [];
+
+    if (levelConfig.layers > 1) {
+      // For multi-layer levels, ensure a mix of blocked and unblocked tiles
+      const multiLayerRatio = 0.5; // 50% of pattern positions will have tiles on all layers
+      const singleLayerRatio = 0.5; // 50% will have tiles only on the bottom layer
+
+      const shuffledPatternPositions = [...patternPositions].sort(() => Math.random() - 0.5);
+
+      shuffledPatternPositions.forEach((pos, index) => {
+        if (index < Math.floor(patternPositions.length * multiLayerRatio)) {
+          // These spots get tiles on all layers
+          for (let layer = 0; layer < levelConfig.layers; layer++) {
+            finalTileSpots.push({ ...pos, layer });
+          }
+        } else {
+          // These spots get tiles only on the bottom layer
+          finalTileSpots.push({ ...pos, layer: 0 });
+        }
+      });
+    } else {
+      // Single layer levels: all tiles on layer 0
       patternPositions.forEach((pos) => {
-        availableSpots.push({ ...pos, layer });
+        finalTileSpots.push({ ...pos, layer: 0 });
       });
     }
 
-    // Shuffle the available spots and pick 'totalTiles' number of spots
-    const shuffledSpots = availableSpots.sort(() => Math.random() - 0.5);
-    const chosenSpots = shuffledSpots.slice(0, levelConfig.totalTiles);
+    // Ensure the total number of tiles matches levelConfig.totalTiles and is a multiple of 3
+    // First, shuffle the generated spots to randomize which ones are kept/removed if adjusting size
+    finalTileSpots.sort(() => Math.random() - 0.5);
+
+    // Adjust to match levelConfig.totalTiles
+    if (finalTileSpots.length > levelConfig.totalTiles) {
+      finalTileSpots = finalTileSpots.slice(0, levelConfig.totalTiles);
+    } else if (finalTileSpots.length < levelConfig.totalTiles) {
+      // If we have fewer spots than needed, add more single-layer tiles randomly
+      const needed = levelConfig.totalTiles - finalTileSpots.length;
+      for (let i = 0; i < needed; i++) {
+        const randomPos = patternPositions[Math.floor(Math.random() * patternPositions.length)];
+        finalTileSpots.push({ ...randomPos, layer: 0 });
+      }
+    }
+
+    // Ensure finalTileSpots count is a multiple of 3 for emoji distribution
+    while (finalTileSpots.length % 3 !== 0) {
+      finalTileSpots.pop(); // Remove one if not a multiple of 3
+    }
+
+    // Now, generate emojis for the final set of spots
+    const emojisForSpots: string[] = [];
+    for (let i = 0; i < finalTileSpots.length / 3; i++) {
+      const emojiToRepeat = baseThemeEmojis[i % baseThemeEmojis.length];
+      emojisForSpots.push(emojiToRepeat, emojiToRepeat, emojiToRepeat);
+    }
+    const shuffledEmojis = emojisForSpots.sort(() => Math.random() - 0.5);
 
     let newTiles: Tile[] = [];
-    chosenSpots.forEach((spot, index) => {
+    finalTileSpots.forEach((spot, index) => {
       newTiles.push({
-        id: index, // Assign unique ID
-        emoji: shuffledEmojis[index], // Assign emoji from the shuffled pool
+        id: index,
+        emoji: shuffledEmojis[index],
         isMatched: false,
         isInSlot: false,
         layer: spot.layer,
@@ -117,7 +151,9 @@ export const useTileGame = () => {
     setLevelSelectOpen(false);
     setIsProcessingSlot(false);
     setShufflesLeft(3);
-    setPeekedTileId(null); // Reset peeked tile on new game
+    setPeekedTileId(null);
+    setPeekUsesLeft(1); // Reset peek uses for new level
+    setIsPeekModeActive(false); // Deactivate peek mode on new level
   }, [currentLevel, selectedTheme]);
 
   useEffect(() => {
@@ -136,7 +172,7 @@ export const useTileGame = () => {
     const tile = tiles.find(t => t.id === id);
     if (!tile || tile.isMatched || tile.isInSlot) return;
     
-    if (isTileBlocked(tile, tiles)) return;
+    if (isTileBlocked(tile, tiles)) return; // Only move if not blocked
     
     setIsProcessingSlot(true);
     
@@ -242,11 +278,34 @@ export const useTileGame = () => {
     }
   };
 
-  // New handler for clicking blocked tiles to peek
-  const handleBlockedTileClick = useCallback((id: number) => {
-    setPeekedTileId(id);
-    setTimeout(() => setPeekedTileId(null), 1500); // Peek for 1.5 seconds
-  }, []);
+  // Unified handler for clicking tiles on the game board
+  const handleTileClickOnBoard = useCallback((tileId: number, isBlocked: boolean) => {
+    if (isPeekModeActive) {
+      setPeekedTileId(tileId);
+      setTimeout(() => setPeekedTileId(null), 1500);
+      setIsPeekModeActive(false); // Deactivate after one peek
+      setPeekUsesLeft(prev => prev - 1); // Decrement peek uses
+      showSuccess("Peek used!");
+    } else if (isBlocked) {
+      // Default peek for blocked tiles without consuming a "peek use"
+      setPeekedTileId(tileId);
+      setTimeout(() => setPeekedTileId(null), 1500);
+    } else {
+      // If not in peek mode and not blocked, move to slot
+      moveToSlot(tileId);
+    }
+  }, [isPeekModeActive, moveToSlot]);
+
+  const handleActivatePeekMode = useCallback(() => {
+    if (peekUsesLeft <= 0) {
+      showError("No peeks left!");
+      return;
+    }
+    if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
+
+    setIsPeekModeActive(true);
+    showSuccess("Peek mode activated! Click any tile to reveal it.");
+  }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot]);
 
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
@@ -344,14 +403,17 @@ export const useTileGame = () => {
     shufflesLeft,
     currentLevelConfig,
     levelConfigs,
-    peekedTileId, // Export peekedTileId
+    peekedTileId,
+    peekUsesLeft,
+    isPeekModeActive,
     
     isTileBlocked,
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
     handleSlotTileClick,
-    handleBlockedTileClick, // Export new handler
+    handleTileClickOnBoard, // Export new handler
+    handleActivatePeekMode, // Export new handler
     handleNextLevel,
     handlePrevLevel,
     handleRestartLevel,

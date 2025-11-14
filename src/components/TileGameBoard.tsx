@@ -9,20 +9,21 @@ interface TileGameBoardProps {
   tiles: Tile[];
   currentLevelConfig: LevelConfig;
   isTileBlocked: (tile: Tile, allTiles: Tile[]) => boolean;
-  moveToSlot: (id: number) => void;
+  moveToSlot: (id: number) => void; // Still needed for direct move if not peek mode
   selectedTiles: number[];
   peekedTileId: number | null;
-  handleBlockedTileClick: (id: number) => void;
+  isPeekModeActive: boolean; // New prop
+  handleTileClickOnBoard: (id: number, isBlocked: boolean) => void; // New prop
 }
 
 const TileGameBoard: React.FC<TileGameBoardProps> = ({
   tiles,
   currentLevelConfig,
   isTileBlocked,
-  moveToSlot,
   selectedTiles,
   peekedTileId,
-  handleBlockedTileClick,
+  isPeekModeActive, // Destructure new prop
+  handleTileClickOnBoard, // Destructure new prop
 }) => {
   // Sort tiles by layer to ensure correct z-index rendering (lower layers first)
   const sortedTiles = [...tiles].sort((a, b) => a.layer - b.layer);
@@ -76,13 +77,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ${blocked ? "opacity-60 cursor-not-allowed" : "hover:scale-105"}
                     ${selectedTiles.includes(tile.id) ? "scale-95" : ""}
                   `}
-                  onClick={() => {
-                    if (blocked) {
-                      handleBlockedTileClick(tile.id);
-                    } else {
-                      moveToSlot(tile.id);
-                    }
-                  }}
+                  onClick={() => handleTileClickOnBoard(tile.id, blocked)} // Use the new unified handler
                   style={{
                     transformStyle: "preserve-3d",
                     transform: `translateZ(${tile.layer * 15}px) ${selectedTiles.includes(tile.id) ? "scale(0.95)" : ""}`
