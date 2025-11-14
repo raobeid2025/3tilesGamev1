@@ -107,7 +107,14 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                       : { scale: 1 }} // Default scale
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   whileHover={!blocked && !isDisplayingPeek 
-                    ? { scale: 1.08, y: -5, rotateX: 5, rotateY: 5, zIndex: 100 } // Added rotateX/Y for 3D tilt
+                    ? { 
+                        scale: 1.08, 
+                        y: -5, 
+                        rotateX: 5, 
+                        rotateY: 5, 
+                        zIndex: 100,
+                        transition: { duration: 0.15, ease: "easeOut" } // Faster transition
+                      } 
                     : {}}
                 >
                   {/* Front Face (Emoji) */}
