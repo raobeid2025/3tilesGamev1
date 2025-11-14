@@ -388,7 +388,7 @@ export const useTileGame = () => {
     const clickedTile = tiles.find(t => t.id === tileId);
     if (!clickedTile) return;
 
-    const isBlocked = blockedStatusMap.get(tile.id) || false; // Use the pre-calculated blocked status
+    const isBlocked = blockedStatusMap.get(clickedTile.id) || false; // Fixed: changed 'tile.id' to 'clickedTile.id'
 
     if (isPeekModeActive) {
       const tilesBelow = getTilesBelow(clickedTile, tiles);
