@@ -97,30 +97,46 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
               tileZIndex = 80;
             }
 
+            const isTopLayer = tile.layer === currentLevelConfig.layers - 1;
+
             return (
               <motion.div
                 key={`tile-container-${tile.id}`}
                 layoutId={`tile-${tile.id}`}
                 className="absolute"
                 layout
-                initial={{ y: -50, opacity: 0, scale: 0.8 }} // Staggered entry animation
-                animate={{
-                  y: 0,
-                  opacity: blocked ? 0.4 : 1, // Adjusted opacity for blocked tiles to be lighter
-                  scale: 1,
-                }}
+                initial={isTopLayer ? { y: -50, opacity: 0, scale: 0.8 } : false} // Only top layer animates from initial
+                animate={
+                  isTopLayer
+                    ? { // Top layer animates in
+                        y: 0,
+                        opacity: blocked ? 0.4 : 1,
+                        scale: 1,
+                      }
+                    : { // Lower layers appear instantly
+                        y: 0, // Ensure y is at 0
+                        opacity: blocked ? 0.4 : 1,
+                        scale: 1,
+                      }
+                }
                 exit={{
                   scale: 0,
                   opacity: 0,
                   rotate: tile.isMatched ? 360 : 0,
                   transition: { duration: 0.1 }
                 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 900,
-                  damping: 45,
-                  delay: tile.layer * 0.02 // Reduced staggered delay for faster animation
-                }}
+                transition={
+                  isTopLayer
+                    ? { // Top layer animation
+                        type: "spring",
+                        stiffness: 900,
+                        damping: 45,
+                        delay: tile.layer * 0.02 // Staggered delay based on layer
+                      }
+                    : { // Lower layers appear instantly
+                        duration: 0 // Instant transition for lower layers
+                      }
+                }
                 style={{
                   left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing)}px`,
                   top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing)}px`,
