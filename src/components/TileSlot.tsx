@@ -15,10 +15,11 @@ interface TileSlotProps {
   gameStatus: GameStatus;
   isProcessingSlot: boolean;
   selectedTiles: number[];
-  availableWidth: number; // New prop for available width
+  availableWidth: number;
 }
 
-const TileSlot: React.FC<TileSlotProps> = React.memo(({
+// Define the functional component first
+const TileSlotComponent: React.FC<TileSlotProps> = ({
   slotTiles,
   tilesToRemove,
   vibratingTiles,
@@ -29,7 +30,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
   gameStatus,
   isProcessingSlot,
   selectedTiles,
-  availableWidth, // Destructure new prop
+  availableWidth,
 }) => {
   const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(56);
   const [calculatedSlotTileGap, setCalculatedSlotTileGap] = useState(8);
@@ -43,35 +44,26 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
 
   const calculateSlotTileSizes = useCallback(() => {
     if (availableWidth > 0) {
-      const slotPadding = 8 * 2; // p-2 on the inner div means 8px left + 8px right
+      const slotPadding = 8 * 2;
       const effectiveWidth = availableWidth - slotPadding;
-      const numTilesInSlot = currentLevelConfig.slotSize; // This is 7
+      const numTilesInSlot = currentLevelConfig.slotSize;
 
-      const maxTileSize = 64; // Max tile size to fit in 80px height (80 - 2*8 padding)
-      const minTileSize = 30; // Minimum reasonable tile size
+      const maxTileSize = 64;
+      const minTileSize = 30;
 
-      const targetGap = 4; // Start with a small target gap
+      const targetGap = 4;
 
-      // Calculate potential tile size if we use the target gap
       let potentialTileSize = (effectiveWidth - (numTilesInSlot - 1) * targetGap) / numTilesInSlot;
 
       let newTileSize = Math.floor(potentialTileSize);
       let newTileGap = targetGap;
 
-      // Ensure tile size is within bounds
       if (newTileSize > maxTileSize) {
         newTileSize = maxTileSize;
-        // Recalculate gap if tiles are capped at max size
         newTileGap = Math.floor((effectiveWidth - numTilesInSlot * newTileSize) / (numTilesInSlot - 1));
-        newTileGap = Math.max(0, newTileGap); // Ensure gap is not negative
+        newTileGap = Math.max(0, newTileGap);
       } else if (newTileSize < minTileSize) {
         newTileSize = minTileSize;
-        // If tiles are at min size, and still overflow, we might have to accept a scrollbar
-        // But the goal is to avoid it, so we prioritize fitting.
-        // If minTileSize is used, the gap might become very small or negative,
-        // which means even at minTileSize, 7 tiles won't fit.
-        // For now, we'll let it calculate and if it's too small, it will be minTileSize.
-        // The overflow-x-auto will handle it if it truly can't fit.
       }
       
       setCalculatedSlotTileSize(newTileSize);
@@ -116,13 +108,12 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                     }
                   }}
                   exit={tilesToRemove.includes(tile.id) ? {
-                    scale: [1, 1.2, 0], // Scale up slightly then disappear
-                    opacity: [1, 0.8, 0], // Fade out
-                    rotate: [0, 15, -15, 0], // A quick wobble
-                    y: [0, -10, -30], // Move up slightly
+                    scale: [1, 1.2, 0],
+                    opacity: [1, 0.8, 0],
+                    rotate: [0, 15, -15, 0],
+                    y: [0, -10, -30],
                     transition: { duration: 0.3, ease: "easeOut" }
                   } : {
-                    // Default exit for other cases (e.g., if a tile is somehow removed not via matching)
                     scale: 0,
                     opacity: 0,
                     transition: { duration: 0.1 }
@@ -176,7 +167,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                       `}
                       style={{
                         width: `${calculatedSlotTileSize}px`,
-                        height: `${calculatedSlotTileSize}px`, {/* Corrected this line */}
+                        height: `${calculatedSlotTileSize}px`,
                       }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
@@ -195,6 +186,9 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
       </div>
     </div>
   );
-});
+};
+
+// Wrap the component with React.memo
+const TileSlot = React.memo(TileSlotComponent);
 
 export default TileSlot;
