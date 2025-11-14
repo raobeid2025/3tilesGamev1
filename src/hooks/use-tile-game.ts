@@ -34,6 +34,7 @@ export const useTileGame = () => {
   const [peekDisplayTileId, setPeekDisplayTileId] = useState<number | null>(null); // ID of the clicked tile to display peeked emoji
   const [peekUsesLeft, setPeekUsesLeft] = useState(3); // Changed from 1 to 3 peeks per level
   const [isPeekModeActive, setIsPeekModeActive] = useState(false);
+  const [blockingTilesToMove, setBlockingTilesToMove] = useState<number[]>([]); // New state for tiles to move during peek
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
@@ -173,6 +174,7 @@ export const useTileGame = () => {
     setPeekDisplayTileId(null); // Reset peek display ID
     setPeekUsesLeft(3); // Reset peek uses for new level
     setIsPeekModeActive(false); // Deactivate peek mode on new level
+    setBlockingTilesToMove([]); // Reset blocking tiles
   }, [currentLevel, selectedTheme]);
 
   useEffect(() => {
@@ -305,13 +307,24 @@ export const useTileGame = () => {
     if (isPeekModeActive) { // Only peek if peek mode is active
       const bottomTile = getBottomTileAtPosition(clickedTile.position.row, clickedTile.position.col, tiles);
       if (bottomTile) {
+        // Identify tiles that are blocking the view of the bottom tile
+        const tilesAtPosition = tiles.filter(t =>
+          t.position.row === clickedTile.position.row &&
+          t.position.col === clickedTile.position.col &&
+          !t.isMatched &&
+          t.id !== bottomTile.id // Exclude the bottom tile itself
+        );
+        setBlockingTilesToMove(tilesAtPosition.map(t => t.id));
+
         setPeekedTileId(bottomTile.id); // ID of the actual bottom tile
         setPeekedTileEmoji(bottomTile.emoji); // Emoji of the actual bottom tile
         setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display peeked emoji
+        
         setTimeout(() => {
           setPeekedTileId(null);
           setPeekedTileEmoji(null);
           setPeekDisplayTileId(null);
+          setBlockingTilesToMove([]); // Clear blocking tiles
         }, 500); // Reduced to 500ms for a quick peek
         
         setPeekUsesLeft(prev => {
@@ -442,6 +455,7 @@ export const useTileGame = () => {
     peekDisplayTileId,
     peekUsesLeft,
     isPeekModeActive,
+    blockingTilesToMove, // Expose new state
     
     isTileBlocked,
     getTopTileAtPosition,
