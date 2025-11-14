@@ -29,22 +29,19 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
   isProcessingSlot,
   selectedTiles,
 }) => {
-  // Removed dynamic size calculation logic (calculateSlotTileSizes, slotRef, states, useEffect)
-
   const fixedTileSize = 64; // Fixed size for tiles in the slot
   const fixedGap = 8; // Fixed gap between tiles in the slot
   const fixedEmojiFontSize = "text-3xl"; // Fixed font size for emojis
 
   return (
-    <div className="mb-4">
-      {/* Removed the div containing the tile count */}
-      <div className="rounded-xl p-2 border-2 border-dashed bg-indigo-100 border-indigo-300 h-[80px] overflow-x-auto overflow-y-hidden"> {/* Changed min-h-[100px] max-h-[150px] to h-[80px] */}
+    <div className="mb-4 w-full"> {/* Added w-full here */}
+      <div className="rounded-xl p-2 border-2 border-dashed bg-indigo-100 border-indigo-300 h-[80px] overflow-x-auto overflow-y-hidden">
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
             <motion.div 
               key={slotAnimationKey}
-              className="flex flex-nowrap h-full items-center" // Added items-center to vertically align tiles
-              style={{ gap: `${fixedGap}px` }} // Using fixed gap
+              className="flex flex-nowrap h-full items-center"
+              style={{ gap: `${fixedGap}px` }}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 1 }}
