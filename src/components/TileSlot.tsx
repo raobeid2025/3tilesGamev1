@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tile, LevelConfig, GameStatus } from "@/utils/game-config";
 
@@ -29,6 +29,46 @@ const TileSlot: React.FC<TileSlotProps> = ({
   isProcessingSlot,
   selectedTiles,
 }) => {
+  const slotRef = useRef<HTMLDivElement>(null);
+  const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(64); // Default for sm:w-16
+  const [slotEmojiFontSize, setSlotEmojiFontSize] = useState("text-3xl");
+
+  const calculateSlotTileSizes = useCallback(() => {
+    if (slotRef.current) {
+      const containerWidth = slotRef.current.offsetWidth;
+      const maxTilesInRow = currentLevelConfig.slotSize; 
+      const minTileSize = 40; // Minimum size for slot tiles
+      const maxTileSize = 64; // Max size for slot tiles (sm:w-16)
+      const gap = 12; // gap-3 is 12px
+
+      // Calculate how many tiles can fit in a row
+      let tilesPerRow = Math.floor((containerWidth + gap) / (minTileSize + gap));
+      tilesPerRow = Math.max(1, Math.min(tilesPerRow, maxTilesInRow)); // Ensure at least 1 tile, max slotSize
+
+      let newSize = (containerWidth - (tilesPerRow - 1) * gap) / tilesPerRow;
+      newSize = Math.max(minTileSize, Math.min(newSize, maxTileSize)); // Clamp between min and max
+
+      setCalculatedSlotTileSize(newSize);
+
+      if (newSize >= 60) setSlotEmojiFontSize("text-3xl");
+      else if (newSize >= 48) setSlotEmojiFontSize("text-2xl");
+      else setSlotEmojiFontSize("text-xl");
+    }
+  }, [currentLevelConfig.slotSize]);
+
+  useEffect(() => {
+    calculateSlotTileSizes();
+    const resizeObserver = new ResizeObserver(calculateSlotTileSizes);
+    if (slotRef.current) {
+      resizeObserver.observe(slotRef.current);
+    }
+    return () => {
+      if (slotRef.current) {
+        resizeObserver.unobserve(slotRef.current);
+      }
+    };
+  }, [calculateSlotTileSizes]);
+
   return (
     <div className="mb-6">
       <div className="flex justify-between items-center mb-2">
@@ -37,7 +77,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
           {slotTiles.length}/{currentLevelConfig.slotSize} tiles
         </span>
       </div>
-      <div className={`rounded-xl p-4 border-2 border-dashed ${slotTiles.length >= currentLevelConfig.slotSize ? "bg-red-100 border-red-400" : "bg-indigo-100 border-indigo-300"}`}
+      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300"
            style={{ height: '120px' }}>
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
@@ -47,6 +87,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 1 }}
+              ref={slotRef} // Attach ref here
             >
               {slotTiles.map((tile) => (
                 <motion.div
@@ -100,12 +141,17 @@ const TileSlot: React.FC<TileSlotProps> = ({
                     
                     <div 
                       className={`
-                        relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-white border-2 rounded-lg shadow-lg text-2xl sm:text-3xl z-10
+                        relative flex items-center justify-center bg-white border-2 rounded-lg shadow-lg z-10
+                        ${slotEmojiFontSize}
                         ${selectedTiles.includes(tile.id) 
                           ? "border-yellow-400 bg-yellow-50 scale-90" 
                           : "border-indigo-300"}
                         transition-all duration-100 transform hover:scale-105
                       `}
+                      style={{
+                        width: `${calculatedSlotTileSize}px`,
+                        height: `${calculatedSlotTileSize}px`,
+                      }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
                       {tile.emoji}

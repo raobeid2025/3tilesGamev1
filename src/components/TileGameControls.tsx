@@ -62,7 +62,7 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
       
       <div className="flex gap-2">
         <Select value={selectedTheme} onValueChange={onThemeChange}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full sm:w-[160px]"> {/* Made responsive */}
             <SelectValue placeholder="Emoji Theme" />
           </SelectTrigger>
           <SelectContent>

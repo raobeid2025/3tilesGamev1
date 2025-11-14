@@ -36,8 +36,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   const [calculatedTileSize, setCalculatedTileSize] = useState(52); // Default desktop size
   const [calculatedTileSpacing, setCalculatedTileSpacing] = useState(4); // Default spacing
 
-  const tileDepth = 6; // Fixed depth for the 3D effect
-
   const calculateSizes = useCallback(() => {
     if (boardRef.current) {
       const containerWidth = boardRef.current.offsetWidth;
@@ -72,11 +70,13 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   }, [calculateSizes]);
 
   const effectiveTileSize = calculatedTileSize + calculatedTileSpacing;
+  const dynamicTileDepth = Math.max(4, Math.floor(calculatedTileSize / 8)); // Minimum 4px depth, scales with tile size
 
   const getEmojiFontSize = (size: number) => {
-    if (size >= 50) return "text-3xl";
-    if (size >= 40) return "text-2xl";
-    return "text-xl";
+    if (size >= 50) return "text-3xl"; // 30px
+    if (size >= 40) return "text-2xl"; // 24px
+    if (size >= 30) return "text-xl";  // 20px
+    return "text-lg"; // 18px
   };
 
   return (
@@ -141,7 +141,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     width: `${calculatedTileSize}px`,
                     height: `${calculatedTileSize}px`,
                     transformStyle: "preserve-3d",
-                    transformOrigin: `center center -${tileDepth / 2}px`, // Set transform origin for 3D rotation
+                    transformOrigin: `center center -${dynamicTileDepth / 2}px`, // Set transform origin for 3D rotation
                     zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1),
                   }}
                   animate={isDisplayingPeek 
@@ -175,7 +175,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""}
                   `}
                     style={{
-                      transform: `translateZ(${tileDepth / 2}px)`,
+                      transform: `translateZ(${dynamicTileDepth / 2}px)`,
                       background: (blocked && !isThisThePeekedTile)
                         ? "#a0a0a0"
                         : tile.layer === 0
@@ -203,8 +203,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ${isThisThePeekedTile ? "bg-yellow-500" : ""}
                   `}
                     style={{
-                      height: `${tileDepth}px`,
-                      transform: `rotateX(90deg) translateY(${calculatedTileSize / -2 + tileDepth / 2}px) translateZ(${tileDepth / 2}px)`,
+                      height: `${dynamicTileDepth}px`,
+                      transform: `rotateX(90deg) translateY(${calculatedTileSize / -2 + dynamicTileDepth / 2}px) translateZ(${dynamicTileDepth / 2}px)`,
                     }}
                   ></div>
 
@@ -221,14 +221,14 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ${isThisThePeekedTile ? "bg-yellow-600" : ""}
                   `}
                     style={{
-                      width: `${tileDepth}px`,
-                      transform: `rotateY(90deg) translateX(${calculatedTileSize / 2 - tileDepth / 2}px) translateZ(${tileDepth / 2}px)`,
+                      width: `${dynamicTileDepth}px`,
+                      transform: `rotateY(90deg) translateX(${calculatedTileSize / 2 - dynamicTileDepth / 2}px) translateZ(${dynamicTileDepth / 2}px)`,
                     }}
                   ></div>
 
                   {tile.isMatched && (
                     <div className="absolute inset-0 bg-green-500 bg-opacity-60 flex items-center justify-center rounded-lg"
-                      style={{ transform: `translateZ(${tileDepth + 5}px)` }}> {/* Ensure checkmark is above faces */}
+                      style={{ transform: `translateZ(${dynamicTileDepth + 5}px)` }}> {/* Ensure checkmark is above faces */}
                       <Check className="text-white" size={24} />
                     </div>
                   )}
