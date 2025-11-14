@@ -37,25 +37,35 @@ const TileSlot: React.FC<TileSlotProps> = ({
   const calculateSlotTileSizes = useCallback(() => {
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
-      const maxTilesInSlot = currentLevelConfig.slotSize; 
-      const minTileSize = 25; // Set minimum size to match game board tiles
-      const maxTileSize = 52; // Set maximum size to match game board default size
+      const maxTilesInSlot = currentLevelConfig.slotSize;
+      const preferredTileSize = 52; // Aim for this size, like game board default
+      const minAcceptableTileSize = 40; // Don't let them shrink below this on mobile before scrolling
       const baseGap = 12; // gap-3 is 12px
 
-      // Adjust gap based on screen size, smaller gap for smaller screens
-      const newGap = containerWidth < 400 ? 8 : baseGap; 
+      const newGap = containerWidth < 400 ? 8 : baseGap;
       setCalculatedGap(newGap);
 
-      // Calculate tile size assuming all maxTilesInSlot need to fit on one line
-      let newSize = (containerWidth - (maxTilesInSlot - 1) * newGap) / maxTilesInSlot;
+      // Calculate the total width needed if all tiles were at preferredTileSize
+      const totalPreferredWidth = maxTilesInSlot * preferredTileSize + (maxTilesInSlot - 1) * newGap;
+
+      let newSize;
+      if (totalPreferredWidth <= containerWidth) {
+        // If preferred size fits, use it
+        newSize = preferredTileSize;
+      } else {
+        // If preferred size doesn't fit, calculate the size needed to fit all tiles
+        // but ensure it doesn't go below minAcceptableTileSize
+        newSize = (containerWidth - (maxTilesInSlot - 1) * newGap) / maxTilesInSlot;
+        newSize = Math.max(newSize, minAcceptableTileSize); // Ensure it doesn't go below minAcceptableTileSize
+      }
       
-      // Clamp between min and max, but prioritize fitting all tiles
-      newSize = Math.max(minTileSize, newSize); // Ensure it doesn't go below minTileSize
-      newSize = Math.min(maxTileSize, newSize); // Ensure it doesn't exceed maxTileSize
+      // Also ensure it doesn't exceed the preferred size if it somehow calculates larger
+      newSize = Math.min(newSize, preferredTileSize);
 
       setCalculatedSlotTileSize(newSize);
 
-      if (newSize >= 50) setSlotEmojiFontSize("text-3xl"); // Adjusted thresholds
+      // Adjust font size based on the new calculated tile size
+      if (newSize >= 50) setSlotEmojiFontSize("text-3xl");
       else if (newSize >= 40) setSlotEmojiFontSize("text-2xl");
       else if (newSize >= 30) setSlotEmojiFontSize("text-xl");
       else setSlotEmojiFontSize("text-lg");
