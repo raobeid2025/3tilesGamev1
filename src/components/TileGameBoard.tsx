@@ -125,7 +125,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     }}
                   >
                     <span className="relative z-10">
-                      {tile.emoji}
+                      {isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji}
                     </span>
                   </div>
 

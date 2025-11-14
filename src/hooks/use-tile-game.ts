@@ -318,9 +318,8 @@ export const useTileGame = () => {
           const newUsesLeft = prev - 1;
           if (newUsesLeft <= 0) {
             showError("No peeks left!"); // Show error when uses run out
-          } else {
-            showSuccess(`Peek used! ${newUsesLeft} peeks left.`);
-          }
+          } 
+          // Removed showSuccess message here
           setIsPeekModeActive(false); // Deactivate peek mode after each use
           return newUsesLeft;
         });
