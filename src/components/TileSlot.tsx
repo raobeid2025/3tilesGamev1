@@ -106,8 +106,20 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                   layoutId={`tile-${tile.id}`}
                   className="relative flex-shrink-0"
                   layout
-                  initial={{ scale: 0.5, opacity: 0, y: 50, rotate: -45 }}
-                  animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
+                  // Removed initial prop to allow framer-motion to animate from the board's position
+                  animate={{ 
+                    scale: 1, 
+                    opacity: 1, 
+                    y: 0, 
+                    rotate: 0,
+                    transition: { // Add a slight delay to the settling animation after layout transition
+                      delay: 0.1, 
+                      type: "spring", 
+                      stiffness: 800, 
+                      damping: 25, 
+                      mass: 1 
+                    }
+                  }}
                   exit={{ 
                     scale: 0, 
                     opacity: 0,
@@ -119,10 +131,10 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                     stiffness: 800,
                     damping: 25,
                     mass: 1,
-                    layout: {
+                    layout: { // Make layout transition faster
                       type: "spring",
-                      stiffness: 800,
-                      damping: 40
+                      stiffness: 400, // Reduced stiffness for faster layout animation
+                      damping: 30 // Reduced damping for faster layout animation
                     }
                   }}
                 >

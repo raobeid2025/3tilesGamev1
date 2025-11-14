@@ -230,7 +230,15 @@ export const useTileGame = () => {
     const movedTile = tiles.find(t => t.id === id);
     
     if (movedTile) {
-      const newSlotTiles = [...slotTiles, { ...movedTile, isInSlot: true }];
+      let newSlotTiles = [...slotTiles, { ...movedTile, isInSlot: true }];
+      
+      // Sort newSlotTiles by emoji, then by ID for stable order
+      newSlotTiles.sort((a, b) => {
+        if (a.emoji < b.emoji) return -1;
+        if (a.emoji > b.emoji) return 1;
+        return a.id - b.id;
+      });
+
       setSlotTiles(newSlotTiles);
       setTiles(updatedTiles);
       
@@ -260,7 +268,14 @@ export const useTileGame = () => {
           setTilesToRemove(tilesToRemove);
           
           setTimeout(() => {
-            const remainingSlotTiles = newSlotTiles.filter(tile => !tilesToRemove.includes(tile.id));
+            let remainingSlotTiles = newSlotTiles.filter(tile => !tilesToRemove.includes(tile.id));
+            // Sort remainingSlotTiles after removal
+            remainingSlotTiles.sort((a, b) => {
+              if (a.emoji < b.emoji) return -1;
+              if (a.emoji > b.emoji) return 1;
+              return a.id - b.id;
+            });
+
             setSlotTiles(remainingSlotTiles);
             setTilesToRemove([]);
             setVibratingTiles([]);
