@@ -102,12 +102,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
             const isBlockingTileToMove = blockingTilesToMove.includes(tile.id);
             
             let tileZIndex = tile.layer;
-            if (isDisplayingPeek) { // The clicked tile showing the peeked emoji should be highest
-              tileZIndex = 102;
-            } else if (isThisThePeekedTile) { // The actual tile being peeked at
-              tileZIndex = 101;
-            } else if (isBlockingTileToMove) { // Tiles moving out of the way
+            if (isThisThePeekedTile) {
               tileZIndex = 100;
+            } else if (isDisplayingPeek) {
+              tileZIndex = 90;
+            } else if (isBlockingTileToMove) {
+              tileZIndex = 80;
             }
 
             const isTopLayer = tile.layer === currentLevelConfig.layers - 1;
@@ -119,15 +119,15 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 layoutId={`tile-${tile.id}`}
                 className="absolute"
                 layout
-                initial={shouldAnimateEntry ? { y: -50, opacity: 0, scale: 0.8 } : false}
+                initial={shouldAnimateEntry ? { y: -50, opacity: 0, scale: 0.8 } : false} // Only selected top layer tiles animate
                 animate={
                   shouldAnimateEntry
-                    ? {
+                    ? { // Selected top layer tiles animate in
                         y: 0,
                         opacity: blocked ? 0.4 : 1,
                         scale: 1,
                       }
-                    : {
+                    : { // Other tiles appear instantly
                         y: 0, 
                         opacity: blocked ? 0.4 : 1,
                         scale: 1,
@@ -141,13 +141,13 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 }}
                 transition={
                   shouldAnimateEntry
-                    ? {
+                    ? { // Selected top layer animation
                         type: "spring",
                         stiffness: 900,
                         damping: 45,
-                        delay: tile.layer * 0.02
+                        delay: tile.layer * 0.02 // Staggered delay based on layer
                       }
-                    : {
+                    : { // Instant transition for non-animated tiles
                         duration: 0
                       }
                 }
@@ -167,24 +167,25 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                   style={{
                     width: `${calculatedTileSize}px`,
                     height: `${calculatedTileSize}px`,
+                    zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1),
                   }}
                   animate={
                     isThisThePeekedTile
                       ? { y: 0, x: 0, scale: 1.1 }
                       : isDisplayingPeek
-                        ? { y: -20, scale: 1.1, opacity: 1 } // Lift and scale the clicked tile more
+                        ? { y: -15, scale: 1 }
                         : isBlockingTileToMove
-                          ? { y: tile.id % 2 === 0 ? -15 : 15, x: tile.id % 2 === 0 ? -15 : 15, scale: 0.8, opacity: 0.2 } // Move blocking tiles further and make them more transparent
+                          ? { y: -10, x: tile.id % 2 === 0 ? -10 : 10, scale: 0.9 }
                           : selectedTiles.includes(tile.id)
                             ? { scale: 0.95 }
-                            : { y: 0, x: 0, scale: 1, opacity: blocked ? 0.4 : 1 } // Ensure opacity is reset for non-blocking tiles
+                            : { y: 0, x: 0, scale: 1 }
                   }
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
                   <div className={`
                     absolute w-full h-full flex items-center justify-center rounded-lg ${getEmojiFontSize(calculatedTileSize)} font-bold
                     border-2 transition-all duration-200
-                    ${(blocked && !isThisThePeekedTile && !isDisplayingPeek)
+                    ${(blocked && !isThisThePeekedTile)
                       ? "border-gray-500 bg-gray-400"
                       : tile.layer === 0
                         ? "border-indigo-500 bg-white"
@@ -192,11 +193,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                           ? "border-purple-600 bg-purple-200"
                           : "border-pink-700 bg-pink-300"}
                     ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""}
-                    ${isDisplayingPeek ? "border-green-500 ring-4 ring-green-300 bg-green-100" : ""} {/* Highlight the clicked tile showing peek */}
                   `}
                   >
                     <span className="relative z-10">
-                      {isDisplayingPeek && peekedTileEmoji ? peekedTileEmoji : tile.emoji} {/* Display peeked emoji on the clicked tile */}
+                      {isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji}
                     </span>
                   </div>
 
