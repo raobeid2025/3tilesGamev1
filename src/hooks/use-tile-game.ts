@@ -91,7 +91,7 @@ export const useTileGame = () => {
   }, []);
 
   // Get ALL un-matched tiles on layers below the clicked tile at the same position
-  const getTilesBelow = useCallback((clickedTile: Tile, allTiles: Tile[]) => {
+  const const getTilesBelow = useCallback((clickedTile: Tile, allTiles: Tile[]) => {
     return allTiles
       .filter(t =>
         t.position.row === clickedTile.position.row &&
@@ -388,67 +388,47 @@ export const useTileGame = () => {
     const clickedTile = tiles.find(t => t.id === tileId);
     if (!clickedTile) return;
 
-    const isBlocked = blockedStatusMap.get(clickedTile.id) || false; // Fixed: changed 'tile.id' to 'clickedTile.id'
+    const isBlocked = blockedStatusMap.get(clickedTile.id) || false;
 
     if (isPeekModeActive) {
       const tilesBelow = getTilesBelow(clickedTile, tiles);
       const deepestTile = tilesBelow.length > 0 ? tilesBelow[tilesBelow.length - 1] : null; // Get the deepest tile
 
-      if (deepestTile) {
-        // Identify tiles that are blocking the view of the deepest tile
-        const tilesToMove = tiles.filter(t =>
-          t.position.row === clickedTile.position.row &&
-          t.position.col === clickedTile.position.col &&
-          !t.isMatched &&
-          t.layer > deepestTile.layer && // All tiles strictly above the deepestTile
-          t.layer <= clickedTile.layer // Up to and including the clicked tile
-        );
-        setBlockingTilesToMove(tilesToMove.map(t => t.id));
-
-        setPeekedTileId(deepestTile.id); // ID of the actual deepest tile
-        setPeekedTileEmoji(deepestTile.emoji); // Emoji of the actual deepest tile
-        setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display peeked emoji
-        
-        setTimeout(() => {
-          setPeekedTileId(null);
-          setPeekedTileEmoji(null);
-          setPeekDisplayTileId(null);
-          setBlockingTilesToMove([]); // Clear blocking tiles
-        }, 500);
-        
-        setPeekUsesLeft(prev => {
-          const newUsesLeft = prev - 1;
-          if (newUsesLeft <= 0) {
-            showError("No peeks left!");
-          } 
-          setIsPeekModeActive(false); // Deactivate peek mode after each use
-          return newUsesLeft;
-        });
-      } else {
-        // If no tile exists on a layer below, it means this is the bottom-most tile
-        // or there are no tiles below it. In this case, we can just show the clicked tile itself
-        // as the "peeked" tile, indicating it's the last one.
-        setBlockingTilesToMove([]); // No tiles to move if nothing is below
-        setPeekedTileId(clickedTile.id);
-        setPeekedTileEmoji(clickedTile.emoji);
-        setPeekDisplayTileId(clickedTile.id);
-
-        setTimeout(() => {
-          setPeekedTileId(null);
-          setPeekedTileEmoji(null);
-          setPeekDisplayTileId(null);
-          setBlockingTilesToMove([]);
-        }, 500);
-
-        setPeekUsesLeft(prev => {
-          const newUsesLeft = prev - 1;
-          if (newUsesLeft <= 0) {
-            showError("No peeks left!");
-          }
-          setIsPeekModeActive(false);
-          return newUsesLeft;
-        });
+      if (!deepestTile) {
+        showError("No tiles hidden below this one!");
+        setIsPeekModeActive(false); // Deactivate peek mode without consuming a use
+        return;
       }
+
+      // Identify tiles that are blocking the view of the deepest tile
+      const tilesToMove = tiles.filter(t =>
+        t.position.row === clickedTile.position.row &&
+        t.position.col === clickedTile.position.col &&
+        !t.isMatched &&
+        t.layer > deepestTile.layer && // All tiles strictly above the deepestTile
+        t.layer <= clickedTile.layer // Up to and including the clicked tile
+      );
+      setBlockingTilesToMove(tilesToMove.map(t => t.id));
+
+      setPeekedTileId(deepestTile.id); // ID of the actual deepest tile
+      setPeekedTileEmoji(deepestTile.emoji); // Emoji of the actual deepest tile
+      setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display peeked emoji
+      
+      setTimeout(() => {
+        setPeekedTileId(null);
+        setPeekedTileEmoji(null);
+        setPeekDisplayTileId(null);
+        setBlockingTilesToMove([]); // Clear blocking tiles
+      }, 500);
+      
+      setPeekUsesLeft(prev => {
+        const newUsesLeft = prev - 1;
+        if (newUsesLeft <= 0) {
+          showError("No peeks left!");
+        } 
+        setIsPeekModeActive(false); // Deactivate peek mode after each use
+        return newUsesLeft;
+      });
     } else if (!isBlocked) { // If not in peek mode, and not blocked, move to slot
       moveToSlot(tileId);
     }
