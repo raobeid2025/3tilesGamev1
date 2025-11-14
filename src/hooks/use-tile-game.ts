@@ -234,12 +234,6 @@ export const useTileGame = () => {
       setSlotTiles(newSlotTiles);
       setTiles(updatedTiles);
       
-      if (newSlotTiles.length >= currentLevelConfig.slotSize) {
-        setGameStatus("lost"); // Removed setTimeout
-        setIsProcessingSlot(false); // Removed setTimeout
-        return;
-      }
-      
       const emojis = newSlotTiles.map(t => t.emoji);
       const emojiCounts: Record<string, number> = {};
       
@@ -266,16 +260,26 @@ export const useTileGame = () => {
           setTilesToRemove(tilesToRemove);
           
           setTimeout(() => {
-            setSlotTiles(prev => prev.filter(tile => !tilesToRemove.includes(tile.id)));
+            const remainingSlotTiles = newSlotTiles.filter(tile => !tilesToRemove.includes(tile.id));
+            setSlotTiles(remainingSlotTiles);
             setTilesToRemove([]);
             setVibratingTiles([]);
             setComboMessage(null);
             setMoves(moves => moves + 1);
             setSlotAnimationKey(prev => prev + 1);
             setIsProcessingSlot(false);
+
+            // After clearing, check if the slot is still full
+            if (remainingSlotTiles.length >= currentLevelConfig.slotSize) {
+              setGameStatus("lost");
+            }
           }, 150);
         }, 300);
       } else {
+        // No match found, now check if slot is full
+        if (newSlotTiles.length >= currentLevelConfig.slotSize) {
+          setGameStatus("lost");
+        }
         setMoves(moves => moves + 1);
         setIsProcessingSlot(false);
       }
