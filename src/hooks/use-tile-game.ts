@@ -102,16 +102,18 @@ export const useTileGame = () => {
       .sort((a, b) => b.layer - a.layer); // Sort by layer descending, so the highest layer below is first
   }, []);
 
-  // Determine if there are any tiles that can be peeked (at least two layers below)
+  // Determine if there are any tiles that can be peeked (at least one or two layers below, depending on total layers)
   const hasPeekableTiles = useMemo(() => {
     if (currentLevelConfig.layers === 1) return false; // No layers to peek if only one layer
 
+    // For 2-layer levels, we need at least 1 tile below. For 3+ layers, we need at least 2 tiles below.
+    const minTilesBelowForPeek = currentLevelConfig.layers === 2 ? 1 : 2;
+
     for (const tile of tiles) {
       if (!tile.isMatched && !tile.isInSlot && blockedStatusMap.get(tile.id)) {
-        // This tile is blocked. Now check if there are at least two tiles below it.
         const tilesBelow = getTilesBelow(tile, tiles);
-        if (tilesBelow.length >= 2) { // Check for at least two tiles below
-          return true; // Found at least one peekable tile with multiple layers below
+        if (tilesBelow.length >= minTilesBelowForPeek) {
+          return true; // Found at least one peekable tile meeting the criteria
         }
       }
     }
