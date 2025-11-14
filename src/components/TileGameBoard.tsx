@@ -61,9 +61,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
     calculateSizes(); // Recalculate when availableWidth or gridSize changes
   }, [calculateSizes]);
 
-  const effectiveTileSize = calculatedTileSize + calculatedTileSpacing;
-  const dynamicTileDepth = Math.max(4, Math.floor(calculatedTileSize / 8)); // Minimum 4px depth, scales with tile size
-
   const getEmojiFontSize = (size: number) => {
     if (size >= 50) return "text-3xl"; // 30px
     if (size >= 40) return "text-2xl"; // 24px
@@ -72,10 +69,9 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   };
 
   return (
-    <div className="flex justify-center mb-6 w-full"> {/* Removed px-2 sm:px-4 */}
+    <div className="flex justify-center mb-6 w-full">
       <div 
         className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl p-2 shadow-2xl relative overflow-hidden border-4 border-indigo-200"
-        style={{ perspective: '1000px' }}
       >
         <div
           className="relative"
@@ -116,7 +112,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 style={{
                   left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing)}px`,
                   top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing)}px`,
-                  transform: `translateZ(${tile.layer * 15}px)`,
                   zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : tile.layer),
                 }}
               >
@@ -131,12 +126,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   style={{
                     width: `${calculatedTileSize}px`,
                     height: `${calculatedTileSize}px`,
-                    transformStyle: "preserve-3d",
-                    transformOrigin: `center center -${dynamicTileDepth / 2}px`,
                     zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1),
                   }}
                   animate={isDisplayingPeek 
-                    ? { y: -30, x: 15, rotate: 8, scale: 1 }
+                    ? { y: -30, scale: 1 } // Removed x and rotate for 2D
                     : selectedTiles.includes(tile.id) 
                       ? { scale: 0.95 }
                       : { scale: 1 }}
@@ -145,9 +138,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ? { 
                         scale: 1.08, 
                         y: -5, 
-                        rotateX: 5, 
-                        rotateY: 5, 
-                        zIndex: 100,
+                        zIndex: 100, // Removed rotateX and rotateY for 2D
                         transition: { type: "tween", duration: 0.08, ease: "easeOut" }
                       } 
                     : {}}
@@ -165,61 +156,14 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                           : "border-pink-700 bg-pink-300"}
                     ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""}
                   `}
-                    style={{
-                      transform: `translateZ(${dynamicTileDepth / 2}px)`,
-                      background: (blocked && !isThisThePeekedTile)
-                        ? "#a0a0a0"
-                        : tile.layer === 0
-                          ? "#ffffff"
-                          : tile.layer === 1
-                            ? "#e8dcfc"
-                            : "#fcdde9"
-                    }}
                   >
                     <span className="relative z-10">
                       {isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji}
                     </span>
                   </div>
 
-                  {/* Top Face */}
-                  <div className={`
-                    absolute w-full rounded-t-lg
-                    ${(blocked && !isThisThePeekedTile)
-                      ? "bg-gray-500"
-                      : selectedTiles.includes(tile.id)
-                        ? "bg-yellow-400"
-                        : tile.layer === 0
-                          ? "bg-indigo-400"
-                          : "bg-purple-500"}
-                    ${isThisThePeekedTile ? "bg-yellow-500" : ""}
-                  `}
-                    style={{
-                      height: `${dynamicTileDepth}px`,
-                      transform: `rotateX(90deg) translateY(${calculatedTileSize / -2 + dynamicTileDepth / 2}px) translateZ(${dynamicTileDepth / 2}px)`,
-                    }}
-                  ></div>
-
-                  {/* Right Face */}
-                  <div className={`
-                    absolute h-full rounded-r-lg
-                    ${(blocked && !isThisThePeekedTile)
-                      ? "bg-gray-600"
-                      : selectedTiles.includes(tile.id)
-                        ? "bg-yellow-600"
-                        : tile.layer === 0
-                          ? "bg-indigo-600"
-                          : "bg-purple-700"}
-                    ${isThisThePeekedTile ? "bg-yellow-600" : ""}
-                  `}
-                    style={{
-                      width: `${dynamicTileDepth}px`,
-                      transform: `rotateY(90deg) translateX(${calculatedTileSize / 2 - dynamicTileDepth / 2}px) translateZ(${dynamicTileDepth / 2}px)`,
-                    }}
-                  ></div>
-
                   {tile.isMatched && (
-                    <div className="absolute inset-0 bg-green-500 bg-opacity-60 flex items-center justify-center rounded-lg"
-                      style={{ transform: `translateZ(${dynamicTileDepth + 5}px)` }}>
+                    <div className="absolute inset-0 bg-green-500 bg-opacity-60 flex items-center justify-center rounded-lg">
                       <Check className="text-white" size={24} />
                     </div>
                   )}
