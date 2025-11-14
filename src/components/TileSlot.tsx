@@ -111,7 +111,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                   key={`slot-${tile.id}`}
                   className="relative flex-shrink-0"
                   layout
-                  initial={{ scale: 0.5, opacity: 0, y: 50, rotate: -45 }} {/* More dramatic initial state */}
+                  initial={{ scale: 0.5, opacity: 0, y: 50, rotate: -45 }}
                   animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
                   exit={{ 
                     scale: 0, 
@@ -121,8 +121,8 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                   }}
                   transition={{ 
                     type: "spring", 
-                    stiffness: 800, // Increased stiffness for faster movement
-                    damping: 25,     // Adjusted damping for more bounce/vibration
+                    stiffness: 800,
+                    damping: 25,
                     mass: 1,
                     layout: {
                       type: "spring",
