@@ -29,16 +29,17 @@ export default function TileMasterMatch() {
     currentLevelConfig,
     levelConfigs,
     peekedTileId,
-    peekUsesLeft, // New state
-    isPeekModeActive, // New state
+    peekedTileEmoji, // New state
+    peekUsesLeft,
+    isPeekModeActive,
     
     isTileBlocked,
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
     handleSlotTileClick,
-    handleTileClickOnBoard, // New handler
-    handleActivatePeekMode, // New handler
+    handleTileClickOnBoard,
+    handleActivatePeekMode,
     handleNextLevel,
     handlePrevLevel,
     handleRestartLevel,
@@ -60,16 +61,16 @@ export default function TileMasterMatch() {
           moves={moves}
           currentLevel={currentLevel}
           shufflesLeft={shufflesLeft}
-          peekUsesLeft={peekUsesLeft} // Pass new prop
+          peekUsesLeft={peekUsesLeft}
           selectedTheme={selectedTheme}
           onThemeChange={handleThemeChange}
           onRestart={handleRestartLevel}
           onShuffle={handleShuffle}
-          onActivatePeekMode={handleActivatePeekMode} // Pass new prop
+          onActivatePeekMode={handleActivatePeekMode}
           gameStatus={gameStatus}
           isChecking={isChecking}
           isProcessingSlot={isProcessingSlot}
-          isPeekModeActive={isPeekModeActive} // Pass new prop
+          isPeekModeActive={isPeekModeActive}
         />
 
         <div className="text-center text-gray-600 mb-6">
@@ -97,11 +98,12 @@ export default function TileMasterMatch() {
           tiles={tiles}
           currentLevelConfig={currentLevelConfig}
           isTileBlocked={isTileBlocked}
-          moveToSlot={moveToSlot} // Still needed for direct move if not peek mode
+          moveToSlot={moveToSlot}
           selectedTiles={selectedTiles}
           peekedTileId={peekedTileId}
-          isPeekModeActive={isPeekModeActive} // Pass new prop
-          handleTileClickOnBoard={handleTileClickOnBoard} // Pass new prop
+          peekedTileEmoji={peekedTileEmoji} // Pass new prop
+          isPeekModeActive={isPeekModeActive}
+          handleTileClickOnBoard={handleTileClickOnBoard}
         />
 
         <LevelNavigation
