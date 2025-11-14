@@ -1,3 +1,5 @@
+"use client";
+
 // Tile data structure
 export interface Tile {
   id: number;
@@ -38,6 +40,8 @@ export interface LevelConfig {
 export const generatePatternPositions = (pattern: LevelConfig['pattern'], gridSize: number, isFilled: boolean) => {
   const positions: { row: number; col: number }[] = [];
   const center = Math.floor(gridSize / 2);
+  const centerX = (gridSize - 1) / 2; // Defined centerX
+  const centerY = (gridSize - 1) / 2; // Defined centerY
 
   const addUniquePosition = (r: number, c: number) => {
     if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) {
@@ -78,8 +82,6 @@ export const generatePatternPositions = (pattern: LevelConfig['pattern'], gridSi
       case 'circle':
       case 'concentric-circles': // Filled concentric circles
         const maxRadius = gridSize / 2;
-        const centerX = (gridSize - 1) / 2;
-        const centerY = (gridSize - 1) / 2;
         for (let r = 0; r < gridSize; r++) {
           for (let c = 0; c < gridSize; c++) {
             const dist = Math.sqrt(Math.pow(r - centerX, 2) + Math.pow(c - centerY, 2));

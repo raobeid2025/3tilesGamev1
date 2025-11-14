@@ -91,7 +91,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
             <motion.div 
               key={slotAnimationKey}
               className="flex flex-nowrap h-full items-center"
-              style={{ gap: `${calculatedSlotTileGap}px` }} {/* Use calculated gap */}
+              style={{ gap: `${calculatedSlotTileGap}px` }}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 1 }}
@@ -162,15 +162,15 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                     <div 
                       className={`
                         relative flex items-center justify-center bg-white border-2 rounded-lg shadow-lg z-10
-                        ${getEmojiFontSize(calculatedSlotTileSize)} {/* Use calculated font size */}
+                        ${getEmojiFontSize(calculatedSlotTileSize)}
                         ${selectedTiles.includes(tile.id) 
                           ? "border-yellow-400 bg-yellow-50 scale-90" 
                           : "border-indigo-300"}
                         transition-all duration-100 transform hover:scale-105
                       `}
                       style={{
-                        width: `${calculatedSlotTileSize}px`, {/* Use calculated size */}
-                        height: `${calculatedSlotTileSize}px`, {/* Use calculated size */}
+                        width: `${calculatedSlotTileSize}px`,
+                        height: `${calculatedSlotTileSize}px`,
                       }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
