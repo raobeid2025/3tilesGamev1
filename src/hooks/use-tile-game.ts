@@ -317,11 +317,11 @@ export const useTileGame = () => {
         setPeekUsesLeft(prev => {
           const newUsesLeft = prev - 1;
           if (newUsesLeft <= 0) {
-            setIsPeekModeActive(false); // Deactivate if no uses left
             showError("No peeks left!"); // Show error when uses run out
           } else {
             showSuccess(`Peek used! ${newUsesLeft} peeks left.`);
           }
+          setIsPeekModeActive(false); // Deactivate peek mode after each use
           return newUsesLeft;
         });
       }
@@ -337,15 +337,17 @@ export const useTileGame = () => {
       return;
     }
     if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
-    if (isPeekModeActive) { // If already active, allow toggling off
-      setIsPeekModeActive(false);
-      showSuccess("Peek mode deactivated.");
-      return;
-    }
+    // No longer allow toggling off by clicking the button again,
+    // as it will automatically deactivate after one use.
+    // if (isPeekModeActive) { 
+    //   setIsPeekModeActive(false);
+    //   showSuccess("Peek mode deactivated.");
+    //   return;
+    // }
 
     setIsPeekModeActive(true);
-    showSuccess("Peek mode activated! Click any tile to reveal its bottom-most tile.");
-  }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, isPeekModeActive]);
+    showSuccess("Peek mode activated! Click any blocked tile to reveal its bottom-most tile.");
+  }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot]);
 
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
@@ -444,8 +446,8 @@ export const useTileGame = () => {
     currentLevelConfig,
     levelConfigs,
     peekedTileId,
-    peekedTileEmoji, // Export new state
-    peekDisplayTileId, // Export new state
+    peekedTileEmoji,
+    peekDisplayTileId,
     peekUsesLeft,
     isPeekModeActive,
     
@@ -454,8 +456,8 @@ export const useTileGame = () => {
     handleThemeChange,
     moveToSlot,
     handleSlotTileClick,
-    handleTileClickOnBoard, // Export new handler
-    handleActivatePeekMode, // Export new handler
+    handleTileClickOnBoard,
+    handleActivatePeekMode,
     handleNextLevel,
     handlePrevLevel,
     handleRestartLevel,

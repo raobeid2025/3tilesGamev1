@@ -107,7 +107,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   }}
                   // Animation for lifting the tile and handling selection scale
                   animate={isDisplayingPeek 
-                    ? { y: -20, x: 10, rotate: 5, scale: 1 } 
+                    ? { y: -30, x: 15, rotate: 8, scale: 1 } // Increased y and x for more pronounced lift
                     : (selectedTiles.includes(tile.id) ? { scale: 0.95 } : { scale: 1 })}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}}
