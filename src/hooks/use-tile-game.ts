@@ -388,6 +388,7 @@ export const useTileGame = () => {
         // If no tile exists on a layer below, it means this is the bottom-most tile
         // or there are no tiles below it. In this case, we can just show the clicked tile itself
         // as the "peeked" tile, indicating it's the last one.
+        setBlockingTilesToMove([]); // No tiles to move if nothing is below
         setPeekedTileId(clickedTile.id);
         setPeekedTileEmoji(clickedTile.emoji);
         setPeekDisplayTileId(clickedTile.id);
