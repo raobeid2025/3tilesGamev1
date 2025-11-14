@@ -83,13 +83,12 @@ const TileSlot: React.FC<TileSlotProps> = ({
           {slotTiles.length}/{currentLevelConfig.slotSize} tiles
         </span>
       </div>
-      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300"
-           style={{ height: '120px' }}>
+      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[180px] overflow-y-auto">
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
             <motion.div 
               key={slotAnimationKey}
-              className="flex flex-wrap h-full overflow-y-auto" // Removed gap-3 here, using dynamic gap
+              className="flex flex-wrap h-full"
               style={{ gap: `${calculatedGap}px` }}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
