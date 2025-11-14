@@ -13,6 +13,7 @@ interface TileGameBoardProps {
   selectedTiles: number[];
   peekedTileId: number | null;
   peekedTileEmoji: string | null; // New prop
+  peekDisplayTileId: number | null; // New prop
   isPeekModeActive: boolean; // New prop
   handleTileClickOnBoard: (id: number, isBlocked: boolean) => void; // New prop
 }
@@ -24,6 +25,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   selectedTiles,
   peekedTileId,
   peekedTileEmoji, // Destructure new prop
+  peekDisplayTileId, // Destructure new prop
   isPeekModeActive, // Destructure new prop
   handleTileClickOnBoard, // Destructure new prop
 }) => {
@@ -46,7 +48,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
         >
           {sortedTiles.map((tile) => {
             const blocked = isTileBlocked(tile, tiles);
-            const isCurrentlyPeeked = peekedTileId === tile.id; // Check if THIS tile is the one being peeked
+            const isCurrentlyPeeked = peekedTileId === tile.id; // This is the actual bottom tile
+            const isDisplayingPeek = peekDisplayTileId === tile.id; // This is the clicked tile that should show the peeked emoji
             
             return (
               <motion.div
@@ -92,7 +95,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     absolute w-full h-full flex items-center justify-center rounded-lg text-2xl font-bold
                     border-2 transition-all duration-200
                     ${blocked
-                      ? (isCurrentlyPeeked ? "border-yellow-500 bg-yellow-100" : "border-gray-500 bg-gray-400")
+                      ? (isDisplayingPeek ? "border-yellow-500 bg-yellow-100" : "border-gray-500 bg-gray-400")
                       : selectedTiles.includes(tile.id)
                         ? "border-yellow-500 bg-yellow-200"
                         : tile.layer === 0
@@ -104,7 +107,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     style={{
                       transform: "translateZ(10px)",
                       boxShadow: "0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.3)",
-                      background: blocked && !isCurrentlyPeeked
+                      background: blocked && !isDisplayingPeek
                         ? "linear-gradient(145deg, #cccccc, #aaaaaa)"
                         : tile.layer === 0
                           ? "linear-gradient(145deg, #ffffff, #e0e0e0)"
@@ -114,14 +117,14 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     }}
                   >
                     <span className="relative z-10">
-                      {isCurrentlyPeeked && peekedTileEmoji ? peekedTileEmoji : (blocked ? "❓" : tile.emoji)}
+                      {isDisplayingPeek && peekedTileEmoji ? peekedTileEmoji : (blocked ? "❓" : tile.emoji)}
                     </span>
                   </div>
 
                   <div className={`
                     absolute w-full h-2 rounded-t-lg
                     ${blocked
-                      ? (isCurrentlyPeeked ? "bg-yellow-400" : "bg-gray-500")
+                      ? (isDisplayingPeek ? "bg-yellow-400" : "bg-gray-500")
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-400"
                         : tile.layer === 0
@@ -139,7 +142,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   <div className={`
                     absolute h-full w-2 rounded-r-lg
                     ${blocked
-                      ? (isCurrentlyPeeked ? "bg-yellow-600" : "bg-gray-600")
+                      ? (isDisplayingPeek ? "bg-yellow-600" : "bg-gray-600")
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-600"
                         : tile.layer === 0

@@ -29,8 +29,9 @@ export const useTileGame = () => {
   const [levelSelectOpen, setLevelSelectOpen] = useState(false);
   const [isProcessingSlot, setIsProcessingSlot] = useState(false);
   const [shufflesLeft, setShufflesLeft] = useState(3);
-  const [peekedTileId, setPeekedTileId] = useState<number | null>(null);
-  const [peekedTileEmoji, setPeekedTileEmoji] = useState<string | null>(null); // New state for peeked emoji
+  const [peekedTileId, setPeekedTileId] = useState<number | null>(null); // ID of the actual bottom tile
+  const [peekedTileEmoji, setPeekedTileEmoji] = useState<string | null>(null); // Emoji of the actual bottom tile
+  const [peekDisplayTileId, setPeekDisplayTileId] = useState<number | null>(null); // ID of the clicked tile to display peeked emoji
   const [peekUsesLeft, setPeekUsesLeft] = useState(1); // 1 peek per level
   const [isPeekModeActive, setIsPeekModeActive] = useState(false);
 
@@ -169,6 +170,7 @@ export const useTileGame = () => {
     setShufflesLeft(3);
     setPeekedTileId(null);
     setPeekedTileEmoji(null); // Reset peeked emoji
+    setPeekDisplayTileId(null); // Reset peek display ID
     setPeekUsesLeft(1); // Reset peek uses for new level
     setIsPeekModeActive(false); // Deactivate peek mode on new level
   }, [currentLevel, selectedTheme]);
@@ -303,11 +305,13 @@ export const useTileGame = () => {
     if (isPeekModeActive || isBlocked) { // Both peek mode and default blocked tile click
       const bottomTile = getBottomTileAtPosition(clickedTile.position.row, clickedTile.position.col, tiles);
       if (bottomTile) {
-        setPeekedTileId(bottomTile.id);
-        setPeekedTileEmoji(bottomTile.emoji); // Set the emoji of the bottom tile
+        setPeekedTileId(bottomTile.id); // ID of the actual bottom tile
+        setPeekedTileEmoji(bottomTile.emoji); // Emoji of the actual bottom tile
+        setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display the peeked emoji
         setTimeout(() => {
           setPeekedTileId(null);
-          setPeekedTileEmoji(null); // Clear the emoji after timeout
+          setPeekedTileEmoji(null);
+          setPeekDisplayTileId(null);
         }, 5000); // 5 seconds
         if (isPeekModeActive) {
           setIsPeekModeActive(false); // Deactivate after one peek
@@ -430,6 +434,7 @@ export const useTileGame = () => {
     levelConfigs,
     peekedTileId,
     peekedTileEmoji, // Export new state
+    peekDisplayTileId, // Export new state
     peekUsesLeft,
     isPeekModeActive,
     

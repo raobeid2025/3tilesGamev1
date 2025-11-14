@@ -30,6 +30,7 @@ export default function TileMasterMatch() {
     levelConfigs,
     peekedTileId,
     peekedTileEmoji, // New state
+    peekDisplayTileId, // New state
     peekUsesLeft,
     isPeekModeActive,
     
@@ -102,6 +103,7 @@ export default function TileMasterMatch() {
           selectedTiles={selectedTiles}
           peekedTileId={peekedTileId}
           peekedTileEmoji={peekedTileEmoji} // Pass new prop
+          peekDisplayTileId={peekDisplayTileId} // Pass new prop
           isPeekModeActive={isPeekModeActive}
           handleTileClickOnBoard={handleTileClickOnBoard}
         />
