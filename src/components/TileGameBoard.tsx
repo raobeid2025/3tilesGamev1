@@ -75,23 +75,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   zIndex: tile.layer,
                 }}
               >
-                {/* Placeholder for the peeked emoji, appears in the original spot */}
-                <AnimatePresence>
-                  {isDisplayingPeek && peekedTileEmoji && (
-                    <motion.div
-                      key={`peek-placeholder-${tile.id}`}
-                      className="absolute w-12 h-12 flex items-center justify-center rounded-lg text-2xl font-bold bg-yellow-100 border-2 border-yellow-500 shadow-lg"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.2 }}
-                      style={{ zIndex: 1 }}
-                    >
-                      {peekedTileEmoji}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
                 {/* The actual tile that moves */}
                 <motion.div
                   key={`actual-tile-${tile.id}`}
@@ -102,12 +85,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)}
                   style={{
                     transformStyle: "preserve-3d",
-                    zIndex: isDisplayingPeek ? 2 : 1,
+                    zIndex: isDisplayingPeek ? 2 : 1, // Keep zIndex high for the lifting tile
                     transform: `translateZ(${tile.layer * 15}px)` // Base 3D positioning
                   }}
                   // Animation for lifting the tile and handling selection scale
                   animate={isDisplayingPeek 
-                    ? { y: -30, x: 15, rotate: 8, scale: 1 } // Increased y and x for more pronounced lift
+                    ? { y: -30, x: 15, rotate: 8, scale: 1, opacity: 0 } // Make it transparent
                     : (selectedTiles.includes(tile.id) ? { scale: 0.95 } : { scale: 1 })}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}}
