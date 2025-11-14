@@ -32,27 +32,33 @@ const TileSlot: React.FC<TileSlotProps> = ({
   const slotRef = useRef<HTMLDivElement>(null);
   const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(64); // Default for sm:w-16
   const [slotEmojiFontSize, setSlotEmojiFontSize] = useState("text-3xl");
+  const [calculatedGap, setCalculatedGap] = useState(12); // Default gap-3
 
   const calculateSlotTileSizes = useCallback(() => {
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
       const maxTilesInRow = currentLevelConfig.slotSize; 
-      const minTileSize = 40; // Minimum size for slot tiles
+      const minTileSize = 35; // Minimum size for slot tiles on very small screens
       const maxTileSize = 64; // Max size for slot tiles (sm:w-16)
-      const gap = 12; // gap-3 is 12px
+      const baseGap = 12; // gap-3 is 12px
+
+      // Adjust gap based on screen size, smaller gap for smaller screens
+      const newGap = containerWidth < 400 ? 8 : baseGap; // Use 8px gap for screens < 400px
+      setCalculatedGap(newGap);
 
       // Calculate how many tiles can fit in a row
-      let tilesPerRow = Math.floor((containerWidth + gap) / (minTileSize + gap));
+      let tilesPerRow = Math.floor((containerWidth + newGap) / (minTileSize + newGap));
       tilesPerRow = Math.max(1, Math.min(tilesPerRow, maxTilesInRow)); // Ensure at least 1 tile, max slotSize
 
-      let newSize = (containerWidth - (tilesPerRow - 1) * gap) / tilesPerRow;
+      let newSize = (containerWidth - (tilesPerRow - 1) * newGap) / tilesPerRow;
       newSize = Math.max(minTileSize, Math.min(newSize, maxTileSize)); // Clamp between min and max
 
       setCalculatedSlotTileSize(newSize);
 
       if (newSize >= 60) setSlotEmojiFontSize("text-3xl");
       else if (newSize >= 48) setSlotEmojiFontSize("text-2xl");
-      else setSlotEmojiFontSize("text-xl");
+      else if (newSize >= 40) setSlotEmojiFontSize("text-xl");
+      else setSlotEmojiFontSize("text-lg");
     }
   }, [currentLevelConfig.slotSize]);
 
@@ -83,11 +89,12 @@ const TileSlot: React.FC<TileSlotProps> = ({
           {slotTiles.length > 0 ? (
             <motion.div 
               key={slotAnimationKey}
-              className="flex flex-wrap gap-3 overflow-y-auto h-full"
+              className="flex flex-wrap h-full overflow-y-auto" // Removed gap-3 here, using dynamic gap
+              style={{ gap: `${calculatedGap}px` }}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 1 }}
-              ref={slotRef} // Attach ref here
+              ref={slotRef}
             >
               {slotTiles.map((tile) => (
                 <motion.div
@@ -100,16 +107,16 @@ const TileSlot: React.FC<TileSlotProps> = ({
                     scale: 0, 
                     opacity: 0,
                     rotate: tilesToRemove.includes(tile.id) ? 180 : 0,
-                    transition: { duration: 0.1 } // Faster exit
+                    transition: { duration: 0.1 }
                   }}
                   transition={{ 
                     type: "spring", 
-                    stiffness: 800, // Increased stiffness
-                    damping: 40, // Slightly reduced damping
+                    stiffness: 800,
+                    damping: 40,
                     layout: {
                       type: "spring",
-                      stiffness: 800, // Increased stiffness
-                      damping: 40 // Slightly reduced damping
+                      stiffness: 800,
+                      damping: 40
                     }
                   }}
                 >

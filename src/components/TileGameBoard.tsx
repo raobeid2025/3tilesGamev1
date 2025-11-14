@@ -39,15 +39,17 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   const calculateSizes = useCallback(() => {
     if (boardRef.current) {
       const containerWidth = boardRef.current.offsetWidth;
-      // Max board width for larger screens, otherwise use container width
-      const maxBoardWidth = Math.min(containerWidth, 600); 
-      
+      // Use full container width for calculation, no max cap here
+      const availableWidth = containerWidth - (2 * 2); // Account for board's own padding (p-2)
+
       const newTileSpacing = 4; // Keep spacing consistent
-      const availableWidthForTiles = maxBoardWidth - (currentLevelConfig.gridSize - 1) * newTileSpacing;
-      let newTileSize = Math.floor(availableWidthForTiles / currentLevelConfig.gridSize);
+      const totalSpacingWidth = (currentLevelConfig.gridSize - 1) * newTileSpacing;
       
-      // Ensure a minimum tile size for usability
+      let newTileSize = Math.floor((availableWidth - totalSpacingWidth) / currentLevelConfig.gridSize);
+      
+      // Ensure a minimum tile size for usability, but also a reasonable maximum
       newTileSize = Math.max(newTileSize, 30); 
+      newTileSize = Math.min(newTileSize, 52); // Cap at original desktop size for larger screens
       
       setCalculatedTileSize(newTileSize);
       setCalculatedTileSpacing(newTileSpacing);
@@ -80,17 +82,17 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   };
 
   return (
-    <div className="flex justify-center mb-6 w-full px-2 sm:px-4"> {/* Added w-full and padding for responsiveness */}
+    <div className="flex justify-center mb-6 w-full px-2 sm:px-4">
       <div 
-        ref={boardRef} // Attach ref here
+        ref={boardRef}
         className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl p-2 shadow-2xl relative overflow-hidden border-4 border-indigo-200"
         style={{ perspective: '1000px' }}
       >
         <div
           className="relative"
           style={{
-            width: `${currentLevelConfig.gridSize * effectiveTileSize - calculatedTileSpacing}px`, // Adjust total width
-            height: `${currentLevelConfig.gridSize * effectiveTileSize - calculatedTileSpacing}px`, // Adjust total height
+            width: `${currentLevelConfig.gridSize * calculatedTileSize + (currentLevelConfig.gridSize - 1) * calculatedTileSpacing}px`,
+            height: `${currentLevelConfig.gridSize * calculatedTileSize + (currentLevelConfig.gridSize - 1) * calculatedTileSpacing}px`,
           }}
         >
           {sortedTiles.map((tile) => {
@@ -123,8 +125,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   damping: 45
                 } : { duration: 0 }}
                 style={{
-                  left: `${tile.position.col * effectiveTileSize}px`,
-                  top: `${tile.position.row * effectiveTileSize}px`,
+                  left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing)}px`,
+                  top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing)}px`,
                   transform: `translateZ(${tile.layer * 15}px)`,
                   zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : tile.layer),
                 }}
@@ -141,7 +143,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     width: `${calculatedTileSize}px`,
                     height: `${calculatedTileSize}px`,
                     transformStyle: "preserve-3d",
-                    transformOrigin: `center center -${dynamicTileDepth / 2}px`, // Set transform origin for 3D rotation
+                    transformOrigin: `center center -${dynamicTileDepth / 2}px`,
                     zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1),
                   }}
                   animate={isDisplayingPeek 
@@ -228,7 +230,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
 
                   {tile.isMatched && (
                     <div className="absolute inset-0 bg-green-500 bg-opacity-60 flex items-center justify-center rounded-lg"
-                      style={{ transform: `translateZ(${dynamicTileDepth + 5}px)` }}> {/* Ensure checkmark is above faces */}
+                      style={{ transform: `translateZ(${dynamicTileDepth + 5}px)` }}>
                       <Check className="text-white" size={24} />
                     </div>
                   )}
