@@ -103,25 +103,24 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 layoutId={`tile-${tile.id}`}
                 className="absolute"
                 layout
-                // Removed initial prop for faster level loading
-                animate={
-                  isThisThePeekedTile || isDisplayingPeek
-                    ? { scale: 1, opacity: 1 }
-                    : blocked
-                      ? { scale: 1, opacity: 0.6 }
-                      : { scale: 1, opacity: 1 }
-                }
+                initial={{ y: -50, opacity: 0, scale: 0.8 }} // Staggered entry animation
+                animate={{
+                  y: 0,
+                  opacity: blocked ? 0.6 : 1, // Final opacity based on blocked status
+                  scale: 1,
+                }}
                 exit={{
                   scale: 0,
                   opacity: 0,
                   rotate: tile.isMatched ? 360 : 0,
                   transition: { duration: 0.1 }
                 }}
-                transition={!blocked ? {
+                transition={{
                   type: "spring",
                   stiffness: 900,
-                  damping: 45
-                } : { duration: 0 }}
+                  damping: 45,
+                  delay: tile.layer * 0.05 // Staggered delay based on layer
+                }}
                 style={{
                   left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing)}px`,
                   top: `${tile.position.row * (calculatedTileSize + calculatedTileSpacing)}px`,
@@ -144,12 +143,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                     isThisThePeekedTile
                       ? { y: 0, x: 0, scale: 1.1 }
                       : isDisplayingPeek
-                        ? { y: -30, scale: 1 }
+                        ? { y: -15, scale: 1 }
                         : isBlockingTileToMove
-                          ? { y: -15, x: tile.id % 2 === 0 ? -15 : 15, scale: 0.9 }
+                          ? { y: -10, x: tile.id % 2 === 0 ? -10 : 10, scale: 0.9 }
                           : selectedTiles.includes(tile.id)
                             ? { scale: 0.95 }
-                            : { scale: 1 }
+                            : { y: 0, x: 0, scale: 1 }
                   }
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
