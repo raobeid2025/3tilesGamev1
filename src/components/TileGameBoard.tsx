@@ -40,7 +40,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
   const [animatedTopLayerTileIds, setAnimatedTopLayerTileIds] = useState<Set<number>>(new Set());
 
   // Define a small visual offset for layers to create a 3D effect
-  const layerVisualOffset = 4; // Increased from 2 to 4 pixels per layer for a more noticeable 3D effect
+  const layerVisualOffset = 2; // pixels per layer
   const maxLayer = currentLevelConfig.layers - 1;
 
   useEffect(() => {
