@@ -35,7 +35,7 @@ export const useTileGame = () => {
   const [peekUsesLeft, setPeekUsesLeft] = useState(3); // Changed from 1 to 3 peeks per level
   const [isPeekModeActive, setIsPeekModeActive] = useState(false);
   const [blockingTilesToMove, setBlockingTilesToMove] = useState<number[]>([]); // New state for tiles to move during peek
-  const [blockedStatusMap, setBlockedStatusMap] = new Map(); // New state for pre-calculated blocking status
+  const [blockedStatusMap, setBlockedStatusMap] = useState<Map<number, boolean>>(new Map()); // Corrected: Initialize with useState
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
