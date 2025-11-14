@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tile, LevelConfig, GameStatus } from "@/utils/game-config";
 
@@ -15,6 +15,7 @@ interface TileSlotProps {
   gameStatus: GameStatus;
   isProcessingSlot: boolean;
   selectedTiles: number[];
+  availableWidth: number; // New prop for available width
 }
 
 const TileSlot: React.FC<TileSlotProps> = React.memo(({
@@ -28,10 +29,59 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
   gameStatus,
   isProcessingSlot,
   selectedTiles,
+  availableWidth, // Destructure new prop
 }) => {
-  const fixedTileSize = 56; // Adjusted from 64 to 56 for better fit
-  const fixedGap = 8; // Fixed gap between tiles in the slot
-  const fixedEmojiFontSize = "text-2xl"; // Adjusted from text-3xl to text-2xl
+  const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(56);
+  const [calculatedSlotTileGap, setCalculatedSlotTileGap] = useState(8);
+
+  const getEmojiFontSize = (size: number) => {
+    if (size >= 50) return "text-3xl";
+    if (size >= 40) return "text-2xl";
+    if (size >= 30) return "text-xl";
+    return "text-lg";
+  };
+
+  const calculateSlotTileSizes = useCallback(() => {
+    if (availableWidth > 0) {
+      const slotPadding = 8 * 2; // p-2 on the inner div means 8px left + 8px right
+      const effectiveWidth = availableWidth - slotPadding;
+      const numTilesInSlot = currentLevelConfig.slotSize; // This is 7
+
+      const maxTileSize = 64; // Max tile size to fit in 80px height (80 - 2*8 padding)
+      const minTileSize = 30; // Minimum reasonable tile size
+
+      const targetGap = 4; // Start with a small target gap
+
+      // Calculate potential tile size if we use the target gap
+      let potentialTileSize = (effectiveWidth - (numTilesInSlot - 1) * targetGap) / numTilesInSlot;
+
+      let newTileSize = Math.floor(potentialTileSize);
+      let newTileGap = targetGap;
+
+      // Ensure tile size is within bounds
+      if (newTileSize > maxTileSize) {
+        newTileSize = maxTileSize;
+        // Recalculate gap if tiles are capped at max size
+        newTileGap = Math.floor((effectiveWidth - numTilesInSlot * newTileSize) / (numTilesInSlot - 1));
+        newTileGap = Math.max(0, newTileGap); // Ensure gap is not negative
+      } else if (newTileSize < minTileSize) {
+        newTileSize = minTileSize;
+        // If tiles are at min size, and still overflow, we might have to accept a scrollbar
+        // But the goal is to avoid it, so we prioritize fitting.
+        // If minTileSize is used, the gap might become very small or negative,
+        // which means even at minTileSize, 7 tiles won't fit.
+        // For now, we'll let it calculate and if it's too small, it will be minTileSize.
+        // The overflow-x-auto will handle it if it truly can't fit.
+      }
+      
+      setCalculatedSlotTileSize(newTileSize);
+      setCalculatedSlotTileGap(newTileGap);
+    }
+  }, [availableWidth, currentLevelConfig.slotSize]);
+
+  useEffect(() => {
+    calculateSlotTileSizes();
+  }, [calculateSlotTileSizes]);
 
   return (
     <div className="mb-4 w-full">
@@ -41,7 +91,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
             <motion.div 
               key={slotAnimationKey}
               className="flex flex-nowrap h-full items-center"
-              style={{ gap: `${fixedGap}px` }}
+              style={{ gap: `${calculatedSlotTileGap}px` }} {/* Use calculated gap */}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 1 }}
@@ -112,15 +162,15 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                     <div 
                       className={`
                         relative flex items-center justify-center bg-white border-2 rounded-lg shadow-lg z-10
-                        ${fixedEmojiFontSize}
+                        ${getEmojiFontSize(calculatedSlotTileSize)} {/* Use calculated font size */}
                         ${selectedTiles.includes(tile.id) 
                           ? "border-yellow-400 bg-yellow-50 scale-90" 
                           : "border-indigo-300"}
                         transition-all duration-100 transform hover:scale-105
                       `}
                       style={{
-                        width: `${fixedTileSize}px`,
-                        height: `${fixedTileSize}px`,
+                        width: `${calculatedSlotTileSize}px`, {/* Use calculated size */}
+                        height: `${calculatedSlotTileSize}px`, {/* Use calculated size */}
                       }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
