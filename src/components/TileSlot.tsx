@@ -88,7 +88,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
           {slotTiles.length}/{currentLevelConfig.slotSize} tiles
         </span>
       </div>
-      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[180px] overflow-x-auto overflow-y-hidden">
+      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[150px] overflow-x-auto overflow-y-hidden"> {/* Reduced max-h-[180px] to max-h-[150px] */}
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
             <motion.div 
