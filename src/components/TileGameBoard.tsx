@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
 import { Check } from "lucide-react";
 import { Tile, LevelConfig } from "@/utils/game-config";
 
@@ -116,9 +116,26 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     }}
                   >
                     <span className="relative z-10">
-                      {isDisplayingPeek && peekedTileEmoji ? peekedTileEmoji : (blocked ? "" : tile.emoji)}
+                      {/* If displaying peek, the tile itself shows nothing, the card will show the emoji */}
+                      {blocked && !isDisplayingPeek ? "" : tile.emoji} 
                     </span>
                   </div>
+
+                  {/* Peek Card */}
+                  <AnimatePresence>
+                    {isDisplayingPeek && peekedTileEmoji && (
+                      <motion.div
+                        className="absolute -top-14 left-1/2 -translate-x-1/2 bg-yellow-200 border-2 border-yellow-500 rounded-lg p-2 shadow-lg z-20 flex items-center justify-center text-3xl"
+                        initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        style={{ width: '60px', height: '60px' }} // Slightly larger than tile
+                      >
+                        {peekedTileEmoji}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <div className={`
                     absolute w-full h-2 rounded-t-lg
