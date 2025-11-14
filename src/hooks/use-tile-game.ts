@@ -35,7 +35,7 @@ export const useTileGame = () => {
   const [peekUsesLeft, setPeekUsesLeft] = useState(3); // Changed from 1 to 3 peeks per level
   const [isPeekModeActive, setIsPeekModeActive] = useState(false);
   const [blockingTilesToMove, setBlockingTilesToMove] = useState<number[]>([]); // New state for tiles to move during peek
-  const [blockedStatusMap, setBlockedStatusMap] = useState<Map<number, boolean>>(new Map()); // New state for pre-calculated blocking status
+  const [blockedStatusMap, setBlockedStatusMap] = new Map(); // New state for pre-calculated blocking status
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
@@ -388,21 +388,21 @@ export const useTileGame = () => {
 
     if (isPeekModeActive) {
       const tilesBelow = getTilesBelow(clickedTile, tiles);
-      const nextLayerTile = tilesBelow.length > 0 ? tilesBelow[0] : null; // Get the immediate next tile down
+      const deepestTile = tilesBelow.length > 0 ? tilesBelow[tilesBelow.length - 1] : null; // Get the deepest tile
 
-      if (nextLayerTile) {
-        // Identify tiles that are blocking the view of the next layer tile
+      if (deepestTile) {
+        // Identify tiles that are blocking the view of the deepest tile
         const tilesToMove = tiles.filter(t =>
           t.position.row === clickedTile.position.row &&
           t.position.col === clickedTile.position.col &&
           !t.isMatched &&
-          t.layer > nextLayerTile.layer && // All tiles strictly above the nextLayerTile
+          t.layer > deepestTile.layer && // All tiles strictly above the deepestTile
           t.layer <= clickedTile.layer // Up to and including the clicked tile
         );
         setBlockingTilesToMove(tilesToMove.map(t => t.id));
 
-        setPeekedTileId(nextLayerTile.id); // ID of the actual next layer tile
-        setPeekedTileEmoji(nextLayerTile.emoji); // Emoji of the actual next layer tile
+        setPeekedTileId(deepestTile.id); // ID of the actual deepest tile
+        setPeekedTileEmoji(deepestTile.emoji); // Emoji of the actual deepest tile
         setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display peeked emoji
         
         setTimeout(() => {
@@ -467,7 +467,7 @@ export const useTileGame = () => {
     }
 
     setIsPeekModeActive(true);
-    showSuccess("Peek mode activated! Click any blocked tile with multiple layers below to reveal its next layer tile.");
+    showSuccess("Peek mode activated! Click any blocked tile with multiple layers below to reveal its deepest hidden tile.");
   }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers, hasPeekableTiles]);
 
   useEffect(() => {
