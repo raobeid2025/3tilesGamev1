@@ -58,11 +58,11 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                 layout
                 initial={!blocked ? { scale: 0.8, opacity: 0 } : {}}
                 animate={
-                  isThisThePeekedTile // Explicitly set opacity to 1 for the peeked tile's container
-                    ? { scale: 1, opacity: 1 }
-                    : !blocked
-                      ? { scale: 1, opacity: 1 }
-                      : {} // For other blocked tiles, let inner div handle opacity
+                  isThisThePeekedTile || isDisplayingPeek // If it's the peeked tile OR the tile moving for peek
+                    ? { scale: 1, opacity: 1 } // It should be fully opaque
+                    : blocked
+                      ? { scale: 1, opacity: 0.6 } // If blocked and not involved in peek, 60% opacity
+                      : { scale: 1, opacity: 1 } // Otherwise (unblocked), fully opaque
                 }
                 exit={{
                   scale: 0,
@@ -95,14 +95,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1), // Keep zIndex high for the lifting tile
                     transform: `translateZ(${tile.layer * 15}px)` // Base 3D positioning
                   }}
-                  // Animation for lifting the tile and handling selection scale
+                  // Animation for lifting the tile and handling selection scale (opacity handled by parent)
                   animate={isDisplayingPeek 
-                    ? { y: -30, x: 15, rotate: 8, scale: 1, opacity: 1 } // Top tile moving: full opacity
-                    : isThisThePeekedTile
-                      ? { scale: 1, opacity: 1 } // Bottom tile revealed: full opacity
-                      : blocked
-                        ? { scale: 1, opacity: 0.6 } // Blocked, not peeked: 60% opacity
-                        : (selectedTiles.includes(tile.id) ? { scale: 0.95, opacity: 1 } : { scale: 1, opacity: 1 })} // Normal/selected: full opacity
+                    ? { y: -30, x: 15, rotate: 8, scale: 1 } // Only position/rotation/scale for moving tile
+                    : selectedTiles.includes(tile.id) 
+                      ? { scale: 0.95 } // Only scale for selected tiles
+                      : { scale: 1 }} // Default scale
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}}
                 >
