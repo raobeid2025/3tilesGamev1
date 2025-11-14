@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react"; // Import useMemo
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { showSuccess, showError } from "@/utils/toast";
 import { 
   Tile, 
@@ -90,38 +90,33 @@ export const useTileGame = () => {
     );
   }, []);
 
-  // Get the tile on the next layer down at a specific position
-  const getNextLayerTileAtPosition = useCallback((clickedTile: Tile, allTiles: Tile[]) => {
-    const tilesAtPosition = allTiles.filter(t =>
-      t.position.row === clickedTile.position.row &&
-      t.position.col === clickedTile.position.col &&
-      !t.isMatched &&
-      t.layer < clickedTile.layer // Only consider tiles on layers below the clicked tile
-    );
-
-    if (tilesAtPosition.length === 0) return null;
-
-    // Find the tile with the highest layer among those below the clicked tile
-    return tilesAtPosition.reduce((prev, current) =>
-      current.layer > (prev?.layer || -1) ? current : prev
-    );
+  // Get ALL un-matched tiles on layers below the clicked tile at the same position
+  const getTilesBelow = useCallback((clickedTile: Tile, allTiles: Tile[]) => {
+    return allTiles
+      .filter(t =>
+        t.position.row === clickedTile.position.row &&
+        t.position.col === clickedTile.position.col &&
+        !t.isMatched &&
+        t.layer < clickedTile.layer // Only consider tiles on layers below the clicked tile
+      )
+      .sort((a, b) => b.layer - a.layer); // Sort by layer descending, so the highest layer below is first
   }, []);
 
-  // Determine if there are any tiles that can be peeked
+  // Determine if there are any tiles that can be peeked (at least two layers below)
   const hasPeekableTiles = useMemo(() => {
     if (currentLevelConfig.layers === 1) return false; // No layers to peek if only one layer
 
     for (const tile of tiles) {
       if (!tile.isMatched && !tile.isInSlot && blockedStatusMap.get(tile.id)) {
-        // This tile is blocked. Now check if there's a tile below it.
-        const nextLayerTile = getNextLayerTileAtPosition(tile, tiles);
-        if (nextLayerTile) {
-          return true; // Found at least one peekable tile
+        // This tile is blocked. Now check if there are at least two tiles below it.
+        const tilesBelow = getTilesBelow(tile, tiles);
+        if (tilesBelow.length >= 2) { // Check for at least two tiles below
+          return true; // Found at least one peekable tile with multiple layers below
         }
       }
     }
     return false; // No peekable tiles found
-  }, [tiles, blockedStatusMap, currentLevelConfig.layers, getNextLayerTileAtPosition]);
+  }, [tiles, blockedStatusMap, currentLevelConfig.layers, getTilesBelow]);
 
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
@@ -385,14 +380,16 @@ export const useTileGame = () => {
   };
 
   // Unified handler for clicking tiles on the game board
-  const handleTileClickOnBoard = useCallback((tileId: number) => { // Removed isBlocked param
+  const handleTileClickOnBoard = useCallback((tileId: number) => {
     const clickedTile = tiles.find(t => t.id === tileId);
     if (!clickedTile) return;
 
-    const isBlocked = blockedStatusMap.get(tileId) || false; // Get status from map
+    const isBlocked = blockedStatusMap.get(tileId) || false;
 
-    if (isPeekModeActive) { // Only peek if peek mode is active
-      const nextLayerTile = getNextLayerTileAtPosition(clickedTile, tiles);
+    if (isPeekModeActive) {
+      const tilesBelow = getTilesBelow(clickedTile, tiles);
+      const nextLayerTile = tilesBelow.length > 0 ? tilesBelow[0] : null; // Get the immediate next tile down
+
       if (nextLayerTile) {
         // Identify tiles that are blocking the view of the next layer tile
         const tilesToMove = tiles.filter(t =>
@@ -413,12 +410,12 @@ export const useTileGame = () => {
           setPeekedTileEmoji(null);
           setPeekDisplayTileId(null);
           setBlockingTilesToMove([]); // Clear blocking tiles
-        }, 500); // Reduced to 500ms for a quick peek
+        }, 500);
         
         setPeekUsesLeft(prev => {
           const newUsesLeft = prev - 1;
           if (newUsesLeft <= 0) {
-            showError("No peeks left!"); // Show error when uses run out
+            showError("No peeks left!");
           } 
           setIsPeekModeActive(false); // Deactivate peek mode after each use
           return newUsesLeft;
@@ -452,7 +449,7 @@ export const useTileGame = () => {
       moveToSlot(tileId);
     }
     // If not in peek mode AND blocked, do nothing.
-  }, [isPeekModeActive, moveToSlot, tiles, getNextLayerTileAtPosition, setPeekUsesLeft, blockedStatusMap]); // Added blockedStatusMap to dependencies
+  }, [isPeekModeActive, moveToSlot, tiles, getTilesBelow, setPeekUsesLeft, blockedStatusMap]);
 
   const handleActivatePeekMode = useCallback(() => {
     if (currentLevelConfig.layers === 1) {
@@ -465,12 +462,12 @@ export const useTileGame = () => {
     }
     if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
     if (!hasPeekableTiles) { // New check: disable if no peekable tiles
-      showError("No more blocked tiles to peek!");
+      showError("No more blocked tiles with multiple layers below to peek!");
       return;
     }
 
     setIsPeekModeActive(true);
-    showSuccess("Peek mode activated! Click any blocked tile to reveal its next layer tile.");
+    showSuccess("Peek mode activated! Click any blocked tile with multiple layers below to reveal its next layer tile.");
   }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers, hasPeekableTiles]);
 
   useEffect(() => {
@@ -583,7 +580,6 @@ export const useTileGame = () => {
     blockedStatusMap, // Expose new state
     hasPeekableTiles, // Expose new state
     
-    // isTileBlocked, // Removed
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
