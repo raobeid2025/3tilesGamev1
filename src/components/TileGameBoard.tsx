@@ -106,7 +106,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 initial={{ y: -50, opacity: 0, scale: 0.8 }} // Staggered entry animation
                 animate={{
                   y: 0,
-                  opacity: blocked ? 0.6 : 1, // Final opacity based on blocked status
+                  opacity: blocked ? 0.4 : 1, // Adjusted opacity for blocked tiles to be lighter
                   scale: 1,
                 }}
                 exit={{
@@ -119,7 +119,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                   type: "spring",
                   stiffness: 900,
                   damping: 45,
-                  delay: tile.layer * 0.05 // Staggered delay based on layer
+                  delay: tile.layer * 0.02 // Reduced staggered delay for faster animation
                 }}
                 style={{
                   left: `${tile.position.col * (calculatedTileSize + calculatedTileSpacing)}px`,
