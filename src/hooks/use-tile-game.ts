@@ -63,18 +63,20 @@ export const useTileGame = () => {
     );
   }, []);
 
-  // Get the bottom tile at a specific position
-  const getBottomTileAtPosition = useCallback((row: number, col: number, allTiles: Tile[]) => {
+  // Get the tile on the next layer down at a specific position
+  const getNextLayerTileAtPosition = useCallback((clickedTile: Tile, allTiles: Tile[]) => {
     const tilesAtPosition = allTiles.filter(t =>
-      t.position.row === row &&
-      t.position.col === col &&
-      !t.isMatched
+      t.position.row === clickedTile.position.row &&
+      t.position.col === clickedTile.position.col &&
+      !t.isMatched &&
+      t.layer < clickedTile.layer // Only consider tiles on layers below the clicked tile
     );
 
     if (tilesAtPosition.length === 0) return null;
 
-    return tilesAtPosition.reduce((bottom, current) =>
-      current.layer < (bottom?.layer || Infinity) ? current : bottom
+    // Find the tile with the highest layer among those below the clicked tile
+    return tilesAtPosition.reduce((prev, current) =>
+      current.layer > (prev?.layer || -1) ? current : prev
     );
   }, []);
 
@@ -305,19 +307,20 @@ export const useTileGame = () => {
     if (!clickedTile) return;
 
     if (isPeekModeActive) { // Only peek if peek mode is active
-      const bottomTile = getBottomTileAtPosition(clickedTile.position.row, clickedTile.position.col, tiles);
-      if (bottomTile) {
-        // Identify tiles that are blocking the view of the bottom tile
-        const tilesAtPosition = tiles.filter(t =>
+      const nextLayerTile = getNextLayerTileAtPosition(clickedTile, tiles);
+      if (nextLayerTile) {
+        // Identify tiles that are blocking the view of the next layer tile
+        const tilesToMove = tiles.filter(t =>
           t.position.row === clickedTile.position.row &&
           t.position.col === clickedTile.position.col &&
           !t.isMatched &&
-          t.id !== bottomTile.id // Exclude the bottom tile itself
+          t.layer > nextLayerTile.layer && // All tiles strictly above the nextLayerTile
+          t.layer <= clickedTile.layer // Up to and including the clicked tile
         );
-        setBlockingTilesToMove(tilesAtPosition.map(t => t.id));
+        setBlockingTilesToMove(tilesToMove.map(t => t.id));
 
-        setPeekedTileId(bottomTile.id); // ID of the actual bottom tile
-        setPeekedTileEmoji(bottomTile.emoji); // Emoji of the actual bottom tile
+        setPeekedTileId(nextLayerTile.id); // ID of the actual next layer tile
+        setPeekedTileEmoji(nextLayerTile.emoji); // Emoji of the actual next layer tile
         setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display peeked emoji
         
         setTimeout(() => {
@@ -332,8 +335,30 @@ export const useTileGame = () => {
           if (newUsesLeft <= 0) {
             showError("No peeks left!"); // Show error when uses run out
           } 
-          // Removed showSuccess message here
           setIsPeekModeActive(false); // Deactivate peek mode after each use
+          return newUsesLeft;
+        });
+      } else {
+        // If no tile exists on a layer below, it means this is the bottom-most tile
+        // or there are no tiles below it. In this case, we can just show the clicked tile itself
+        // as the "peeked" tile, indicating it's the last one.
+        setPeekedTileId(clickedTile.id);
+        setPeekedTileEmoji(clickedTile.emoji);
+        setPeekDisplayTileId(clickedTile.id);
+
+        setTimeout(() => {
+          setPeekedTileId(null);
+          setPeekedTileEmoji(null);
+          setPeekDisplayTileId(null);
+          setBlockingTilesToMove([]);
+        }, 500);
+
+        setPeekUsesLeft(prev => {
+          const newUsesLeft = prev - 1;
+          if (newUsesLeft <= 0) {
+            showError("No peeks left!");
+          }
+          setIsPeekModeActive(false);
           return newUsesLeft;
         });
       }
@@ -341,7 +366,7 @@ export const useTileGame = () => {
       moveToSlot(tileId);
     }
     // If not in peek mode AND blocked, do nothing.
-  }, [isPeekModeActive, moveToSlot, tiles, getBottomTileAtPosition, setPeekUsesLeft]);
+  }, [isPeekModeActive, moveToSlot, tiles, getNextLayerTileAtPosition, setPeekUsesLeft]);
 
   const handleActivatePeekMode = useCallback(() => {
     if (peekUsesLeft <= 0) {
@@ -351,7 +376,7 @@ export const useTileGame = () => {
     if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
 
     setIsPeekModeActive(true);
-    showSuccess("Peek mode activated! Click any blocked tile to reveal its bottom-most tile.");
+    showSuccess("Peek mode activated! Click any blocked tile to reveal its next layer tile.");
   }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot]);
 
   useEffect(() => {
