@@ -34,9 +34,8 @@ export default function TileMasterMatch() {
     peekUsesLeft,
     isPeekModeActive,
     blockingTilesToMove,
-    blockedStatusMap, // Destructure new state
+    blockedStatusMap,
     
-    // isTileBlocked, // Removed
     getTopTileAtPosition,
     handleThemeChange,
     moveToSlot,
@@ -68,12 +67,8 @@ export default function TileMasterMatch() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col items-center justify-center px-2 py-4 sm:p-4">
-      <div ref={gameBoardWrapperRef} className="w-full max-w-full sm:max-w-6xl mx-auto">
-        <div className="text-center mb-6">
-          <h1 className="w-full text-3xl font-bold text-indigo-800 mb-2">Tile Master Match</h1>
-          <p className="text-indigo-600">Level {currentLevel}: Match 3 tiles to clear them!</p>
-        </div>
-
+      <div ref={gameBoardWrapperRef} className="w-full max-w-full sm:max-w-6xl mx-auto flex flex-col items-center gap-6"> {/* Added flex-col and gap */}
+        {/* Tile Game Controls at the top */}
         <TileGameControls
           moves={moves}
           currentLevel={currentLevel}
@@ -91,6 +86,23 @@ export default function TileMasterMatch() {
           currentLevelConfig={currentLevelConfig}
         />
 
+        {/* Game Board */}
+        <TileGameBoard
+          tiles={tiles}
+          currentLevelConfig={currentLevelConfig}
+          blockedStatusMap={blockedStatusMap}
+          moveToSlot={moveToSlot}
+          selectedTiles={selectedTiles}
+          peekedTileId={peekedTileId}
+          peekedTileEmoji={peekedTileEmoji}
+          peekDisplayTileId={peekDisplayTileId}
+          isPeekModeActive={isPeekModeActive}
+          handleTileClickOnBoard={handleTileClickOnBoard}
+          availableWidth={gameBoardWrapperWidth}
+          blockingTilesToMove={blockingTilesToMove}
+        />
+
+        {/* Tile Slot below the Game Board */}
         <TileSlot
           slotTiles={slotTiles}
           tilesToRemove={tilesToRemove}
@@ -104,22 +116,7 @@ export default function TileMasterMatch() {
           selectedTiles={selectedTiles}
         />
 
-        <TileGameBoard
-          tiles={tiles}
-          currentLevelConfig={currentLevelConfig}
-          // isTileBlocked={isTileBlocked} // Removed
-          blockedStatusMap={blockedStatusMap} // Pass new prop
-          moveToSlot={moveToSlot}
-          selectedTiles={selectedTiles}
-          peekedTileId={peekedTileId}
-          peekedTileEmoji={peekedTileEmoji}
-          peekDisplayTileId={peekDisplayTileId}
-          isPeekModeActive={isPeekModeActive}
-          handleTileClickOnBoard={handleTileClickOnBoard}
-          availableWidth={gameBoardWrapperWidth} // Pass the calculated width
-          blockingTilesToMove={blockingTilesToMove} // Pass new state
-        />
-
+        {/* Level Navigation at the bottom */}
         <LevelNavigation
           currentLevel={currentLevel}
           levelConfigs={levelConfigs}
@@ -128,6 +125,7 @@ export default function TileMasterMatch() {
           onToggleLevelSelect={() => setLevelSelectOpen(!levelSelectOpen)}
         />
 
+        {/* Modals remain as overlays */}
         <LevelSelectModal
           isOpen={levelSelectOpen}
           onClose={() => setLevelSelectOpen(false)}
