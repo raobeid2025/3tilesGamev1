@@ -115,6 +115,17 @@ export const useTileGame = () => {
     const patternPositions = generatePatternPositions(levelConfig.pattern, levelConfig.gridSize, isFilledPattern);
     
     let finalTileSpots: { row: number; col: number; layer: number }[] = [];
+    const occupiedSpots = new Set<string>(); // To track unique (row, col, layer)
+
+    const addUniqueSpot = (row: number, col: number, layer: number) => {
+      const key = `${row},${col},${layer}`;
+      if (!occupiedSpots.has(key)) {
+        finalTileSpots.push({ row, col, layer });
+        occupiedSpots.add(key);
+        return true;
+      }
+      return false;
+    };
 
     if (levelConfig.layers > 1) {
       // For multi-layer levels, ensure a mix of blocked and unblocked tiles
@@ -127,39 +138,51 @@ export const useTileGame = () => {
         if (index < Math.floor(patternPositions.length * multiLayerRatio)) {
           // These spots get tiles on all layers
           for (let layer = 0; layer < levelConfig.layers; layer++) {
-            finalTileSpots.push({ ...pos, layer });
+            addUniqueSpot(pos.row, pos.col, layer);
           }
         } else {
           // These spots get tiles only on the bottom layer
-          finalTileSpots.push({ ...pos, layer: 0 });
+          addUniqueSpot(pos.row, pos.col, 0);
         }
       });
     } else {
       // Single layer levels: all tiles on layer 0
       patternPositions.forEach((pos) => {
-        finalTileSpots.push({ ...pos, layer: 0 });
+        addUniqueSpot(pos.row, pos.col, 0);
       });
     }
 
-    // Ensure the total number of tiles matches levelConfig.totalTiles and is a multiple of 3
-    // First, shuffle the generated spots to randomize which ones are kept/removed if adjusting size
-    finalTileSpots.sort(() => Math.random() - 0.5);
-
     // Adjust to match levelConfig.totalTiles
+    // This part needs careful handling to ensure uniqueness
     if (finalTileSpots.length > levelConfig.totalTiles) {
-      finalTileSpots = finalTileSpots.slice(0, levelConfig.totalTiles);
+      // If too many, remove randomly until target is met
+      while (finalTileSpots.length > levelConfig.totalTiles && finalTileSpots.length > 0) {
+        const removedSpot = finalTileSpots.pop(); // Remove from end (randomized earlier)
+        if (removedSpot) {
+          occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
+        }
+      }
     } else if (finalTileSpots.length < levelConfig.totalTiles) {
-      // If we have fewer spots than needed, add more single-layer tiles randomly
       const needed = levelConfig.totalTiles - finalTileSpots.length;
-      for (let i = 0; i < needed; i++) {
-        const randomPos = patternPositions[Math.floor(Math.random() * patternPositions.length)];
-        finalTileSpots.push({ ...randomPos, layer: 0 });
+      let attempts = 0;
+      const maxAttempts = needed * 5; // Prevent infinite loop if no more spots
+      
+      for (let i = 0; i < needed && attempts < maxAttempts; i++) {
+        const randomPosIndex = Math.floor(Math.random() * patternPositions.length);
+        const randomPos = patternPositions[randomPosIndex];
+        if (!addUniqueSpot(randomPos.row, randomPos.col, 0)) {
+          i--; // Retry this iteration if spot was already taken
+        }
+        attempts++;
       }
     }
 
     // Ensure finalTileSpots count is a multiple of 3 for emoji distribution
-    while (finalTileSpots.length % 3 !== 0) {
-      finalTileSpots.pop(); // Remove one if not a multiple of 3
+    while (finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) {
+      const removedSpot = finalTileSpots.pop();
+      if (removedSpot) {
+        occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
+      }
     }
 
     // Now, generate emojis for the final set of spots

@@ -40,7 +40,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
   const [animatedTopLayerTileIds, setAnimatedTopLayerTileIds] = useState<Set<number>>(new Set());
 
   // Define a small visual offset for layers to create a 3D effect
-  const layerVisualOffset = 2; // pixels per layer
+  const layerVisualOffset = 4; // Increased from 2 to 4 pixels per layer
   const maxLayer = currentLevelConfig.layers - 1;
 
   useEffect(() => {
@@ -175,6 +175,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                         ? "border-purple-600 bg-purple-200"
                         : "border-pink-700 bg-pink-300"}
                   ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""}
+                  ${tile.layer === maxLayer ? "shadow-md" : tile.layer === maxLayer - 1 ? "shadow-lg" : "shadow-xl"}
                 `}
                 >
                   <span className="relative z-10">
