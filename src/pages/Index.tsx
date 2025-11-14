@@ -114,7 +114,7 @@ export default function TileMasterMatch() {
           gameStatus={gameStatus}
           isProcessingSlot={isProcessingSlot}
           selectedTiles={selectedTiles}
-          availableWidth={gameBoardWrapperWidth} {/* Pass availableWidth here */}
+          availableWidth={gameBoardWrapperWidth}
         />
 
         {/* Level Navigation at the bottom */}
