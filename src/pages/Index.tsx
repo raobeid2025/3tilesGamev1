@@ -87,6 +87,7 @@ export default function TileMasterMatch() {
           isChecking={isChecking}
           isProcessingSlot={isProcessingSlot}
           isPeekModeActive={isPeekModeActive}
+          currentLevelConfig={currentLevelConfig}
         />
 
         <TileSlot

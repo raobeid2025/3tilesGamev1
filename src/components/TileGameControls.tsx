@@ -10,7 +10,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { RotateCcw, Shuffle, Eye } from "lucide-react"; // Import Eye icon
-import { EmojiTheme, GameStatus } from "@/utils/game-config";
+import { EmojiTheme, GameStatus, LevelConfig } from "@/utils/game-config";
 
 interface TileGameControlsProps {
   moves: number;
@@ -26,6 +26,7 @@ interface TileGameControlsProps {
   isChecking: boolean;
   isProcessingSlot: boolean;
   isPeekModeActive: boolean; // New prop
+  currentLevelConfig: LevelConfig; // Added to check layers
 }
 
 const TileGameControls: React.FC<TileGameControlsProps> = ({
@@ -42,7 +43,10 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
   isChecking,
   isProcessingSlot,
   isPeekModeActive, // Destructure new prop
+  currentLevelConfig, // Destructure new prop
 }) => {
+  const isPeekDisabled = peekUsesLeft <= 0 || isPeekModeActive || gameStatus !== "playing" || isChecking || isProcessingSlot || currentLevelConfig.layers === 1;
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-white rounded-xl shadow-md p-4">
       <div className="flex items-center gap-4">
@@ -89,7 +93,7 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
         </Button>
         <Button 
           onClick={onActivatePeekMode}
-          disabled={peekUsesLeft <= 0 || isPeekModeActive || gameStatus !== "playing" || isChecking || isProcessingSlot}
+          disabled={isPeekDisabled}
           className={`px-3 py-2 rounded-lg flex items-center gap-1 ${isPeekModeActive ? "bg-yellow-500 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
         >
           <Eye size={16} /> Peek ({peekUsesLeft})

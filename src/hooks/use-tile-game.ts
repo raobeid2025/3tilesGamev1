@@ -369,6 +369,10 @@ export const useTileGame = () => {
   }, [isPeekModeActive, moveToSlot, tiles, getNextLayerTileAtPosition, setPeekUsesLeft]);
 
   const handleActivatePeekMode = useCallback(() => {
+    if (currentLevelConfig.layers === 1) {
+      showError("Peek is only available for multi-layer levels!");
+      return;
+    }
     if (peekUsesLeft <= 0) {
       showError("No peeks left!");
       return;
@@ -377,7 +381,7 @@ export const useTileGame = () => {
 
     setIsPeekModeActive(true);
     showSuccess("Peek mode activated! Click any blocked tile to reveal its next layer tile.");
-  }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot]);
+  }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers]);
 
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
