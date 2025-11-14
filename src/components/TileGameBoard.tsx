@@ -16,6 +16,7 @@ interface TileGameBoardProps {
   peekDisplayTileId: number | null;
   isPeekModeActive: boolean;
   handleTileClickOnBoard: (id: number, isBlocked: boolean) => void;
+  availableWidth: number; // New prop for the parent's width
 }
 
 const TileGameBoard: React.FC<TileGameBoardProps> = ({
@@ -28,47 +29,35 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   peekDisplayTileId,
   isPeekModeActive,
   handleTileClickOnBoard,
+  availableWidth, // Destructure new prop
 }) => {
   // Sort tiles by layer to ensure correct z-index rendering (lower layers first)
   const sortedTiles = [...tiles].sort((a, b) => a.layer - b.layer);
 
-  const boardRef = useRef<HTMLDivElement>(null);
   const [calculatedTileSize, setCalculatedTileSize] = useState(52); // Default desktop size
   const [calculatedTileSpacing, setCalculatedTileSpacing] = useState(4); // Default spacing
 
   const calculateSizes = useCallback(() => {
-    if (boardRef.current) {
-      const containerWidth = boardRef.current.offsetWidth;
-      // Use full container width for calculation, no max cap here
-      const availableWidth = containerWidth - (2 * 2); // Account for board's own padding (p-2)
+    if (availableWidth > 0) {
+      // The board container itself has p-2 (8px total padding: 4px left, 4px right)
+      const boardContainerPadding = 2 * 4; 
+      const effectiveAvailableWidth = availableWidth - boardContainerPadding;
 
       const newTileSpacing = 4; // Keep spacing consistent
       const totalSpacingWidth = (currentLevelConfig.gridSize - 1) * newTileSpacing;
       
-      let newTileSize = Math.floor((availableWidth - totalSpacingWidth) / currentLevelConfig.gridSize);
+      let newTileSize = Math.floor((effectiveAvailableWidth - totalSpacingWidth) / currentLevelConfig.gridSize);
       
       // Ensure a minimum tile size for usability
       newTileSize = Math.max(newTileSize, 30); 
-      // Removed: newTileSize = Math.min(newTileSize, 52); // This cap was preventing shrinking on small screens
       
       setCalculatedTileSize(newTileSize);
       setCalculatedTileSpacing(newTileSpacing);
     }
-  }, [currentLevelConfig.gridSize]);
+  }, [availableWidth, currentLevelConfig.gridSize]);
 
   useEffect(() => {
-    calculateSizes(); // Initial calculation
-
-    const resizeObserver = new ResizeObserver(calculateSizes);
-    if (boardRef.current) {
-      resizeObserver.observe(boardRef.current);
-    }
-
-    return () => {
-      if (boardRef.current) {
-        resizeObserver.unobserve(boardRef.current);
-      }
-    };
+    calculateSizes(); // Recalculate when availableWidth or gridSize changes
   }, [calculateSizes]);
 
   const effectiveTileSize = calculatedTileSize + calculatedTileSpacing;
@@ -82,9 +71,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
   };
 
   return (
-    <div className="flex justify-center mb-6 w-full px-2 sm:px-4">
+    <div className="flex justify-center mb-6 w-full"> {/* Removed px-2 sm:px-4 */}
       <div 
-        ref={boardRef}
         className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl p-2 shadow-2xl relative overflow-hidden border-4 border-indigo-200"
         style={{ perspective: '1000px' }}
       >

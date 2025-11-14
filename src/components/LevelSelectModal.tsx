@@ -45,7 +45,7 @@ const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
               </Button>
             </div>
             
-            <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-10 gap-2"> {/* Adjusted grid columns */}
               {levelConfigs.map((level) => (
                 <Button
                   key={level.id}

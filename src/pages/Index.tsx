@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useTileGame } from "@/hooks/use-tile-game";
 import TileGameControls from "@/components/TileGameControls";
 import TileGameBoard from "@/components/TileGameBoard";
@@ -50,9 +50,23 @@ export default function TileMasterMatch() {
     setShowLevelComplete,
   } = useTileGame();
 
+  const gameBoardWrapperRef = useRef<HTMLDivElement>(null);
+  const [gameBoardWrapperWidth, setGameBoardWrapperWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (gameBoardWrapperRef.current) {
+        setGameBoardWrapperWidth(gameBoardWrapperRef.current.offsetWidth);
+      }
+    };
+    updateWidth(); // Set initial width
+    window.addEventListener('resize', updateWidth); // Update on resize
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col items-center justify-center p-2 sm:p-4"> {/* Adjusted padding for mobile */}
-      <div className="w-full max-w-full sm:max-w-6xl mx-auto"> {/* Adjusted max-width for mobile */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col items-center justify-center p-2 sm:p-4">
+      <div ref={gameBoardWrapperRef} className="w-full max-w-full sm:max-w-6xl mx-auto">
         <div className="text-center mb-6">
           <h1 className="w-full text-3xl font-bold text-indigo-800 mb-2">Tile Master Match</h1>
           <p className="text-indigo-600">Level {currentLevel}: Match 3 tiles to clear them!</p>
@@ -106,6 +120,7 @@ export default function TileMasterMatch() {
           peekDisplayTileId={peekDisplayTileId}
           isPeekModeActive={isPeekModeActive}
           handleTileClickOnBoard={handleTileClickOnBoard}
+          availableWidth={gameBoardWrapperWidth} // Pass the calculated width
         />
 
         <LevelNavigation
