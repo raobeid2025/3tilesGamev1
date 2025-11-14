@@ -51,8 +51,11 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
       
       let newTileSize = Math.floor((effectiveAvailableWidth - totalSpacingWidth) / currentLevelConfig.gridSize);
       
-      // Ensure a minimum tile size for usability, allowing it to shrink more if necessary
-      newTileSize = Math.max(newTileSize, 25); // Allow shrinking down to 25px if necessary
+      const minTileSize = 25; // Minimum tile size for usability
+      const maxTileSize = 60; // Maximum tile size to prevent excessive growth on large screens
+
+      newTileSize = Math.max(newTileSize, minTileSize); // Ensure it doesn't go below min
+      newTileSize = Math.min(newTileSize, maxTileSize); // Ensure it doesn't exceed max
       
       setCalculatedTileSize(newTileSize);
       setCalculatedTileSpacing(newTileSpacing);
