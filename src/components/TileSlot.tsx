@@ -29,12 +29,12 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
   isProcessingSlot,
   selectedTiles,
 }) => {
-  const fixedTileSize = 64; // Fixed size for tiles in the slot
+  const fixedTileSize = 56; // Adjusted from 64 to 56 for better fit
   const fixedGap = 8; // Fixed gap between tiles in the slot
-  const fixedEmojiFontSize = "text-3xl"; // Fixed font size for emojis
+  const fixedEmojiFontSize = "text-2xl"; // Adjusted from text-3xl to text-2xl
 
   return (
-    <div className="mb-4 w-full"> {/* Added w-full here */}
+    <div className="mb-4 w-full">
       <div className="rounded-xl p-2 border-2 border-dashed bg-indigo-100 border-indigo-300 h-[80px] overflow-x-auto overflow-y-hidden">
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
