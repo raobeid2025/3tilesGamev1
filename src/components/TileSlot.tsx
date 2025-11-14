@@ -38,7 +38,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
   return (
     <div className="mb-4">
       {/* Removed the div containing the tile count */}
-      <div className="rounded-xl p-2 border-2 border-dashed bg-indigo-100 border-indigo-300 h-[80px] overflow-x-auto overflow-y-hidden"> {/* Fixed height h-[80px], reduced p-4 to p-2 */}
+      <div className="rounded-xl p-2 border-2 border-dashed bg-indigo-100 border-indigo-300 h-[80px] overflow-x-auto overflow-y-hidden"> {/* Changed min-h-[100px] max-h-[150px] to h-[80px] */}
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
             <motion.div 
