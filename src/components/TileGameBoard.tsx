@@ -155,14 +155,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                             : { scale: 1 }
                   }
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  whileHover={!blocked && !isDisplayingPeek && !isBlockingTileToMove
-                    ? { 
-                        scale: 1.08, 
-                        y: -5, 
-                        zIndex: 100, 
-                        transition: { type: "tween", duration: 0.08, ease: "easeOut" }
-                      } 
-                    : {}}
                 >
                   {/* Front Face (Emoji) */}
                   <div className={`
