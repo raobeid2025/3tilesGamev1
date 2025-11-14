@@ -113,7 +113,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         rotateX: 5, 
                         rotateY: 5, 
                         zIndex: 100,
-                        transition: { duration: 0.15, ease: "easeOut" } // Faster transition
+                        transition: { type: "tween", duration: 0.1, ease: "easeOut" } // Changed to tween with shorter duration
                       } 
                     : {}}
                 >
