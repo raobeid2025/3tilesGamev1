@@ -30,7 +30,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
   selectedTiles,
 }) => {
   const slotRef = useRef<HTMLDivElement>(null);
-  const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(64); // Default for sm:w-16
+  const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(52); // Default to match game board default
   const [slotEmojiFontSize, setSlotEmojiFontSize] = useState("text-3xl");
   const [calculatedGap, setCalculatedGap] = useState(12); // Default gap-3
 
@@ -38,8 +38,8 @@ const TileSlot: React.FC<TileSlotProps> = ({
     if (slotRef.current) {
       const containerWidth = slotRef.current.offsetWidth;
       const maxTilesInSlot = currentLevelConfig.slotSize; 
-      const minTileSize = 50; // Increased minimum size for slot tiles on mobile
-      const maxTileSize = 64; // Max size for slot tiles (sm:w-16)
+      const minTileSize = 25; // Set minimum size to match game board tiles
+      const maxTileSize = 52; // Set maximum size to match game board default size
       const baseGap = 12; // gap-3 is 12px
 
       // Adjust gap based on screen size, smaller gap for smaller screens
@@ -47,7 +47,6 @@ const TileSlot: React.FC<TileSlotProps> = ({
       setCalculatedGap(newGap);
 
       // Calculate tile size assuming all maxTilesInSlot need to fit on one line
-      // This will force shrinking rather than wrapping
       let newSize = (containerWidth - (maxTilesInSlot - 1) * newGap) / maxTilesInSlot;
       
       // Clamp between min and max, but prioritize fitting all tiles
@@ -56,9 +55,9 @@ const TileSlot: React.FC<TileSlotProps> = ({
 
       setCalculatedSlotTileSize(newSize);
 
-      if (newSize >= 60) setSlotEmojiFontSize("text-3xl");
-      else if (newSize >= 48) setSlotEmojiFontSize("text-2xl");
-      else if (newSize >= 40) setSlotEmojiFontSize("text-xl");
+      if (newSize >= 50) setSlotEmojiFontSize("text-3xl"); // Adjusted thresholds
+      else if (newSize >= 40) setSlotEmojiFontSize("text-2xl");
+      else if (newSize >= 30) setSlotEmojiFontSize("text-xl");
       else setSlotEmojiFontSize("text-lg");
     }
   }, [currentLevelConfig.slotSize]);
@@ -84,12 +83,12 @@ const TileSlot: React.FC<TileSlotProps> = ({
           {slotTiles.length}/{currentLevelConfig.slotSize} tiles
         </span>
       </div>
-      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[180px] overflow-x-auto overflow-y-hidden"> {/* Changed to overflow-x-auto and overflow-y-hidden */}
+      <div className="rounded-xl p-4 border-2 border-dashed bg-indigo-100 border-indigo-300 min-h-[100px] max-h-[180px] overflow-x-auto overflow-y-hidden">
         <AnimatePresence mode="popLayout">
           {slotTiles.length > 0 ? (
             <motion.div 
               key={slotAnimationKey}
-              className="flex flex-nowrap h-full" // Changed to flex-nowrap
+              className="flex flex-nowrap h-full"
               style={{ gap: `${calculatedGap}px` }}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
@@ -99,7 +98,7 @@ const TileSlot: React.FC<TileSlotProps> = ({
               {slotTiles.map((tile) => (
                 <motion.div
                   key={`slot-${tile.id}`}
-                  className="relative flex-shrink-0" // Added flex-shrink-0
+                  className="relative flex-shrink-0"
                   layout
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
