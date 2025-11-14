@@ -312,7 +312,7 @@ export const useTileGame = () => {
           setPeekedTileId(null);
           setPeekedTileEmoji(null);
           setPeekDisplayTileId(null);
-        }, 5000); // 5 seconds
+        }, 500); // Reduced to 500ms for a quick peek
         
         setPeekUsesLeft(prev => {
           const newUsesLeft = prev - 1;
@@ -337,13 +337,6 @@ export const useTileGame = () => {
       return;
     }
     if (gameStatus !== "playing" || isChecking || isProcessingSlot) return;
-    // No longer allow toggling off by clicking the button again,
-    // as it will automatically deactivate after one use.
-    // if (isPeekModeActive) { 
-    //   setIsPeekModeActive(false);
-    //   showSuccess("Peek mode deactivated.");
-    //   return;
-    // }
 
     setIsPeekModeActive(true);
     showSuccess("Peek mode activated! Click any blocked tile to reveal its bottom-most tile.");
