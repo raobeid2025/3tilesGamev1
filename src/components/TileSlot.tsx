@@ -17,7 +17,7 @@ interface TileSlotProps {
   selectedTiles: number[];
 }
 
-const TileSlot: React.FC<TileSlotProps> = React.memo(({ // Wrapped in React.memo
+const TileSlot: React.FC<TileSlotProps> = React.memo(({
   slotTiles,
   tilesToRemove,
   vibratingTiles,
@@ -111,8 +111,8 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({ // Wrapped in React.memo
                   key={`slot-${tile.id}`}
                   className="relative flex-shrink-0"
                   layout
-                  initial={{ scale: 0.8, opacity: 0, y: 20, rotate: -10 }} {/* Enhanced initial state */}
-                  animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}    {/* Enhanced animate state */}
+                  initial={{ scale: 0.8, opacity: 0, y: 20, rotate: -10 }}
+                  animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
                   exit={{ 
                     scale: 0, 
                     opacity: 0,
