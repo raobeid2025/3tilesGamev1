@@ -112,7 +112,7 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                   className="relative flex-shrink-0"
                   layout
                   initial={{ scale: 0.8, opacity: 0, y: 20, rotate: -10 }}
-                  animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }} {/* Simplified to single target state */}
+                  animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
                   exit={{ 
                     scale: 0, 
                     opacity: 0,
@@ -121,9 +121,9 @@ const TileSlot: React.FC<TileSlotProps> = React.memo(({
                   }}
                   transition={{ 
                     type: "spring", 
-                    stiffness: 500, // Adjusted stiffness for snappier feel
-                    damping: 20,     // Adjusted damping for more bounce/vibration
-                    mass: 1,         // Added mass for more realistic spring physics
+                    stiffness: 500,
+                    damping: 20,
+                    mass: 1,
                     layout: {
                       type: "spring",
                       stiffness: 800,
