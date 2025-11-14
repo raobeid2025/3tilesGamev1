@@ -346,49 +346,51 @@ export const useTileGame = () => {
   };
 
   // Unified handler for clicking tiles on the game board
-  const handleTileClickOnBoard = useCallback((tileId: number) => { // Removed isBlocked param
+  const handleTileClickOnBoard = useCallback((tileId: number) => {
     const clickedTile = tiles.find(t => t.id === tileId);
     if (!clickedTile) return;
 
-    const isBlocked = blockedStatusMap.get(tileId) || false; // Get status from map
+    const isBlocked = blockedStatusMap.get(tileId) || false;
 
-    if (isPeekModeActive) { // Only peek if peek mode is active
+    if (isPeekModeActive) {
+      if (!isBlocked) {
+        showError("You can only peek blocked tiles in peek mode!");
+        setIsPeekModeActive(false); // Deactivate peek mode if an unblocked tile is clicked
+        return;
+      }
+
       const nextLayerTile = getNextLayerTileAtPosition(clickedTile, tiles);
       if (nextLayerTile) {
-        // Identify tiles that are blocking the view of the next layer tile
         const tilesToMove = tiles.filter(t =>
           t.position.row === clickedTile.position.row &&
           t.position.col === clickedTile.position.col &&
           !t.isMatched &&
-          t.layer > nextLayerTile.layer && // All tiles strictly above the nextLayerTile
-          t.layer <= clickedTile.layer // Up to and including the clicked tile
+          t.layer > nextLayerTile.layer &&
+          t.layer <= clickedTile.layer
         );
         setBlockingTilesToMove(tilesToMove.map(t => t.id));
 
-        setPeekedTileId(nextLayerTile.id); // ID of the actual next layer tile
-        setPeekedTileEmoji(nextLayerTile.emoji); // Emoji of the actual next layer tile
-        setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display peeked emoji
+        setPeekedTileId(nextLayerTile.id);
+        setPeekedTileEmoji(nextLayerTile.emoji);
+        setPeekDisplayTileId(clickedTile.id);
         
         setTimeout(() => {
           setPeekedTileId(null);
           setPeekedTileEmoji(null);
           setPeekDisplayTileId(null);
-          setBlockingTilesToMove([]); // Clear blocking tiles
-        }, 500); // Reduced to 500ms for a quick peek
+          setBlockingTilesToMove([]);
+        }, 500);
         
         setPeekUsesLeft(prev => {
           const newUsesLeft = prev - 1;
           if (newUsesLeft <= 0) {
-            showError("No peeks left!"); // Show error when uses run out
+            showError("No peeks left!");
           } 
-          setIsPeekModeActive(false); // Deactivate peek mode after each use
+          setIsPeekModeActive(false);
           return newUsesLeft;
         });
       } else {
-        // If no tile exists on a layer below, it means this is the bottom-most tile
-        // or there are no tiles below it. In this case, we can just show the clicked tile itself
-        // as the "peeked" tile, indicating it's the last one.
-        setBlockingTilesToMove([]); // No tiles to move if nothing is below
+        setBlockingTilesToMove([]);
         setPeekedTileId(clickedTile.id);
         setPeekedTileEmoji(clickedTile.emoji);
         setPeekDisplayTileId(clickedTile.id);
@@ -409,11 +411,10 @@ export const useTileGame = () => {
           return newUsesLeft;
         });
       }
-    } else if (!isBlocked) { // If not in peek mode, and not blocked, move to slot
+    } else if (!isBlocked) {
       moveToSlot(tileId);
     }
-    // If not in peek mode AND blocked, do nothing.
-  }, [isPeekModeActive, moveToSlot, tiles, getNextLayerTileAtPosition, setPeekUsesLeft, blockedStatusMap]); // Added blockedStatusMap to dependencies
+  }, [isPeekModeActive, moveToSlot, tiles, getNextLayerTileAtPosition, setPeekUsesLeft, blockedStatusMap]);
 
   const handleActivatePeekMode = useCallback(() => {
     if (currentLevelConfig.layers === 1) {
