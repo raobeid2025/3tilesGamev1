@@ -38,7 +38,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
 
   return (
     <div className="flex justify-center mb-6">
-      <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl p-2 shadow-2xl relative overflow-hidden border-4 border-indigo-200">
+      <div 
+        className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl p-2 shadow-2xl relative overflow-hidden border-4 border-indigo-200"
+        style={{ perspective: '1000px' }} // Added perspective to the board
+      >
         <div
           className="relative"
           style={{
@@ -92,8 +95,9 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   onClick={() => handleTileClickOnBoard(tile.id, blocked)}
                   style={{
                     transformStyle: "preserve-3d",
+                    transformOrigin: "center center -2px", // Set transform origin for 3D rotation (assuming 4px depth)
                     zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1), // Keep zIndex high for the lifting tile
-                    transform: `translateZ(${tile.layer * 15}px)` // Base 3D positioning
+                    // Removed redundant translateZ here, it's handled by parent container
                   }}
                   // Animation for lifting the tile and handling selection scale (opacity handled by parent)
                   animate={isDisplayingPeek 
@@ -102,8 +106,11 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                       ? { scale: 0.95 } // Only scale for selected tiles
                       : { scale: 1 }} // Default scale
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  whileHover={!blocked && !isDisplayingPeek ? { scale: 1.08, y: -5, zIndex: 100 } : {}}
+                  whileHover={!blocked && !isDisplayingPeek 
+                    ? { scale: 1.08, y: -5, rotateX: 5, rotateY: 5, zIndex: 100 } // Added rotateX/Y for 3D tilt
+                    : {}}
                 >
+                  {/* Front Face (Emoji) */}
                   <div className={`
                     absolute w-full h-full flex items-center justify-center rounded-lg text-2xl font-bold
                     border-2 transition-all duration-200
@@ -117,8 +124,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ${isThisThePeekedTile ? "border-yellow-500 ring-4 ring-yellow-300" : ""} // Highlight peeked tile
                   `}
                     style={{
-                      transform: "translateZ(10px)",
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.3)",
+                      transform: "translateZ(2px)", // Adjusted translateZ for 4px depth
+                      boxShadow: "0 6px 12px rgba(0,0,0,0.3), inset 0 3px 6px rgba(255,255,255,0.4)", // Enhanced shadow
                       background: (blocked && !isThisThePeekedTile) // Apply blocked background only if not the peeked tile
                         ? "linear-gradient(145deg, #cccccc, #aaaaaa)"
                         : tile.layer === 0
@@ -133,6 +140,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     </span>
                   </div>
 
+                  {/* Top Face */}
                   <div className={`
                     absolute w-full h-2 rounded-t-lg
                     ${(blocked && !isThisThePeekedTile)
@@ -147,11 +155,12 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ${isThisThePeekedTile ? "bg-yellow-500" : ""}
                   `}
                     style={{
-                      transform: "rotateX(90deg) translateZ(10px)",
-                      boxShadow: "0 -2px 4px rgba(0,0,0,0.1)"
+                      transform: "rotateX(90deg) translateY(-24px) translateZ(2px)", // Adjusted for 4px depth (48px tile height / 2 = 24px)
+                      boxShadow: "0 -3px 6px rgba(0,0,0,0.15)" // Enhanced shadow
                     }}
                   ></div>
 
+                  {/* Right Face */}
                   <div className={`
                     absolute h-full w-2 rounded-r-lg
                     ${(blocked && !isThisThePeekedTile)
@@ -166,8 +175,8 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     ${isThisThePeekedTile ? "bg-yellow-600" : ""}
                   `}
                     style={{
-                      transform: "rotateY(90deg) translateZ(36px)",
-                      boxShadow: "2px 0 4px rgba(0,0,0,0.1)"
+                      transform: "rotateY(90deg) translateX(24px) translateZ(2px)", // Adjusted for 4px depth (48px tile width / 2 = 24px)
+                      boxShadow: "3px 0 6px rgba(0,0,0,0.15)" // Enhanced shadow
                     }}
                   ></div>
 
