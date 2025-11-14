@@ -97,7 +97,6 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                     transformStyle: "preserve-3d",
                     transformOrigin: "center center -2px", // Set transform origin for 3D rotation (assuming 4px depth)
                     zIndex: isDisplayingPeek ? 2 : (isThisThePeekedTile ? 1.5 : 1), // Keep zIndex high for the lifting tile
-                    // Removed redundant translateZ here, it's handled by parent container
                   }}
                   // Animation for lifting the tile and handling selection scale (opacity handled by parent)
                   animate={isDisplayingPeek 
@@ -113,7 +112,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                         rotateX: 5, 
                         rotateY: 5, 
                         zIndex: 100,
-                        boxShadow: "0 8px 16px rgba(0,0,0,0.4)" // Larger shadow on hover
+                        transition: { type: "tween", duration: 0.08, ease: "easeOut" }
                       } 
                     : {}}
                 >
@@ -132,14 +131,14 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                   `}
                     style={{
                       transform: "translateZ(2px)", // Adjusted translateZ for 4px depth
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.2)", // Simplified shadow
+                      // Removed boxShadow
                       background: (blocked && !isThisThePeekedTile) // Apply blocked background only if not the peeked tile
-                        ? "linear-gradient(145deg, #cccccc, #aaaaaa)"
+                        ? "#a0a0a0" // Solid gray for blocked
                         : tile.layer === 0
-                          ? "linear-gradient(145deg, #ffffff, #e0e0e0)"
+                          ? "#ffffff" // Solid white
                           : tile.layer === 1
-                            ? "linear-gradient(145deg, #e8dcfc, #c7b8f5)"
-                            : "linear-gradient(145deg, #fcdde9, #f5b8d1)"
+                            ? "#e8dcfc" // Solid light purple
+                            : "#fcdde9" // Solid light pink
                     }}
                   >
                     <span className="relative z-10">
@@ -155,13 +154,15 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-400"
                         : tile.layer === 0
-                          ? "bg-indigo-400"
-                          : "bg-purple-500"}
+                          ? "bg-indigo-400" // Slightly darker indigo for top
+                          : tile.layer === 1
+                            ? "bg-purple-400" // Slightly darker purple for top
+                            : "bg-pink-500"} // Slightly darker pink for top
                     ${isThisThePeekedTile ? "bg-yellow-500" : ""}
                   `}
                     style={{
                       transform: "rotateX(90deg) translateY(-24px) translateZ(2px)", // Adjusted for 4px depth (48px tile height / 2 = 24px)
-                      boxShadow: "0 -2px 4px rgba(0,0,0,0.1)" // Softer shadow
+                      // Removed boxShadow
                     }}
                   ></div>
 
@@ -173,13 +174,15 @@ const TileGameBoard: React.FC<TileGameBoardProps> = ({
                       : selectedTiles.includes(tile.id)
                         ? "bg-yellow-600"
                         : tile.layer === 0
-                          ? "bg-indigo-600"
-                          : "bg-purple-700"}
+                          ? "bg-indigo-600" // Even darker indigo for right
+                          : tile.layer === 1
+                            ? "bg-purple-600" // Even darker purple for right
+                            : "bg-pink-700"} // Even darker pink for right
                     ${isThisThePeekedTile ? "bg-yellow-600" : ""}
                   `}
                     style={{
                       transform: "rotateY(90deg) translateX(24px) translateZ(2px)", // Adjusted for 4px depth (48px tile width / 2 = 24px)
-                      boxShadow: "2px 0 4px rgba(0,0,0,0.1)" // Softer shadow
+                      // Removed boxShadow
                     }}
                   ></div>
 
