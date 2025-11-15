@@ -257,7 +257,7 @@ export const useTileGame = () => {
     setVibratingTiles([]);
     setSlotAnimationKey(prev => prev + 1);
     setCurrentLevel(levelId); // Update currentLevel state
-    setShowLevelComplete(false);
+    setShowLevelComplete(false); // This is correct for starting a new game
     setLevelSelectOpen(false);
     setIsProcessingSlot(false);
     setShufflesLeft(3);
@@ -483,16 +483,13 @@ export const useTileGame = () => {
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
-      // Show level complete ONLY if a level was manually selected, OR if it's not level 1.
-      if (isLevelSelectedManually || currentLevel !== 1) {
-        setShowLevelComplete(true);
-      } else {
-        setShowLevelComplete(false); 
-      }
+      // Always show level complete when won. Dismissal will be handled by user action on modal buttons.
+      setShowLevelComplete(true); 
     }
-  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually, currentLevel]);
+  }, [tiles, slotTiles, gameStatus]); // Removed isLevelSelectedManually, currentLevel from dependencies
 
   const handleNextLevel = (nextTheme?: EmojiTheme) => {
+    setShowLevelComplete(false); // Explicitly close the modal before starting next level
     const nextLevel = currentLevel + 1;
     if (nextLevel <= levelConfigs.length) {
       initializeGame(nextLevel, nextTheme || selectedTheme); // Use nextTheme if provided, else current selectedTheme
@@ -514,6 +511,7 @@ export const useTileGame = () => {
   };
 
   const handleRestartLevel = () => {
+    setShowLevelComplete(false); // Explicitly close the modal before restarting
     initializeGame(currentLevel);
     setIsLevelSelectedManually(false); // Reset when restarting level
   };
