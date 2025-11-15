@@ -209,8 +209,13 @@ export const useTileGame = () => {
     // Ensure finalTileSpots count is a multiple of 3 for emoji distribution
     while (finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) { 
       const removedSpot = finalTileSpots.pop();
-      if (removedSpot) { // Added check for removedSpot
+      // More robust check for removedSpot and its properties
+      if (removedSpot && removedSpot.row !== undefined && removedSpot.col !== undefined && removedSpot.layer !== undefined) {
         occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
+      } else {
+        // If for some reason removedSpot is undefined or malformed despite length > 0,
+        // break the loop to prevent further errors. This should ideally not happen.
+        break; 
       }
     }
 
