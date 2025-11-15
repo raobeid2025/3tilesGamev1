@@ -483,20 +483,15 @@ export const useTileGame = () => {
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
-      // Only show level complete if it wasn't a manually selected level AND not the initial level
-      if (!isLevelSelectedManually) {
-        if (currentLevel !== 1) { // Don't show for level 1
-          setShowLevelComplete(true);
-        } else {
-          setShowLevelComplete(false); // Explicitly hide if it's level 1
-        }
+      // Show level complete ONLY if a level was manually selected and completed.
+      // Otherwise, suppress the modal for natural progression (including level 1).
+      if (isLevelSelectedManually) {
+        setShowLevelComplete(true);
       } else {
-        // If manually selected, just reset the flag and ensure the modal is hidden
-        setIsLevelSelectedManually(false);
         setShowLevelComplete(false); 
       }
     }
-  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually, currentLevel]);
+  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually]); // Removed currentLevel from dependencies as it's not directly used here for this logic
 
   const handleNextLevel = (nextTheme?: EmojiTheme) => {
     const nextLevel = currentLevel + 1;
@@ -506,7 +501,6 @@ export const useTileGame = () => {
         setSelectedTheme(nextTheme); // Update the main selectedTheme if a new one was chosen
       }
     } else {
-      // Removed the logic to loop back to level 1
       showSuccess("Congratulations! You've completed all levels!"); // Add a success toast
     }
     setIsLevelSelectedManually(false); // Reset when moving to next level
