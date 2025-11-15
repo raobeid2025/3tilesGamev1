@@ -483,15 +483,14 @@ export const useTileGame = () => {
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
-      // Show level complete ONLY if a level was manually selected and completed.
-      // Otherwise, suppress the modal for natural progression (including level 1).
-      if (isLevelSelectedManually) {
+      // Show level complete ONLY if a level was manually selected, OR if it's not level 1.
+      if (isLevelSelectedManually || currentLevel !== 1) {
         setShowLevelComplete(true);
       } else {
         setShowLevelComplete(false); 
       }
     }
-  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually]); // Removed currentLevel from dependencies as it's not directly used here for this logic
+  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually, currentLevel]);
 
   const handleNextLevel = (nextTheme?: EmojiTheme) => {
     const nextLevel = currentLevel + 1;
