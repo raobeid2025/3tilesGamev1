@@ -2,13 +2,6 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { RotateCcw, Shuffle, Eye } from "lucide-react";
 import { EmojiTheme, GameStatus, LevelConfig } from "@/utils/game-config";
 
@@ -17,8 +10,8 @@ interface TileGameControlsProps {
   currentLevel: number;
   shufflesLeft: number;
   peekUsesLeft: number;
-  selectedTheme: EmojiTheme;
-  onThemeChange: (value: string) => void;
+  selectedTheme: EmojiTheme; // Still needed for display, but not for changing here
+  onThemeChange: (value: string) => void; // This prop will no longer be used by this component
   onRestart: () => void;
   onShuffle: () => void;
   onActivatePeekMode: () => void;
@@ -36,7 +29,7 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
   shufflesLeft,
   peekUsesLeft,
   selectedTheme,
-  onThemeChange,
+  // onThemeChange, // No longer used here
   onRestart,
   onShuffle,
   onActivatePeekMode,
@@ -63,18 +56,7 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
       </div>
       
       <div className="flex gap-2">
-        <Select value={selectedTheme} onValueChange={onThemeChange}>
-          <SelectTrigger className="w-full sm:w-[160px]">
-            <SelectValue placeholder="Emoji Theme" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="mixed">Mixed Emojis</SelectItem>
-            <SelectItem value="animals">Animals</SelectItem>
-            <SelectItem value="food">Food</SelectItem>
-            {/* <SelectItem value="objects" disabled>Objects</SelectItem> Removed this item */}
-            <SelectItem value="faces">Faces</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Removed the Select component for theme change */}
         
         <Button 
           onClick={onRestart}

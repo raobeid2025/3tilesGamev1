@@ -76,7 +76,7 @@ export default function TileMasterMatch() {
           shufflesLeft={shufflesLeft}
           peekUsesLeft={peekUsesLeft}
           selectedTheme={selectedTheme}
-          onThemeChange={handleThemeChange}
+          // onThemeChange={handleThemeChange} // Removed as it's no longer used in TileGameControls
           onRestart={handleRestartLevel}
           onShuffle={handleShuffle}
           onActivatePeekMode={handleActivatePeekMode}
