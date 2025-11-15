@@ -69,16 +69,19 @@ export const useTileGame = () => {
       }
 
       const key = `${tile.position.row},${tile.position.col}`;
-      const potentialBlockers = tilesByPosition.get(key);
+      const tilesAtCurrentPosition = tilesByPosition.get(key);
 
-      if (potentialBlockers) {
-        const isCurrentlyBlocked = potentialBlockers.some(blocker =>
-          blocker.layer > tile.layer && !blocker.isMatched
-        );
-        newBlockedStatusMap.set(tile.id, isCurrentlyBlocked);
-      } else {
-        newBlockedStatusMap.set(tile.id, false);
+      let isCurrentlyBlocked = false;
+      if (tilesAtCurrentPosition) {
+        for (const blocker of tilesAtCurrentPosition) {
+          // A tile is blocked if there's another UNMATCHED tile directly above it (higher layer)
+          if (blocker.layer > tile.layer && !blocker.isMatched) {
+            isCurrentlyBlocked = true;
+            break;
+          }
+        }
       }
+      newBlockedStatusMap.set(tile.id, isCurrentlyBlocked);
     });
     setBlockedStatusMap(newBlockedStatusMap);
   }, [tiles]); // Recalculate when tiles array changes
@@ -204,7 +207,7 @@ export const useTileGame = () => {
       for (let i = 0; i < needed && attempts < maxAttempts; i++) {
         const randomPosIndex = Math.floor(Math.random() * patternPositions.length);
         const randomPos = patternPositions[randomPosIndex];
-        if (!addUniqueSpot(randomPos.row, randomPos.col, 0)) {
+        if (!addUniqueSpot(randomPos.row, randomPos.col, 0)) { // Always adds to layer 0
           i--; // Retry this iteration if spot was already taken
         }
         attempts++;
