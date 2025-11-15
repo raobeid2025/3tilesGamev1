@@ -1,6 +1,6 @@
 "use client";
 
-import * as FlagKit from 'react-flag-kit'; // Import the entire module as a namespace
+import FlagModule from 'react-flag-kit'; // Import the default export
 
 interface FlagIconProps {
   countryCode: string;
@@ -14,9 +14,9 @@ const FlagIcon: React.FC<FlagIconProps> = ({ countryCode, size = 24, className }
   }
 
   // Dynamically determine the Flag component.
-  // It could be the default export (FlagKit.default) or the module itself (FlagKit).
+  // It could be the default export itself, or a 'Flag' property within the default export.
   // We use 'as any' to bypass TypeScript's strict checks for this problematic module.
-  const FlagComponent = (FlagKit as any).default || FlagKit;
+  const FlagComponent = (FlagModule as any).Flag || FlagModule;
 
   return (
     <span className={`inline-flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
