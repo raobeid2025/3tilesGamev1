@@ -18,14 +18,12 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./3tilesGamev1
 
       - name: Build React app
         run: npm run build
-        working-directory: ./3tilesGamev1
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./3tilesGamev1/build
+          publish_dir: ./build
