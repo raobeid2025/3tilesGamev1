@@ -15,13 +15,14 @@ export interface Tile {
 export type GameStatus = "playing" | "won" | "lost" | "level-complete";
 
 // Emoji themes
-export type EmojiTheme = "animals" | "food" | "faces" | "mixed"; // Removed "objects"
+export type EmojiTheme = "animals" | "food" | "faces" | "mixed" | "countryFlags"; // Added "countryFlags"
 
 export const emojiThemes: Record<EmojiTheme, string[]> = {
   animals: ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🦁", "🐮", "🐷"],
   food: ["🍎", "🍕", "🍔", "🍟", "🥝", "🍇", "🍉", "🍓", "🍒", "🍑", "🍍", "🥥"],
   faces: ["😀", "😂", "🥰", "😎", "🤩", "😍", "🤗", "🤑", "🤠", "🥳", "😜", "🤪"],
-  mixed: ["🐶", "🍕", "😀", "🐱", "🍔", "😂", "🐭", "🍎", "🥰", "🐻", "🥝", "😎"] // Updated mixed theme
+  mixed: ["🐶", "🍕", "😀", "🐱", "🍔", "😂", "🐭", "🍎", "🥰", "🐻", "🥝", "😎"], // Updated mixed theme
+  countryFlags: ["🇺🇸", "🇨🇦", "🇬🇧", "🇫🇷", "🇩🇪", "🇮🇹", "🇪🇸", "🇯🇵", "🇨🇳", "🇮🇳", "🇧🇷", "🇦🇺"] // New country flags theme
 };
 
 export interface LevelConfig {
