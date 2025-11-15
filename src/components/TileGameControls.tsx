@@ -9,25 +9,25 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { RotateCcw, Shuffle, Eye } from "lucide-react"; // Import Eye icon
+import { RotateCcw, Shuffle, Eye } from "lucide-react";
 import { EmojiTheme, GameStatus, LevelConfig } from "@/utils/game-config";
 
 interface TileGameControlsProps {
   moves: number;
   currentLevel: number;
   shufflesLeft: number;
-  peekUsesLeft: number; // New prop
+  peekUsesLeft: number;
   selectedTheme: EmojiTheme;
   onThemeChange: (value: string) => void;
   onRestart: () => void;
   onShuffle: () => void;
-  onActivatePeekMode: () => void; // New prop
+  onActivatePeekMode: () => void;
   gameStatus: GameStatus;
   isChecking: boolean;
   isProcessingSlot: boolean;
-  isPeekModeActive: boolean; // New prop
-  currentLevelConfig: LevelConfig; // Added to check layers
-  hasPeekableTiles: boolean; // New prop
+  isPeekModeActive: boolean;
+  currentLevelConfig: LevelConfig;
+  hasPeekableTiles: boolean;
 }
 
 const TileGameControls: React.FC<TileGameControlsProps> = ({
@@ -39,13 +39,13 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
   onThemeChange,
   onRestart,
   onShuffle,
-  onActivatePeekMode, // Destructure new prop
+  onActivatePeekMode,
   gameStatus,
   isChecking,
   isProcessingSlot,
-  isPeekModeActive, // Destructure new prop
-  currentLevelConfig, // Destructure new prop
-  hasPeekableTiles, // Destructure new prop
+  isPeekModeActive,
+  currentLevelConfig,
+  hasPeekableTiles,
 }) => {
   const isPeekDisabled = peekUsesLeft <= 0 || isPeekModeActive || gameStatus !== "playing" || isChecking || isProcessingSlot || currentLevelConfig.layers === 1 || !hasPeekableTiles;
 
@@ -64,14 +64,14 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
       
       <div className="flex gap-2">
         <Select value={selectedTheme} onValueChange={onThemeChange}>
-          <SelectTrigger className="w-full sm:w-[160px]"> {/* Made responsive */}
+          <SelectTrigger className="w-full sm:w-[160px]">
             <SelectValue placeholder="Emoji Theme" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="mixed">Mixed Emojis</SelectItem>
             <SelectItem value="animals">Animals</SelectItem>
             <SelectItem value="food">Food</SelectItem>
-            <SelectItem value="objects" disabled>Objects</SelectItem> {/* Disabled here */}
+            {/* <SelectItem value="objects" disabled>Objects</SelectItem> Removed this item */}
             <SelectItem value="faces">Faces</SelectItem>
           </SelectContent>
         </Select>
