@@ -443,26 +443,27 @@ export const useTileGame = () => {
 
     if (isPeekModeActive) {
       const tilesBelow = getTilesBelow(clickedTile, tiles);
-      const deepestTile = tilesBelow.length > 0 ? tilesBelow[tilesBelow.length - 1] : null; // Get the deepest tile
+      // Change: Get the immediately next available tile (highest layer below clicked)
+      const nextAvailableTile = tilesBelow.length > 0 ? tilesBelow[0] : null; 
 
-      if (!deepestTile) {
+      if (!nextAvailableTile) {
         showError("No tiles hidden below this one!");
         setIsPeekModeActive(false); // Deactivate peek mode without consuming a use
         return;
       }
 
-      // Identify tiles that are blocking the view of the deepest tile
+      // Identify tiles that are blocking the view of the next available tile
       const tilesToMove = tiles.filter(t =>
         t.position.row === clickedTile.position.row &&
         t.position.col === clickedTile.position.col &&
         !t.isMatched &&
-        t.layer > deepestTile.layer && // All tiles strictly above the deepestTile
+        t.layer > nextAvailableTile.layer && // All tiles strictly above the nextAvailableTile
         t.layer <= clickedTile.layer // Up to and including the clicked tile
       );
       setBlockingTilesToMove(tilesToMove.map(t => t.id));
 
-      setPeekedTileId(deepestTile.id); // ID of the actual deepest tile
-      setPeekedTileEmoji(deepestTile.emoji); // Emoji of the actual deepest tile
+      setPeekedTileId(nextAvailableTile.id); // ID of the actual next available tile
+      setPeekedTileEmoji(nextAvailableTile.emoji); // Emoji of the actual next available tile
       setPeekDisplayTileId(clickedTile.id); // ID of the clicked tile to display peeked emoji
       
       setTimeout(() => {
@@ -504,7 +505,7 @@ export const useTileGame = () => {
     }
 
     setIsPeekModeActive(true);
-    showSuccess("Peek mode activated! Click any tile with hidden layers below to reveal its deepest hidden tile."); // Updated success message
+    showSuccess("Peek mode activated! Click any tile with hidden layers below to reveal the next available tile."); // Updated success message
   }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers, hasPeekableTiles]);
 
   useEffect(() => {
