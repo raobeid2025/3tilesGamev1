@@ -1,5 +1,3 @@
-"use client";
-
 // Tile data structure
 export interface Tile {
   id: number;

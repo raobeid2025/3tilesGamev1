@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tile, LevelConfig, GameStatus, EmojiTheme } from "@/utils/game-config"; // Import EmojiTheme

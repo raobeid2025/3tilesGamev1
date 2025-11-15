@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useRef, useState, useEffect } from "react";
 import { useTileGame } from "@/hooks/use-tile-game";
 import TileGameControls from "@/components/TileGameControls";
