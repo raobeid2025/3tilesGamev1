@@ -137,7 +137,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 initial={shouldAnimateEntry ? { y: -50, opacity: 0, scale: 0.8 } : false}
                 animate={{
                   y: isDisplayingPeek ? -15 : (isBlockingTileToMove ? -10 : 0),
-                  x: isBlockingTileToMove && tile.id % 2 === 0 ? -10 : (isBlockingTileToMove ? 10 : 0),
+                  x: isBlockingTileToMove && tile.id % 2 === 0 ? -10 : (isBlockingTileTo_Move ? 10 : 0),
                   scale: selectedTiles.includes(tile.id) ? 0.95 : (isThisThePeekedTile ? 1.1 : (isBlockingTileToMove ? 0.9 : 1)),
                   opacity: targetOpacity,
                 }}
@@ -168,7 +168,10 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                   width: `${calculatedTileSize}px`,
                   height: `${calculatedTileSize}px`,
                 }}
-                onClick={() => handleTileClickOnBoard(tile.id)}
+                onClick={() => {
+                  console.log(`Tile ${tile.id} clicked! Handler present: ${!!handleTileClickOnBoard}`);
+                  handleTileClickOnBoard(tile.id);
+                }}
               >
                 <div className={`
                   absolute w-full h-full flex items-center justify-center rounded-lg ${getEmojiFontSize(calculatedTileSize)} font-bold
