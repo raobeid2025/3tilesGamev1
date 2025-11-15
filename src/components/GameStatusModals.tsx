@@ -22,6 +22,7 @@ interface GameStatusModalsProps {
   onNextLevel: (nextTheme?: EmojiTheme) => void;
   totalLevels: number;
   selectedTheme: EmojiTheme;
+  solvingTime: number | null; // New: Add solvingTime prop
 }
 
 const GameStatusModals: React.FC<GameStatusModalsProps> = ({
@@ -35,6 +36,7 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
   onNextLevel,
   totalLevels,
   selectedTheme,
+  solvingTime, // Destructure new prop
 }) => {
   const [nextLevelTheme, setNextLevelTheme] = useState<EmojiTheme>(selectedTheme);
 
@@ -46,6 +48,15 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
 
   const handleNextLevelClick = () => {
     onNextLevel(nextLevelTheme);
+  };
+
+  // Helper function to format time
+  const formatTime = (milliseconds: number | null) => {
+    if (milliseconds === null) return "N/A";
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}m ${seconds}s`;
   };
 
   return (
@@ -70,6 +81,11 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
             <p className="text-gray-600 mb-1">
               You cleared all tiles in <span className="font-bold">{moves}</span> moves
             </p>
+            {solvingTime !== null && (
+              <p className="text-gray-600 mb-1">
+                Solving Time: <span className="font-bold">{formatTime(solvingTime)}</span>
+              </p>
+            )}
             <p className="text-gray-600 mb-4">
               Level {currentLevel} ({currentLevelConfig.pattern} pattern)
             </p>

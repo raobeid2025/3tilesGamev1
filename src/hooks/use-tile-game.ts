@@ -44,6 +44,8 @@ export const useTileGame = () => {
   const [blockedStatusMap, setBlockedStatusMap] = useState<Map<number, boolean>>(new Map()); // Corrected: Initialize with useState
   const [isLevelSelectedManually, setIsLevelSelectedManually] = useState(false); // New state to track manual selection
   const [hasGameStartedPlaying, setHasGameStartedPlaying] = useState(false); // New state to track if game has started
+  const [startTime, setStartTime] = useState<number | null>(null); // New: To track when the level started
+  const [solvingTime, setSolvingTime] = useState<number | null>(null); // New: To store the duration
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
@@ -275,6 +277,8 @@ export const useTileGame = () => {
     setBlockingTilesToMove([]); // Reset blocking tiles
     setIsLevelSelectedManually(false); // Default to false when initializing any game
     setHasGameStartedPlaying(false); // Reset this flag when a new game initializes
+    setStartTime(Date.now()); // Start the timer for the new level
+    setSolvingTime(null); // Reset solving time
   }, [selectedTheme]);
 
   useEffect(() => {
@@ -513,8 +517,11 @@ export const useTileGame = () => {
     if (hasGameStartedPlaying && tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
       setShowLevelComplete(true); // Show modal if game was actually played and won
+      if (startTime !== null) {
+        setSolvingTime(Date.now() - startTime); // Calculate solving time
+      }
     }
-  }, [tiles, slotTiles, gameStatus, hasGameStartedPlaying]);
+  }, [tiles, slotTiles, gameStatus, hasGameStartedPlaying, startTime]);
 
   const handleNextLevel = (nextTheme?: EmojiTheme) => {
     setShowLevelComplete(false); // Explicitly close the modal before starting next level
@@ -628,6 +635,7 @@ export const useTileGame = () => {
     blockingTilesToMove, // Expose new state
     blockedStatusMap, // Expose new state
     hasPeekableTiles, // Expose new state
+    solvingTime, // New: Expose solving time
     
     getTopTileAtPosition,
     handleThemeChange,

@@ -34,6 +34,7 @@ export default function TileMasterMatch() {
     blockingTilesToMove,
     blockedStatusMap,
     hasPeekableTiles,
+    solvingTime, // New: Destructure solvingTime
     
     getTopTileAtPosition,
     handleThemeChange,
@@ -147,6 +148,7 @@ export default function TileMasterMatch() {
           onNextLevel={handleNextLevel}
           totalLevels={levelConfigs.length}
           selectedTheme={selectedTheme}
+          solvingTime={solvingTime} {/* New: Pass solvingTime */}
         />
       </div>
     </div>
