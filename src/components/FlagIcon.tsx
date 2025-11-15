@@ -1,6 +1,6 @@
 "use client";
 
-import Flag from 'react-flag-kit'; // Assuming Flag is the default export
+import Flag = require('react-flag-kit'); // Using TypeScript-specific CommonJS import
 
 interface FlagIconProps {
   countryCode: string;
