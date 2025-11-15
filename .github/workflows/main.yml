@@ -1,4 +1,4 @@
-name: Deploy React to GitHub Pages
+name: Deploy Vite React to GitHub Pages
 permissions:
   contents: write
 on:
@@ -19,14 +19,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build React app
+      - name: Build Vite app
         run: npm run build
 
-      - name: List build folder (for debugging)
-        run: ls -R build
+      - name: List dist folder (debug)
+        run: ls -R dist
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          publish_dir: ./dist
