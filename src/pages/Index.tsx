@@ -35,7 +35,7 @@ export default function TileMasterMatch() {
     isPeekModeActive,
     blockingTilesToMove,
     blockedStatusMap,
-    hasPeekableTiles, // Destructure new prop
+    hasPeekableTiles,
     
     getTopTileAtPosition,
     handleThemeChange,
@@ -61,8 +61,8 @@ export default function TileMasterMatch() {
         setGameBoardWrapperWidth(gameBoardWrapperRef.current.offsetWidth);
       }
     };
-    updateWidth(); // Set initial width
-    window.addEventListener('resize', updateWidth); // Update on resize
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
@@ -85,7 +85,7 @@ export default function TileMasterMatch() {
           isProcessingSlot={isProcessingSlot}
           isPeekModeActive={isPeekModeActive}
           currentLevelConfig={currentLevelConfig}
-          hasPeekableTiles={hasPeekableTiles} // Pass new prop
+          hasPeekableTiles={hasPeekableTiles}
         />
 
         {/* Game Board */}
@@ -147,7 +147,7 @@ export default function TileMasterMatch() {
           onRestartLevel={handleRestartLevel}
           onNextLevel={handleNextLevel}
           totalLevels={levelConfigs.length}
-          selectedTheme={selectedTheme} {/* Pass selectedTheme */}
+          selectedTheme={selectedTheme}
         />
       </div>
     </div>
