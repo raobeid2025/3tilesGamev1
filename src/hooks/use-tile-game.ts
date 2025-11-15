@@ -508,14 +508,10 @@ export const useTileGame = () => {
   }, [peekUsesLeft, gameStatus, isChecking, isProcessingSlot, currentLevelConfig.layers, hasPeekableTiles]);
 
   useEffect(() => {
-    if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
+    // Only check for win condition if the game has actually started playing
+    if (hasGameStartedPlaying && tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
-      // Only show level complete if the game has actually started playing
-      if (hasGameStartedPlaying) {
-        setShowLevelComplete(true); 
-      } else {
-        setShowLevelComplete(false);
-      }
+      setShowLevelComplete(true); // Show modal if game was actually played and won
     }
   }, [tiles, slotTiles, gameStatus, hasGameStartedPlaying]);
 
