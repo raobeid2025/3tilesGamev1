@@ -60,10 +60,6 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
           <div className="text-sm text-gray-500">Level</div>
           <div className="text-xl font-bold text-indigo-700">{currentLevel}/50</div>
         </div>
-        <div className="text-center">
-          <div className="text-sm text-gray-500">Shuffles</div>
-          <div className="text-xl font-bold text-indigo-700">{shufflesLeft}</div>
-        </div>
       </div>
       
       <div className="flex gap-2">
@@ -89,9 +85,9 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
         <Button 
           onClick={onShuffle}
           disabled={shufflesLeft <= 0 || gameStatus !== "playing" || isChecking || isProcessingSlot}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg"
+          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg flex items-center gap-1"
         >
-          <Shuffle size={16} />
+          <Shuffle size={16} /> Shuffle ({shufflesLeft})
         </Button>
         <Button 
           onClick={onActivatePeekMode}
