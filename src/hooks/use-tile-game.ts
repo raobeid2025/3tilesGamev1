@@ -21,7 +21,7 @@ export const useTileGame = () => {
   const [selectedTheme, setSelectedTheme] = useState<EmojiTheme>("mixed");
   const [slotTiles, setSlotTiles] = useState<Tile[]>([]);
   const [comboMessage, setComboMessage] = useState<{emoji: string, count: number} | null>(null);
-  const [tilesToRemove, setTilesToRemove] = useState<number[]>(([]);
+  const [tilesToRemove, setTilesToRemove] = useState<number[]>([]);
   const [vibratingTiles, setVibratingTiles] = useState<number[]>([]);
   const [slotAnimationKey, setSlotAnimationKey] = useState(0);
   const [currentLevel, setCurrentLevel] = useState(1);
