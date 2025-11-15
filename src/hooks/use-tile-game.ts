@@ -44,6 +44,7 @@ export const useTileGame = () => {
   const [isPeekModeActive, setIsPeekModeActive] = useState(false);
   const [blockingTilesToMove, setBlockingTilesToMove] = useState<number[]>([]); // New state for tiles to move during peek
   const [blockedStatusMap, setBlockedStatusMap] = useState<Map<number, boolean>>(new Map()); // Corrected: Initialize with useState
+  const [isLevelSelectedManually, setIsLevelSelectedManually] = useState(false); // New state to track manual selection
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
@@ -255,6 +256,7 @@ export const useTileGame = () => {
     setPeekUsesLeft(3); // Reset peek uses for new level
     setIsPeekModeActive(false); // Deactivate peek mode on new level
     setBlockingTilesToMove([]); // Reset blocking tiles
+    setIsLevelSelectedManually(false); // Default to false when initializing any game
   }, [selectedTheme]); // Removed currentLevel from dependencies as it's now set inside
 
   useEffect(() => {
@@ -470,9 +472,15 @@ export const useTileGame = () => {
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
-      setShowLevelComplete(true);
+      // Only show level complete if it wasn't a manually selected level
+      if (!isLevelSelectedManually) {
+        setShowLevelComplete(true);
+      } else {
+        // If manually selected, just reset the flag and don't show the modal
+        setIsLevelSelectedManually(false);
+      }
     }
-  }, [tiles, slotTiles, gameStatus]);
+  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually]); // Add isLevelSelectedManually to dependencies
 
   const handleNextLevel = (nextTheme?: EmojiTheme) => {
     const nextLevel = currentLevel + 1;
@@ -487,6 +495,7 @@ export const useTileGame = () => {
         setSelectedTheme(nextTheme);
       }
     }
+    setIsLevelSelectedManually(false); // Reset when moving to next level
   };
 
   const handlePrevLevel = () => {
@@ -494,15 +503,18 @@ export const useTileGame = () => {
     if (prevLevel >= 1) {
       initializeGame(prevLevel);
     }
+    setIsLevelSelectedManually(false); // Reset when moving to prev level
   };
 
   const handleRestartLevel = () => {
     initializeGame(currentLevel);
+    setIsLevelSelectedManually(false); // Reset when restarting level
   };
 
   const handleLevelSelect = (levelId: number) => {
     initializeGame(levelId);
     setLevelSelectOpen(false);
+    setIsLevelSelectedManually(true); // Set to true when a level is manually selected
   };
 
   const handleShuffle = () => {
