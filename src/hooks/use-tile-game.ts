@@ -84,7 +84,7 @@ export const useTileGame = () => {
       newBlockedStatusMap.set(tile.id, isCurrentlyBlocked);
     });
     setBlockedStatusMap(newBlockedStatusMap);
-    console.log("Blocked status map calculated:", newBlockedStatusMap);
+    console.log("useTileGame: Blocked status map calculated. Size:", newBlockedStatusMap.size, "Example (tile 0 blocked?):", newBlockedStatusMap.get(0));
   }, [tiles]); // Recalculate when tiles array changes
 
   // Effect to save currentLevel to localStorage
@@ -252,7 +252,7 @@ export const useTileGame = () => {
     });
     
     setTiles(newTiles);
-    console.log("Tiles initialized:", newTiles.length, newTiles);
+    console.log("useTileGame: Tiles initialized. Count:", newTiles.length, "First tile:", newTiles[0]);
     setSelectedTiles([]);
     setMoves(0);
     setGameStatus("playing");
@@ -278,6 +278,7 @@ export const useTileGame = () => {
   }, [selectedTheme]);
 
   useEffect(() => {
+    console.log("useTileGame: Initializing game on mount or currentLevel change. Current level:", currentLevel);
     initializeGame(currentLevel); // Initialize with the level loaded from localStorage
   }, [initializeGame, currentLevel]);
 
@@ -288,12 +289,24 @@ export const useTileGame = () => {
   };
 
   const moveToSlot = (id: number) => {
-    if (isChecking || gameStatus !== "playing" || isProcessingSlot) return;
+    console.log(`useTileGame: Attempting to move tile ${id} to slot. Guards: isChecking=${isChecking}, gameStatus=${gameStatus}, isProcessingSlot=${isProcessingSlot}`);
+    if (isChecking || gameStatus !== "playing" || isProcessingSlot) {
+      console.log(`useTileGame: Move to slot for tile ${id} blocked by guards.`);
+      return;
+    }
     
     const tile = tiles.find(t => t.id === id);
-    if (!tile || tile.isMatched || tile.isInSlot) return;
+    if (!tile || tile.isMatched || tile.isInSlot) {
+      console.log(`useTileGame: Move to slot for tile ${id} blocked because tile not found, matched, or already in slot.`);
+      return;
+    }
     
-    if (blockedStatusMap.get(tile.id)) return; // Use pre-calculated status
+    const isBlockedByMap = blockedStatusMap.get(tile.id);
+    console.log(`useTileGame: Tile ${id} blocked by map? ${isBlockedByMap}`);
+    if (isBlockedByMap) { // Use pre-calculated status
+      console.log(`useTileGame: Move to slot for tile ${id} blocked by blockedStatusMap.`);
+      return;
+    }
     
     setIsProcessingSlot(true);
     setHasGameStartedPlaying(true); // Set to true on the first actual move
@@ -420,10 +433,13 @@ export const useTileGame = () => {
   // Unified handler for clicking tiles on the game board
   const handleTileClickOnBoard = useCallback((tileId: number) => {
     const clickedTile = tiles.find(t => t.id === tileId);
-    if (!clickedTile) return;
+    if (!clickedTile) {
+      console.log(`useTileGame: handleTileClickOnBoard - Tile ${tileId} not found.`);
+      return;
+    }
 
     const isBlocked = blockedStatusMap.get(clickedTile.id) || false;
-    console.log(`Clicked tile ${tileId}. Is blocked: ${isBlocked}. Current game status: ${gameStatus}`);
+    console.log(`useTileGame: Clicked tile ${tileId}. Is blocked: ${isBlocked}. Current game status: ${gameStatus}. Is peek mode active: ${isPeekModeActive}`);
 
     if (isPeekModeActive) {
       const tilesBelow = getTilesBelow(clickedTile, tiles);
@@ -466,6 +482,8 @@ export const useTileGame = () => {
       });
     } else if (!isBlocked) { // If not in peek mode, and not blocked, move to slot
       moveToSlot(tileId);
+    } else {
+      console.log(`useTileGame: Tile ${tileId} is blocked and not in peek mode. Cannot move.`);
     }
     // If not in peek mode AND blocked, do nothing.
   }, [isPeekModeActive, moveToSlot, tiles, getTilesBelow, setPeekUsesLeft, blockedStatusMap, gameStatus]);
