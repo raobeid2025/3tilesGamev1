@@ -103,7 +103,6 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
               
               <Button 
                 onClick={handleNextLevelClick}
-                disabled={currentLevel === totalLevels}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 flex-1"
               >
                 Next Level <ArrowRight size={16} />
