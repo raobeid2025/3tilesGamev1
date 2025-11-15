@@ -1,6 +1,6 @@
 "use client";
 
-import { default as Flag } from 'react-flag-kit'; // Explicitly import the default export
+import { Flag } from 'react-flag-kit'; // Importing Flag as a named export
 
 interface FlagIconProps {
   countryCode: string;
