@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tile, LevelConfig, GameStatus, EmojiTheme } from "@/utils/game-config"; // Import EmojiTheme
-import FlagIcon from './FlagIcon'; // Import the new FlagIcon component
 
 interface TileSlotProps {
   slotTiles: Tile[];
@@ -174,14 +173,7 @@ const TileSlotComponent: React.FC<TileSlotProps> = ({
                       }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
-                      {selectedTheme === "countryFlags" ? (
-                        <FlagIcon 
-                          countryCode={tile.emoji} 
-                          size={calculatedSlotTileSize * 0.7} // Adjust size as needed
-                        />
-                      ) : (
-                        tile.emoji
-                      )}
+                      {tile.emoji}
                     </div>
                   </motion.div>
                 </motion.div>

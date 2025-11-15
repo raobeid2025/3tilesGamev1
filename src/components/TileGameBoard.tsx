@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { Tile, LevelConfig, EmojiTheme } from "@/utils/game-config"; // Import EmojiTheme
-import FlagIcon from './FlagIcon'; // Import the new FlagIcon component
 
 interface TileGameBoardProps {
   tiles: Tile[];
@@ -182,14 +181,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 `}
                 >
                   <span className="relative z-10">
-                    {selectedTheme === "countryFlags" ? (
-                      <FlagIcon 
-                        countryCode={isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji} 
-                        size={calculatedTileSize * 0.7} // Adjust size as needed
-                      />
-                    ) : (
-                      isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji
-                    )}
+                    {isThisThePeekedTile && peekedTileEmoji ? peekedTileEmoji : tile.emoji}
                   </span>
                 </div>
 

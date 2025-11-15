@@ -12,7 +12,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import FlagIcon from './FlagIcon'; // Import the new FlagIcon component
 
 interface GameStatusModalsProps {
   gameStatus: GameStatus;
@@ -90,14 +89,6 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
                   <SelectItem value="animals">🐾 Animals</SelectItem>
                   <SelectItem value="food">🍔 Food</SelectItem>
                   <SelectItem value="faces">😊 Faces</SelectItem>
-                  <SelectItem value="countryFlags">
-                    <div className="flex items-center gap-2">
-                      <FlagIcon countryCode="US" size={16} />
-                      <FlagIcon countryCode="CA" size={16} />
-                      <FlagIcon countryCode="GB" size={16} />
-                      <span>Country Flags</span>
-                    </div>
-                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
