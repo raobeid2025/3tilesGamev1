@@ -140,6 +140,14 @@ export const useTileGame = () => {
     console.log(`[initializeGame] Starting for levelId: ${levelId}, theme: ${theme}`);
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
     console.log("[initializeGame] Level Config:", levelConfig);
+    
+    let totalTilesTarget = levelConfig.totalTiles;
+    if (typeof totalTilesTarget !== 'number' || isNaN(totalTilesTarget)) {
+      console.error("levelConfig.totalTiles is not a valid number:", levelConfig.totalTiles);
+      totalTilesTarget = 0; // Default to 0 to prevent further errors
+    }
+    console.log("[initializeGame] levelConfig.totalTiles (adjusted):", totalTilesTarget);
+
     const baseThemeEmojis = emojiThemes[theme];
 
     const isFilledPattern = levelConfig.layers > 1;
@@ -187,16 +195,16 @@ export const useTileGame = () => {
 
     // Adjust to match levelConfig.totalTiles
     // This part needs careful handling to ensure uniqueness
-    if (finalTileSpots.length > levelConfig.totalTiles) {
+    if (finalTileSpots.length > totalTilesTarget) {
       // If too many, remove randomly until target is met
-      while (finalTileSpots.length > levelConfig.totalTiles && finalTileSpots.length > 0) {
+      while (finalTileSpots.length > totalTilesTarget && finalTileSpots.length > 0) {
         const removedSpot = finalTileSpots.pop(); // Remove from end (randomized earlier)
         if (removedSpot) { 
           occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
         }
       }
-    } else if (finalTileSpots.length < levelConfig.totalTiles) {
-      const needed = levelConfig.totalTiles - finalTileSpots.length;
+    } else if (finalTileSpots.length < totalTilesTarget) {
+      const needed = totalTilesTarget - finalTileSpots.length;
       let attempts = 0;
       const maxAttempts = needed * 5; // Prevent infinite loop if no more spots
       
@@ -211,7 +219,8 @@ export const useTileGame = () => {
     }
 
     // Ensure finalTileSpots count is a multiple of 3 for emoji distribution
-    while (finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) { 
+    console.log("Before finalTileSpots adjustment loop. finalTileSpots:", finalTileSpots);
+    while (finalTileSpots && finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) { 
       console.log("Inside finalTileSpots adjustment loop. Current length:", finalTileSpots.length);
       console.log("finalTileSpots before pop:", finalTileSpots); // Log the array itself
       const removedSpot = finalTileSpots.pop();
@@ -221,7 +230,7 @@ export const useTileGame = () => {
         if (occupiedSpots && occupiedSpots instanceof Set) {
           const keyToDelete = `${removedSpot.row},${removedSpot.col},${removedSpot.layer}`;
           console.log("Attempting to delete from occupiedSpots:", occupiedSpots, "Key:", keyToDelete);
-          occupiedSpots.delete(keyToDelete);
+          occupiedSpots.delete(keyToDelete); 
         } else {
           console.error("occupiedSpots is not a Set or is undefined/null:", occupiedSpots);
           break; 
