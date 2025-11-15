@@ -137,11 +137,14 @@ export const useTileGame = () => {
   }, [tiles, currentLevelConfig.layers, getTilesBelow]); // Removed blockedStatusMap from dependencies
 
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
+    console.log(`[initializeGame] Starting for levelId: ${levelId}, theme: ${theme}`);
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
+    console.log("[initializeGame] Level Config:", levelConfig);
     const baseThemeEmojis = emojiThemes[theme];
 
     const isFilledPattern = levelConfig.layers > 1;
     const patternPositions = generatePatternPositions(levelConfig.pattern, levelConfig.gridSize, isFilledPattern);
+    console.log("[initializeGame] Pattern Positions count:", patternPositions.length);
     
     let finalTileSpots: { row: number; col: number; layer: number }[] = [];
     const occupiedSpots = new Set<string>(); // To track unique (row, col, layer)
@@ -180,6 +183,7 @@ export const useTileGame = () => {
         addUniqueSpot(pos.row, pos.col, 0);
       });
     }
+    console.log("[initializeGame] Final Tile Spots after initial population:", finalTileSpots.length);
 
     // Adjust to match levelConfig.totalTiles
     // This part needs careful handling to ensure uniqueness
@@ -208,21 +212,22 @@ export const useTileGame = () => {
 
     // Ensure finalTileSpots count is a multiple of 3 for emoji distribution
     while (finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) { 
+      console.log("Inside finalTileSpots adjustment loop. Current length:", finalTileSpots.length);
+      console.log("finalTileSpots before pop:", finalTileSpots); // Log the array itself
       const removedSpot = finalTileSpots.pop();
-      // More robust check for removedSpot and its properties
-      if (removedSpot && typeof removedSpot.row === 'number' && typeof removedSpot.col === 'number' && typeof removedSpot.layer === 'number') {
-        // Add a defensive check to ensure occupiedSpots is a Set before calling delete
+      
+      if (removedSpot) {
+        console.log("Removed spot:", removedSpot); // Log the removed spot
         if (occupiedSpots && occupiedSpots instanceof Set) {
-          console.log("Attempting to delete from occupiedSpots:", occupiedSpots, "Removed spot:", removedSpot); // Debugging line
-          occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
+          const keyToDelete = `${removedSpot.row},${removedSpot.col},${removedSpot.layer}`;
+          console.log("Attempting to delete from occupiedSpots:", occupiedSpots, "Key:", keyToDelete);
+          occupiedSpots.delete(keyToDelete);
         } else {
-          // If occupiedSpots is not a Set, something is fundamentally wrong.
-          // Break the loop to prevent further errors.
           console.error("occupiedSpots is not a Set or is undefined/null:", occupiedSpots);
           break; 
         }
       } else {
-        // If removedSpot is undefined or malformed, break the loop.
+        console.error("removedSpot was undefined in the loop, breaking to prevent error. finalTileSpots length was:", finalTileSpots.length);
         break; 
       }
     }
@@ -270,6 +275,7 @@ export const useTileGame = () => {
     setIsPeekModeActive(false); // Deactivate peek mode on new level
     setBlockingTilesToMove([]); // Reset blocking tiles
     setIsLevelSelectedManually(false); // Default to false when initializing any game
+    console.log("[initializeGame] Game initialized successfully.");
   }, [selectedTheme]); // Removed currentLevel from dependencies as it's now set inside
 
   useEffect(() => {
@@ -503,7 +509,7 @@ export const useTileGame = () => {
         setSelectedTheme(nextTheme); // Update the main selectedTheme if a new one was chosen
       }
     } else {
-      initializeGame(1, nextTheme || selectedTheme);
+      initializeGame(1, nextTheme || selectedTheme); // This is the loop back to level 1
       if (nextTheme) {
         setSelectedTheme(nextTheme);
       }
