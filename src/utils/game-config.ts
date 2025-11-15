@@ -3,7 +3,7 @@
 // Tile data structure
 export interface Tile {
   id: number;
-  emoji: string;
+  emoji: string; // This will now store country codes for the 'countryFlags' theme
   isMatched: boolean;
   isInSlot?: boolean;
   layer: number;
@@ -22,7 +22,7 @@ export const emojiThemes: Record<EmojiTheme, string[]> = {
   food: ["🍎", "🍕", "🍔", "🍟", "🥝", "🍇", "🍉", "🍓", "🍒", "🍑", "🍍", "🥥"],
   faces: ["😀", "😂", "🥰", "😎", "🤩", "😍", "🤗", "🤑", "🤠", "🥳", "😜", "🤪"],
   mixed: ["🐶", "🍕", "😀", "🐱", "🍔", "😂", "🐭", "🍎", "🥰", "🐻", "🥝", "😎"], // Updated mixed theme
-  countryFlags: ["🇺🇸", "🇨🇦", "🇬🇧", "🇫🇷", "🇩🇪", "🇮🇹", "🇪🇸", "🇯🇵", "🇨🇳", "🇮🇳", "🇧🇷", "🇦🇺"] // New country flags theme
+  countryFlags: ["US", "CA", "GB", "FR", "DE", "IT", "ES", "JP", "CN", "IN", "BR", "AU"] // Changed to country codes
 };
 
 export interface LevelConfig {

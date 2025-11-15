@@ -76,7 +76,6 @@ export default function TileMasterMatch() {
           shufflesLeft={shufflesLeft}
           peekUsesLeft={peekUsesLeft}
           selectedTheme={selectedTheme}
-          // onThemeChange={handleThemeChange} // Removed as it's no longer used in TileGameControls
           onRestart={handleRestartLevel}
           onShuffle={handleShuffle}
           onActivatePeekMode={handleActivatePeekMode}
@@ -102,6 +101,7 @@ export default function TileMasterMatch() {
           handleTileClickOnBoard={handleTileClickOnBoard}
           availableWidth={gameBoardWrapperWidth}
           blockingTilesToMove={blockingTilesToMove}
+          selectedTheme={selectedTheme} {/* Pass selectedTheme */}
         />
 
         {/* Tile Slot below the Game Board */}
@@ -117,6 +117,7 @@ export default function TileMasterMatch() {
           isProcessingSlot={isProcessingSlot}
           selectedTiles={selectedTiles}
           availableWidth={gameBoardWrapperWidth}
+          selectedTheme={selectedTheme} {/* Pass selectedTheme */}
         />
 
         {/* Level Navigation at the bottom */}

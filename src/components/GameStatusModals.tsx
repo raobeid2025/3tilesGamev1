@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { GameStatus, LevelConfig, EmojiTheme, emojiThemes } from "@/utils/game-config"; // Import emojiThemes
+import { GameStatus, LevelConfig, EmojiTheme, emojiThemes } from "@/utils/game-config";
 import { 
   Select, 
   SelectContent, 
@@ -12,6 +12,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import FlagIcon from './FlagIcon'; // Import the new FlagIcon component
 
 interface GameStatusModalsProps {
   gameStatus: GameStatus;
@@ -21,9 +22,9 @@ interface GameStatusModalsProps {
   moves: number;
   slotTilesLength: number;
   onRestartLevel: () => void;
-  onNextLevel: (nextTheme?: EmojiTheme) => void; // Updated to accept optional theme
+  onNextLevel: (nextTheme?: EmojiTheme) => void;
   totalLevels: number;
-  selectedTheme: EmojiTheme; // Current theme from useTileGame
+  selectedTheme: EmojiTheme;
 }
 
 const GameStatusModals: React.FC<GameStatusModalsProps> = ({
@@ -42,7 +43,7 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
 
   useEffect(() => {
     if (showLevelComplete) {
-      setNextLevelTheme(selectedTheme); // Reset to current theme when modal opens
+      setNextLevelTheme(selectedTheme);
     }
   }, [showLevelComplete, selectedTheme]);
 
@@ -90,7 +91,12 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
                   <SelectItem value="food">🍔 Food</SelectItem>
                   <SelectItem value="faces">😊 Faces</SelectItem>
                   <SelectItem value="countryFlags">
-                    {emojiThemes.countryFlags[0]} {emojiThemes.countryFlags[1]} {emojiThemes.countryFlags[2]} Country Flags
+                    <div className="flex items-center gap-2">
+                      <FlagIcon countryCode="US" size={16} />
+                      <FlagIcon countryCode="CA" size={16} />
+                      <FlagIcon countryCode="GB" size={16} />
+                      <span>Country Flags</span>
+                    </div>
                   </SelectItem>
                 </SelectContent>
               </Select>

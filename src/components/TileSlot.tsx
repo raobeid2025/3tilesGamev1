@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
-import { Tile, LevelConfig, GameStatus } from "@/utils/game-config";
+import { Tile, LevelConfig, GameStatus, EmojiTheme } from "@/utils/game-config"; // Import EmojiTheme
+import FlagIcon from './FlagIcon'; // Import the new FlagIcon component
 
 interface TileSlotProps {
   slotTiles: Tile[];
@@ -16,6 +17,7 @@ interface TileSlotProps {
   isProcessingSlot: boolean;
   selectedTiles: number[];
   availableWidth: number;
+  selectedTheme: EmojiTheme; // New prop
 }
 
 // Define the functional component first
@@ -31,6 +33,7 @@ const TileSlotComponent: React.FC<TileSlotProps> = ({
   isProcessingSlot,
   selectedTiles,
   availableWidth,
+  selectedTheme, // Destructure new prop
 }) => {
   const [calculatedSlotTileSize, setCalculatedSlotTileSize] = useState(56);
   const [calculatedSlotTileGap, setCalculatedSlotTileGap] = useState(8);
@@ -171,7 +174,14 @@ const TileSlotComponent: React.FC<TileSlotProps> = ({
                       }}
                       onClick={() => handleSlotTileClick(tile.id)}
                     >
-                      {tile.emoji}
+                      {selectedTheme === "countryFlags" ? (
+                        <FlagIcon 
+                          countryCode={tile.emoji} 
+                          size={calculatedSlotTileSize * 0.7} // Adjust size as needed
+                        />
+                      ) : (
+                        tile.emoji
+                      )}
                     </div>
                   </motion.div>
                 </motion.div>
