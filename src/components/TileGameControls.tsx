@@ -43,10 +43,7 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-white rounded-xl shadow-md p-4">
       <div className="flex items-center gap-4">
-        <div className="text-center">
-          <div className="text-sm text-gray-500">Moves</div>
-          <div className="text-xl font-bold text-indigo-700">{moves}</div>
-        </div>
+        {/* Removed the 'Moves' display */}
         <div className="text-center">
           <div className="text-sm text-gray-500">Level</div>
           <div className="text-xl font-bold text-indigo-700">{currentLevel}/50</div>
