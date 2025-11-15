@@ -62,97 +62,95 @@ export default function TileMasterMatch() {
     };
     updateWidth();
     window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth); // Corrected 'change' back to 'resize'
+    return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
   return (
-    <React.Fragment> {/* Added React.Fragment */}
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col items-center justify-evenly px-2 py-2 sm:p-4">
-        <div ref={gameBoardWrapperRef} className="w-full max-w-full sm:max-w-6xl mx-auto flex flex-col items-center gap-2">
-          {/* Tile Game Controls at the top */}
-          <TileGameControls
-            moves={moves}
-            currentLevel={currentLevel}
-            shufflesLeft={shufflesLeft}
-            peekUsesLeft={peekUsesLeft}
-            selectedTheme={selectedTheme}
-            onRestart={handleRestartLevel}
-            onShuffle={handleShuffle}
-            onActivatePeekMode={handleActivatePeekMode}
-            gameStatus={gameStatus}
-            isChecking={isChecking}
-            isProcessingSlot={isProcessingSlot}
-            isPeekModeActive={isPeekModeActive}
-            currentLevelConfig={currentLevelConfig}
-            hasPeekableTiles={hasPeekableTiles}
-          />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex flex-col items-center justify-evenly px-2 py-2 sm:p-4">
+      <div ref={gameBoardWrapperRef} className="w-full max-w-full sm:max-w-6xl mx-auto flex flex-col items-center gap-2">
+        {/* Tile Game Controls at the top */}
+        <TileGameControls
+          moves={moves}
+          currentLevel={currentLevel}
+          shufflesLeft={shufflesLeft}
+          peekUsesLeft={peekUsesLeft}
+          selectedTheme={selectedTheme}
+          onRestart={handleRestartLevel}
+          onShuffle={handleShuffle}
+          onActivatePeekMode={handleActivatePeekMode}
+          gameStatus={gameStatus}
+          isChecking={isChecking}
+          isProcessingSlot={isProcessingSlot}
+          isPeekModeActive={isPeekModeActive}
+          currentLevelConfig={currentLevelConfig}
+          hasPeekableTiles={hasPeekableTiles}
+        />
 
-          {/* Game Board */}
-          <TileGameBoard
-            tiles={tiles}
-            currentLevelConfig={currentLevelConfig}
-            blockedStatusMap={blockedStatusMap}
-            moveToSlot={moveToSlot}
-            selectedTiles={selectedTiles}
-            peekedTileId={peekedTileId}
-            peekedTileEmoji={peekedTileEmoji}
-            peekDisplayTileId={peekDisplayTileId}
-            isPeekModeActive={isPeekModeActive}
-            handleTileClickOnBoard={handleTileClickOnBoard}
-            availableWidth={gameBoardWrapperWidth}
-            blockingTilesToMove={blockingTilesToMove}
-            selectedTheme={selectedTheme}
-          />
+        {/* Game Board */}
+        <TileGameBoard
+          tiles={tiles}
+          currentLevelConfig={currentLevelConfig}
+          blockedStatusMap={blockedStatusMap}
+          moveToSlot={moveToSlot}
+          selectedTiles={selectedTiles}
+          peekedTileId={peekedTileId}
+          peekedTileEmoji={peekedTileEmoji}
+          peekDisplayTileId={peekDisplayTileId}
+          isPeekModeActive={isPeekModeActive}
+          handleTileClickOnBoard={handleTileClickOnBoard}
+          availableWidth={gameBoardWrapperWidth}
+          blockingTilesToMove={blockingTilesToMove}
+          selectedTheme={selectedTheme}
+        />
 
-          {/* Tile Slot below the Game Board */}
-          <TileSlot
-            slotTiles={slotTiles}
-            tilesToRemove={tilesToRemove}
-            vibratingTiles={vibratingTiles}
-            slotAnimationKey={slotAnimationKey}
-            currentLevelConfig={currentLevelConfig}
-            handleSlotTileClick={handleSlotTileClick}
-            isChecking={isChecking}
-            gameStatus={gameStatus}
-            isProcessingSlot={isProcessingSlot}
-            selectedTiles={selectedTiles}
-            availableWidth={gameBoardWrapperWidth}
-            selectedTheme={selectedTheme}
-          />
+        {/* Tile Slot below the Game Board */}
+        <TileSlot
+          slotTiles={slotTiles}
+          tilesToRemove={tilesToRemove}
+          vibratingTiles={vibratingTiles}
+          slotAnimationKey={slotAnimationKey}
+          currentLevelConfig={currentLevelConfig}
+          handleSlotTileClick={handleSlotTileClick}
+          isChecking={isChecking}
+          gameStatus={gameStatus}
+          isProcessingSlot={isProcessingSlot}
+          selectedTiles={selectedTiles}
+          availableWidth={gameBoardWrapperWidth}
+          selectedTheme={selectedTheme}
+        />
 
-          {/* Level Navigation at the bottom */}
-          <LevelNavigation
-            currentLevel={currentLevel}
-            levelConfigs={levelConfigs}
-            onPrevLevel={handlePrevLevel}
-            onNextLevel={handleNextLevel}
-            onToggleLevelSelect={() => setLevelSelectOpen(!levelSelectOpen)}
-          />
+        {/* Level Navigation at the bottom */}
+        <LevelNavigation
+          currentLevel={currentLevel}
+          levelConfigs={levelConfigs}
+          onPrevLevel={handlePrevLevel}
+          onNextLevel={handleNextLevel}
+          onToggleLevelSelect={() => setLevelSelectOpen(!levelSelectOpen)}
+        />
 
-          {/* Modals remain as overlays */}
-          <LevelSelectModal
-            isOpen={levelSelectOpen}
-            onClose={() => setLevelSelectOpen(false)}
-            levelConfigs={levelConfigs}
-            currentLevel={currentLevel}
-            onSelectLevel={handleLevelSelect}
-          />
+        {/* Modals remain as overlays */}
+        <LevelSelectModal
+          isOpen={levelSelectOpen}
+          onClose={() => setLevelSelectOpen(false)}
+          levelConfigs={levelConfigs}
+          currentLevel={currentLevel}
+          onSelectLevel={handleLevelSelect}
+        />
 
-          <GameStatusModals
-            gameStatus={gameStatus}
-            showLevelComplete={showLevelComplete}
-            currentLevel={currentLevel}
-            currentLevelConfig={currentLevelConfig}
-            moves={moves}
-            slotTilesLength={slotTiles.length}
-            onRestartLevel={handleRestartLevel}
-            onNextLevel={handleNextLevel}
-            totalLevels={levelConfigs.length}
-            selectedTheme={selectedTheme}
-            solvingTime={solvingTime}
-          />
-        </div>
+        <GameStatusModals
+          gameStatus={gameStatus}
+          showLevelComplete={showLevelComplete}
+          currentLevel={currentLevel}
+          currentLevelConfig={currentLevelConfig}
+          moves={moves}
+          slotTilesLength={slotTiles.length}
+          onRestartLevel={handleRestartLevel}
+          onNextLevel={handleNextLevel}
+          totalLevels={levelConfigs.length}
+          selectedTheme={selectedTheme}
+          solvingTime={solvingTime}
+        />
       </div>
-    </React.Fragment> {/* Closed React.Fragment */}
+    </div>
   );
 }
