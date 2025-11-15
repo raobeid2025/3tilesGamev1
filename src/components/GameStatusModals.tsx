@@ -85,11 +85,11 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
                   <SelectValue placeholder="Select Theme" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mixed">Mixed Emojis</SelectItem>
-                  <SelectItem value="animals">Animals</SelectItem>
-                  <SelectItem value="food">Food</SelectItem>
-                  <SelectItem value="faces">Faces</SelectItem>
-                  <SelectItem value="countryFlags">Country Flags</SelectItem> {/* Added new theme */}
+                  <SelectItem value="mixed">✨ Mixed Emojis</SelectItem>
+                  <SelectItem value="animals">🐾 Animals</SelectItem>
+                  <SelectItem value="food">🍔 Food</SelectItem>
+                  <SelectItem value="faces">😊 Faces</SelectItem>
+                  <SelectItem value="countryFlags">🎌 Country Flags</SelectItem>
                 </SelectContent>
               </Select>
             </div>
