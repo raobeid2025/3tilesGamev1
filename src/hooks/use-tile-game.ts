@@ -211,10 +211,16 @@ export const useTileGame = () => {
       const removedSpot = finalTileSpots.pop();
       // More robust check for removedSpot and its properties
       if (removedSpot && typeof removedSpot.row === 'number' && typeof removedSpot.col === 'number' && typeof removedSpot.layer === 'number') {
-        occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
+        // Add a defensive check to ensure occupiedSpots is a Set before calling delete
+        if (occupiedSpots instanceof Set) {
+          occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
+        } else {
+          // If occupiedSpots is not a Set, something is fundamentally wrong.
+          // Break the loop to prevent further errors.
+          break; 
+        }
       } else {
-        // If for some reason removedSpot is undefined or malformed despite length > 0,
-        // break the loop to prevent further errors. This should ideally not happen.
+        // If removedSpot is undefined or malformed, break the loop.
         break; 
       }
     }
