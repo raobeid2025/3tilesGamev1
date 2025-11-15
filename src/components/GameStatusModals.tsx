@@ -1,10 +1,17 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { GameStatus, LevelConfig } from "@/utils/game-config";
+import { GameStatus, LevelConfig, EmojiTheme } from "@/utils/game-config";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 interface GameStatusModalsProps {
   gameStatus: GameStatus;
@@ -14,8 +21,9 @@ interface GameStatusModalsProps {
   moves: number;
   slotTilesLength: number;
   onRestartLevel: () => void;
-  onNextLevel: () => void;
+  onNextLevel: (nextTheme?: EmojiTheme) => void; // Updated to accept optional theme
   totalLevels: number;
+  selectedTheme: EmojiTheme; // Current theme from useTileGame
 }
 
 const GameStatusModals: React.FC<GameStatusModalsProps> = ({
@@ -28,7 +36,20 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
   onRestartLevel,
   onNextLevel,
   totalLevels,
+  selectedTheme,
 }) => {
+  const [nextLevelTheme, setNextLevelTheme] = useState<EmojiTheme>(selectedTheme);
+
+  useEffect(() => {
+    if (showLevelComplete) {
+      setNextLevelTheme(selectedTheme); // Reset to current theme when modal opens
+    }
+  }, [showLevelComplete, selectedTheme]);
+
+  const handleNextLevelClick = () => {
+    onNextLevel(nextLevelTheme);
+  };
+
   return (
     <AnimatePresence>
       {gameStatus === "won" && showLevelComplete && (
@@ -55,6 +76,24 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
               Level {currentLevel} ({currentLevelConfig.pattern} pattern)
             </p>
             
+            <div className="mb-4">
+              <label htmlFor="next-theme-select" className="block text-sm font-medium text-gray-700 mb-2">
+                Theme for Next Level:
+              </label>
+              <Select value={nextLevelTheme} onValueChange={(value: string) => setNextLevelTheme(value as EmojiTheme)}>
+                <SelectTrigger id="next-theme-select" className="w-full">
+                  <SelectValue placeholder="Select Theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mixed">Mixed Emojis</SelectItem>
+                  <SelectItem value="animals">Animals</SelectItem>
+                  <SelectItem value="food">Food</SelectItem>
+                  <SelectItem value="objects">Objects</SelectItem> {/* Objects is available here */}
+                  <SelectItem value="faces">Faces</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button 
                 onClick={onRestartLevel}
@@ -64,7 +103,7 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
               </Button>
               
               <Button 
-                onClick={onNextLevel}
+                onClick={handleNextLevelClick}
                 disabled={currentLevel === totalLevels}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 flex-1"
               >

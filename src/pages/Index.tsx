@@ -147,6 +147,7 @@ export default function TileMasterMatch() {
           onRestartLevel={handleRestartLevel}
           onNextLevel={handleNextLevel}
           totalLevels={levelConfigs.length}
+          selectedTheme={selectedTheme} {/* Pass selectedTheme */}
         />
       </div>
     </div>

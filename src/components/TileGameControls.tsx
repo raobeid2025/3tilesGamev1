@@ -71,7 +71,7 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
             <SelectItem value="mixed">Mixed Emojis</SelectItem>
             <SelectItem value="animals">Animals</SelectItem>
             <SelectItem value="food">Food</SelectItem>
-            <SelectItem value="objects">Objects</SelectItem>
+            <SelectItem value="objects" disabled>Objects</SelectItem> {/* Disabled here */}
             <SelectItem value="faces">Faces</SelectItem>
           </SelectContent>
         </Select>

@@ -461,12 +461,18 @@ export const useTileGame = () => {
     }
   }, [tiles, slotTiles, gameStatus]);
 
-  const handleNextLevel = () => {
+  const handleNextLevel = (nextTheme?: EmojiTheme) => {
     const nextLevel = currentLevel + 1;
     if (nextLevel <= levelConfigs.length) {
-      initializeGame(nextLevel);
+      initializeGame(nextLevel, nextTheme || selectedTheme); // Use nextTheme if provided, else current selectedTheme
+      if (nextTheme) {
+        setSelectedTheme(nextTheme); // Update the main selectedTheme if a new one was chosen
+      }
     } else {
-      initializeGame(1);
+      initializeGame(1, nextTheme || selectedTheme);
+      if (nextTheme) {
+        setSelectedTheme(nextTheme);
+      }
     }
   };
 
