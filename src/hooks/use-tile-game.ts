@@ -187,7 +187,7 @@ export const useTileGame = () => {
       // If too many, remove randomly until target is met
       while (finalTileSpots.length > levelConfig.totalTiles && finalTileSpots.length > 0) {
         const removedSpot = finalTileSpots.pop(); // Remove from end (randomized earlier)
-        if (removedSpot) {
+        if (removedSpot) { 
           occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
         }
       }
@@ -207,9 +207,9 @@ export const useTileGame = () => {
     }
 
     // Ensure finalTileSpots count is a multiple of 3 for emoji distribution
-    while (finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) {
+    while (finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) { 
       const removedSpot = finalTileSpots.pop();
-      if (removedSpot) {
+      if (removedSpot) { // Added check for removedSpot
         occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
       }
     }
