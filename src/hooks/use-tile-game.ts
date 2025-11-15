@@ -210,7 +210,7 @@ export const useTileGame = () => {
     while (finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) { 
       const removedSpot = finalTileSpots.pop();
       // More robust check for removedSpot and its properties
-      if (removedSpot && removedSpot.row !== undefined && removedSpot.col !== undefined && removedSpot.layer !== undefined) {
+      if (removedSpot && typeof removedSpot.row === 'number' && typeof removedSpot.col === 'number' && typeof removedSpot.layer === 'number') {
         occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
       } else {
         // If for some reason removedSpot is undefined or malformed despite length > 0,
