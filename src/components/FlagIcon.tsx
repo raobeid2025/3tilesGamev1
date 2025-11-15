@@ -1,7 +1,6 @@
 "use client";
 
-import React from 'react';
-import { Flag } from 'react-flag-kit';
+import Flag from 'react-flag-kit'; // Changed to default import
 
 interface FlagIconProps {
   countryCode: string;
