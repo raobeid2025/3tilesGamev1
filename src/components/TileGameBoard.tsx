@@ -33,6 +33,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
   blockingTilesToMove,
   selectedTheme, // Destructure new prop
 }) => {
+  console.log("TileGameBoard rendered. BlockedStatusMap size:", blockedStatusMap.size);
   const sortedTiles = [...tiles].sort((a, b) => a.layer - b.layer);
 
   const [calculatedTileSize, setCalculatedTileSize] = useState(52);
@@ -117,6 +118,11 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
             let targetOpacity = blocked ? 0.4 : 1;
             if (isThisThePeekedTile || isDisplayingPeek || isBlockingTileToMove) {
               targetOpacity = 1; // Override to full opacity during peek animation
+            }
+            
+            // Log blocked status for a few tiles to debug
+            if (tile.id < 5) { // Log for first 5 tiles
+              console.log(`TileGameBoard: Tile ID ${tile.id}, Layer ${tile.layer}, Blocked: ${blocked}`);
             }
 
             return (

@@ -84,6 +84,7 @@ export const useTileGame = () => {
       newBlockedStatusMap.set(tile.id, isCurrentlyBlocked);
     });
     setBlockedStatusMap(newBlockedStatusMap);
+    console.log("Blocked status map calculated:", newBlockedStatusMap);
   }, [tiles]); // Recalculate when tiles array changes
 
   // Effect to save currentLevel to localStorage
@@ -251,6 +252,7 @@ export const useTileGame = () => {
     });
     
     setTiles(newTiles);
+    console.log("Tiles initialized:", newTiles.length, newTiles);
     setSelectedTiles([]);
     setMoves(0);
     setGameStatus("playing");
@@ -421,6 +423,7 @@ export const useTileGame = () => {
     if (!clickedTile) return;
 
     const isBlocked = blockedStatusMap.get(clickedTile.id) || false;
+    console.log(`Clicked tile ${tileId}. Is blocked: ${isBlocked}. Current game status: ${gameStatus}`);
 
     if (isPeekModeActive) {
       const tilesBelow = getTilesBelow(clickedTile, tiles);
@@ -465,7 +468,7 @@ export const useTileGame = () => {
       moveToSlot(tileId);
     }
     // If not in peek mode AND blocked, do nothing.
-  }, [isPeekModeActive, moveToSlot, tiles, getTilesBelow, setPeekUsesLeft, blockedStatusMap]);
+  }, [isPeekModeActive, moveToSlot, tiles, getTilesBelow, setPeekUsesLeft, blockedStatusMap, gameStatus]);
 
   const handleActivatePeekMode = useCallback(() => {
     if (currentLevelConfig.layers <= 1) {
