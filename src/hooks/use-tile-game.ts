@@ -12,6 +12,8 @@ import {
   generatePatternPositions 
 } from "@/utils/game-config";
 
+const LOCAL_STORAGE_LEVEL_KEY = "tileMasterMatchCurrentLevel";
+
 export const useTileGame = () => {
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [selectedTiles, setSelectedTiles] = useState<number[]>([]);
@@ -24,7 +26,13 @@ export const useTileGame = () => {
   const [tilesToRemove, setTilesToRemove] = useState<number[]>([]);
   const [vibratingTiles, setVibratingTiles] = useState<number[]>([]);
   const [slotAnimationKey, setSlotAnimationKey] = useState(0);
-  const [currentLevel, setCurrentLevel] = useState(1);
+  const [currentLevel, setCurrentLevel] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedLevel = localStorage.getItem(LOCAL_STORAGE_LEVEL_KEY);
+      return savedLevel ? parseInt(savedLevel, 10) : 1;
+    }
+    return 1;
+  });
   const [showLevelComplete, setShowLevelComplete] = useState(false);
   const [levelSelectOpen, setLevelSelectOpen] = useState(false);
   const [isProcessingSlot, setIsProcessingSlot] = useState(false);
@@ -74,6 +82,11 @@ export const useTileGame = () => {
     });
     setBlockedStatusMap(newBlockedStatusMap);
   }, [tiles]); // Recalculate when tiles array changes
+
+  // Effect to save currentLevel to localStorage
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_LEVEL_KEY, currentLevel.toString());
+  }, [currentLevel]);
 
   // Get the top tile at a specific position (not used for rendering, but for logic if needed)
   const getTopTileAtPosition = useCallback((row: number, col: number, allTiles: Tile[]) => {
@@ -231,7 +244,7 @@ export const useTileGame = () => {
     setTilesToRemove([]);
     setVibratingTiles([]);
     setSlotAnimationKey(prev => prev + 1);
-    setCurrentLevel(levelId);
+    setCurrentLevel(levelId); // Update currentLevel state
     setShowLevelComplete(false);
     setLevelSelectOpen(false);
     setIsProcessingSlot(false);
@@ -242,11 +255,11 @@ export const useTileGame = () => {
     setPeekUsesLeft(3); // Reset peek uses for new level
     setIsPeekModeActive(false); // Deactivate peek mode on new level
     setBlockingTilesToMove([]); // Reset blocking tiles
-  }, [currentLevel, selectedTheme]);
+  }, [selectedTheme]); // Removed currentLevel from dependencies as it's now set inside
 
   useEffect(() => {
-    initializeGame();
-  }, [initializeGame]);
+    initializeGame(currentLevel); // Initialize with the level loaded from localStorage
+  }, [initializeGame, currentLevel]); // Add currentLevel to dependencies to re-initialize if it changes externally (e.g., from localStorage)
 
   const handleThemeChange = (value: string) => {
     const theme = value as EmojiTheme;
