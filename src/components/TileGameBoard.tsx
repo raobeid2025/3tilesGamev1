@@ -137,7 +137,7 @@ const TileGameBoard: React.FC<TileGameBoardProps> = React.memo(({
                 initial={shouldAnimateEntry ? { y: -50, opacity: 0, scale: 0.8 } : false}
                 animate={{
                   y: isDisplayingPeek ? -15 : (isBlockingTileToMove ? -10 : 0),
-                  x: isBlockingTileToMove && tile.id % 2 === 0 ? -10 : (isBlockingTileToMove ? 10 : 0), // Corrected this line
+                  x: isBlockingTileToMove && tile.id % 2 === 0 ? -10 : (isBlockingTileToMove ? 10 : 0),
                   scale: selectedTiles.includes(tile.id) ? 0.95 : (isThisThePeekedTile ? 1.1 : (isBlockingTileToMove ? 0.9 : 1)),
                   opacity: targetOpacity,
                 }}
