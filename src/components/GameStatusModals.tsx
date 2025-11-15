@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { GameStatus, LevelConfig, EmojiTheme } from "@/utils/game-config";
+import { GameStatus, LevelConfig, EmojiTheme, emojiThemes } from "@/utils/game-config"; // Import emojiThemes
 import { 
   Select, 
   SelectContent, 
@@ -89,7 +89,9 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
                   <SelectItem value="animals">🐾 Animals</SelectItem>
                   <SelectItem value="food">🍔 Food</SelectItem>
                   <SelectItem value="faces">😊 Faces</SelectItem>
-                  <SelectItem value="countryFlags">🎌 Country Flags</SelectItem>
+                  <SelectItem value="countryFlags">
+                    {emojiThemes.countryFlags[0]} {emojiThemes.countryFlags[1]} {emojiThemes.countryFlags[2]} Country Flags
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
