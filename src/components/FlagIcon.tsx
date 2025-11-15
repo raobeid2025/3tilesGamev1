@@ -1,6 +1,6 @@
 "use client";
 
-import { Flag } from 'react-flag-kit'; // Changed to named import
+import * as FlagKit from 'react-flag-kit'; // Import all members
 
 interface FlagIconProps {
   countryCode: string;
@@ -14,7 +14,7 @@ const FlagIcon: React.FC<FlagIconProps> = ({ countryCode, size = 24, className }
   }
   return (
     <span className={`inline-flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
-      <Flag code={countryCode.toUpperCase()} size={size} />
+      <FlagKit.Flag code={countryCode.toUpperCase()} size={size} />
     </span>
   );
 };
