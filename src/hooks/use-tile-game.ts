@@ -21,7 +21,7 @@ export const useTileGame = () => {
   const [selectedTheme, setSelectedTheme] = useState<EmojiTheme>("mixed");
   const [slotTiles, setSlotTiles] = useState<Tile[]>([]);
   const [comboMessage, setComboMessage] = useState<{emoji: string, count: number} | null>(null);
-  const [tilesToRemove, setTilesToRemove] = useState<number[]>([]);
+  const [tilesToRemove, setTilesToRemove] = useState<number[]>(([]);
   const [vibratingTiles, setVibratingTiles] = useState<number[]>([]);
   const [slotAnimationKey, setSlotAnimationKey] = useState(0);
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -91,7 +91,7 @@ export const useTileGame = () => {
   }, []);
 
   // Get ALL un-matched tiles on layers below the clicked tile at the same position
-  const const getTilesBelow = useCallback((clickedTile: Tile, allTiles: Tile[]) => {
+  const getTilesBelow = useCallback((clickedTile: Tile, allTiles: Tile[]) => {
     return allTiles
       .filter(t =>
         t.position.row === clickedTile.position.row &&
