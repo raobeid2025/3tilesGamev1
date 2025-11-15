@@ -137,22 +137,17 @@ export const useTileGame = () => {
   }, [tiles, currentLevelConfig.layers, getTilesBelow]); // Removed blockedStatusMap from dependencies
 
   const initializeGame = useCallback((levelId: number = currentLevel, theme: EmojiTheme = selectedTheme) => {
-    console.log(`[initializeGame] Starting for levelId: ${levelId}, theme: ${theme}`);
     const levelConfig = levelConfigs.find(level => level.id === levelId) || levelConfigs[0];
-    console.log("[initializeGame] Level Config:", levelConfig);
     
     let totalTilesTarget = levelConfig.totalTiles;
     if (typeof totalTilesTarget !== 'number' || isNaN(totalTilesTarget)) {
-      console.error("levelConfig.totalTiles is not a valid number:", levelConfig.totalTiles);
       totalTilesTarget = 0; // Default to 0 to prevent further errors
     }
-    console.log("[initializeGame] levelConfig.totalTiles (adjusted):", totalTilesTarget);
 
     const baseThemeEmojis = emojiThemes[theme];
 
     const isFilledPattern = levelConfig.layers > 1;
     const patternPositions = generatePatternPositions(levelConfig.pattern, levelConfig.gridSize, isFilledPattern);
-    console.log("[initializeGame] Pattern Positions count:", patternPositions.length);
     
     let finalTileSpots: { row: number; col: number; layer: number }[] = [];
     const occupiedSpots = new Set<string>(); // To track unique (row, col, layer)
@@ -191,7 +186,6 @@ export const useTileGame = () => {
         addUniqueSpot(pos.row, pos.col, 0);
       });
     }
-    console.log("[initializeGame] Final Tile Spots after initial population:", finalTileSpots.length);
 
     // Adjust to match levelConfig.totalTiles
     // This part needs careful handling to ensure uniqueness
@@ -219,24 +213,16 @@ export const useTileGame = () => {
     }
 
     // Ensure finalTileSpots count is a multiple of 3 for emoji distribution
-    console.log("Before finalTileSpots adjustment loop. finalTileSpots:", finalTileSpots);
     while (finalTileSpots && finalTileSpots.length % 3 !== 0 && finalTileSpots.length > 0) { 
-      console.log("Inside finalTileSpots adjustment loop. Current length:", finalTileSpots.length);
-      console.log("finalTileSpots before pop:", finalTileSpots); // Log the array itself
       const removedSpot = finalTileSpots.pop();
       
-      if (removedSpot) {
-        console.log("Removed spot:", removedSpot); // Log the removed spot
+      if (removedSpot && typeof removedSpot.row === 'number' && typeof removedSpot.col === 'number' && typeof removedSpot.layer === 'number') {
         if (occupiedSpots && occupiedSpots instanceof Set) {
-          const keyToDelete = `${removedSpot.row},${removedSpot.col},${removedSpot.layer}`;
-          console.log("Attempting to delete from occupiedSpots:", occupiedSpots, "Key:", keyToDelete);
-          occupiedSpots.delete(keyToDelete); 
+          occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
         } else {
-          console.error("occupiedSpots is not a Set or is undefined/null:", occupiedSpots);
           break; 
         }
       } else {
-        console.error("removedSpot was undefined in the loop, breaking to prevent error. finalTileSpots length was:", finalTileSpots.length);
         break; 
       }
     }
@@ -284,12 +270,11 @@ export const useTileGame = () => {
     setIsPeekModeActive(false); // Deactivate peek mode on new level
     setBlockingTilesToMove([]); // Reset blocking tiles
     setIsLevelSelectedManually(false); // Default to false when initializing any game
-    console.log("[initializeGame] Game initialized successfully.");
-  }, [selectedTheme]); // Removed currentLevel from dependencies as it's now set inside
+  }, [selectedTheme]);
 
   useEffect(() => {
     initializeGame(currentLevel); // Initialize with the level loaded from localStorage
-  }, [initializeGame, currentLevel]); // Add currentLevel to dependencies to re-initialize if it changes externally (e.g., from localStorage)
+  }, [initializeGame, currentLevel]);
 
   const handleThemeChange = (value: string) => {
     const theme = value as EmojiTheme;
@@ -508,7 +493,7 @@ export const useTileGame = () => {
         setIsLevelSelectedManually(false);
       }
     }
-  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually]); // Add isLevelSelectedManually to dependencies
+  }, [tiles, slotTiles, gameStatus, isLevelSelectedManually]);
 
   const handleNextLevel = (nextTheme?: EmojiTheme) => {
     const nextLevel = currentLevel + 1;
@@ -518,10 +503,8 @@ export const useTileGame = () => {
         setSelectedTheme(nextTheme); // Update the main selectedTheme if a new one was chosen
       }
     } else {
-      initializeGame(1, nextTheme || selectedTheme); // This is the loop back to level 1
-      if (nextTheme) {
-        setSelectedTheme(nextTheme);
-      }
+      // Removed the logic to loop back to level 1
+      showSuccess("Congratulations! You've completed all levels!"); // Add a success toast
     }
     setIsLevelSelectedManually(false); // Reset when moving to next level
   };
