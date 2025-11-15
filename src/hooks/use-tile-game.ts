@@ -43,6 +43,7 @@ export const useTileGame = () => {
   const [blockingTilesToMove, setBlockingTilesToMove] = useState<number[]>([]); // New state for tiles to move during peek
   const [blockedStatusMap, setBlockedStatusMap] = useState<Map<number, boolean>>(new Map()); // Corrected: Initialize with useState
   const [isLevelSelectedManually, setIsLevelSelectedManually] = useState(false); // New state to track manual selection
+  const [hasGameStartedPlaying, setHasGameStartedPlaying] = useState(false); // New state to track if game has started
 
   const currentLevelConfig = levelConfigs.find(level => level.id === currentLevel) || levelConfigs[0];
 
@@ -268,6 +269,7 @@ export const useTileGame = () => {
     setIsPeekModeActive(false); // Deactivate peek mode on new level
     setBlockingTilesToMove([]); // Reset blocking tiles
     setIsLevelSelectedManually(false); // Default to false when initializing any game
+    setHasGameStartedPlaying(false); // Reset this flag when a new game initializes
   }, [selectedTheme]);
 
   useEffect(() => {
@@ -289,6 +291,7 @@ export const useTileGame = () => {
     if (blockedStatusMap.get(tile.id)) return; // Use pre-calculated status
     
     setIsProcessingSlot(true);
+    setHasGameStartedPlaying(true); // Set to true on the first actual move
     
     const updatedTiles = tiles.filter(tile => tile.id !== id);
     const movedTile = tiles.find(t => t.id === id);
@@ -483,10 +486,14 @@ export const useTileGame = () => {
   useEffect(() => {
     if (tiles.length === 0 && slotTiles.length === 0 && gameStatus === "playing") {
       setGameStatus("won");
-      // Always show level complete when won. Dismissal will be handled by user action on modal buttons.
-      setShowLevelComplete(true); 
+      // Only show level complete if the game has actually started playing
+      if (hasGameStartedPlaying) {
+        setShowLevelComplete(true); 
+      } else {
+        setShowLevelComplete(false);
+      }
     }
-  }, [tiles, slotTiles, gameStatus]); // Removed isLevelSelectedManually, currentLevel from dependencies
+  }, [tiles, slotTiles, gameStatus, hasGameStartedPlaying]);
 
   const handleNextLevel = (nextTheme?: EmojiTheme) => {
     setShowLevelComplete(false); // Explicitly close the modal before starting next level
@@ -531,6 +538,7 @@ export const useTileGame = () => {
 
     setShufflesLeft(prev => prev - 1);
     showSuccess(`Shuffling tiles! ${shufflesLeft - 1} shuffles left.`);
+    setHasGameStartedPlaying(true); // Shuffling also counts as starting to play
 
     // Combine tiles from the board and the slot
     const allActiveTiles = [
