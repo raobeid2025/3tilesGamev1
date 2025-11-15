@@ -88,7 +88,7 @@ const GameStatusModals: React.FC<GameStatusModalsProps> = ({
                   <SelectItem value="mixed">Mixed Emojis</SelectItem>
                   <SelectItem value="animals">Animals</SelectItem>
                   <SelectItem value="food">Food</SelectItem>
-                  <SelectItem value="objects">Objects</SelectItem> {/* Objects is available here */}
+                  {/* <SelectItem value="objects">Objects</SelectItem> Removed this item */}
                   <SelectItem value="faces">Faces</SelectItem>
                 </SelectContent>
               </Select>
