@@ -10,8 +10,7 @@ interface TileGameControlsProps {
   currentLevel: number;
   shufflesLeft: number;
   peekUsesLeft: number;
-  selectedTheme: EmojiTheme; // Still needed for display, but not for changing here
-  onThemeChange: (value: string) => void; // This prop will no longer be used by this component
+  selectedTheme: EmojiTheme; 
   onRestart: () => void;
   onShuffle: () => void;
   onActivatePeekMode: () => void;
@@ -29,7 +28,6 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
   shufflesLeft,
   peekUsesLeft,
   selectedTheme,
-  // onThemeChange, // No longer used here
   onRestart,
   onShuffle,
   onActivatePeekMode,
@@ -56,7 +54,6 @@ const TileGameControls: React.FC<TileGameControlsProps> = ({
       </div>
       
       <div className="flex gap-2">
-        {/* Removed the Select component for theme change */}
         
         <Button 
           onClick={onRestart}

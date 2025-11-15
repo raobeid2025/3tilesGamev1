@@ -101,7 +101,7 @@ export default function TileMasterMatch() {
           handleTileClickOnBoard={handleTileClickOnBoard}
           availableWidth={gameBoardWrapperWidth}
           blockingTilesToMove={blockingTilesToMove}
-          selectedTheme={selectedTheme} {/* Pass selectedTheme */}
+          selectedTheme={selectedTheme}
         />
 
         {/* Tile Slot below the Game Board */}
@@ -117,7 +117,7 @@ export default function TileMasterMatch() {
           isProcessingSlot={isProcessingSlot}
           selectedTiles={selectedTiles}
           availableWidth={gameBoardWrapperWidth}
-          selectedTheme={selectedTheme} {/* Pass selectedTheme */}
+          selectedTheme={selectedTheme}
         />
 
         {/* Level Navigation at the bottom */}
