@@ -213,6 +213,7 @@ export const useTileGame = () => {
       if (removedSpot && typeof removedSpot.row === 'number' && typeof removedSpot.col === 'number' && typeof removedSpot.layer === 'number') {
         // Add a defensive check to ensure occupiedSpots is a Set before calling delete
         if (occupiedSpots && occupiedSpots instanceof Set) {
+          console.log("Attempting to delete from occupiedSpots:", occupiedSpots, "Removed spot:", removedSpot); // Debugging line
           occupiedSpots.delete(`${removedSpot.row},${removedSpot.col},${removedSpot.layer}`);
         } else {
           // If occupiedSpots is not a Set, something is fundamentally wrong.
